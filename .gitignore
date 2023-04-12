@@ -17,6 +17,10 @@
 *.xls
 *.xlsx
 *.zip
+*.sav
+*.dta
+*.sas7bdat
+*.pkl
 
 # Blaise
 *.bdix
