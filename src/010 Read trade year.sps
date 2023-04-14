@@ -32,20 +32,3 @@ FREQUENCIES flow month country unit.
 
 SAVE OUTFILE='data/export_2018.sav'.
 
-COMPUTE pricekg = value / weight.
-FORMATS pricekg (f14.2).
-
-STRING hs2 (a2).
-COMPUTE hs2 = CHAR.SUBSTR(comno,1,2).
-
-FREQUENCIES hs2.
-
-TEMPORARY.
-SELECT IF (weight = 0).
-FREQUENCIES weight unit.
-
-COMPUTE exchange_rate = value /valusd .
-FORMATS exchange_rate (f14.2).
-EXECUTE.
-
-
