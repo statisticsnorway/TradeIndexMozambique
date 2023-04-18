@@ -79,14 +79,14 @@ MEANS value BY month /CELLS=sum min max mean.
 MEANS weight value BY month /CELLS=sum mean.
 
 
-SAVE OUTFILE='data/export_2018.sav'.
+SAVE OUTFILE='C:\Users\krl\TradeIndexMozambique\data\export_2021.sav'.
 
 COMPUTE pricekg = value / weight.
 FORMATS pricekg (f14.2).
 
 STRING hs2 (a2).
 COMPUTE hs2 = CHAR.SUBSTR(comno,1,2).
-
+EXECUTE.
 FREQUENCIES hs2.
 
 TEMPORARY.
@@ -359,4 +359,5 @@ VALUE LABELS country
 .
 
 FREQUENCIES country.
+
 

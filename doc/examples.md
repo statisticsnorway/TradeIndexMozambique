@@ -1,4 +1,4 @@
-# Examples
+# SPSS Examples
 Here are some examples for the Foreign Trade data that is to be used for the Price index for foreign trade.
 
 It is possible to use SPSS menus for most of the tasks in SPSS. However, the syntax files that actually run the programs shall be saved. This is useful both for documentation and for the ability to re-run syntaxes.
@@ -126,7 +126,7 @@ When we have imported data to SPSS, we can begin to look at the data. There are 
 - means         for numeric data by categories
 - crosstab      for two-way frequencies
 
-In addition to this, it is possible to make temporary selections of the data with the *temporary* and *select if* commands.
+In addition to this, it is possible to make temporary selections of the data with the `temporary` and `select if` commands.
 
 ### Frequencies
 We can start with a simple frequency table for two of the variables in our dataset:
@@ -140,7 +140,7 @@ The output will be like this:
 ![](images/knowyourdata-freq1.jpg)
 Before the actual frequency tables we get summary of missing values for each of the variables. In the frequency tables, we see that there is one row for each category and the number of cases are counted.
 
-Now we can create the same tables for a subset of the data. After we have created the table, we want all our data to be available again. Then we can use the *temporary* and *select if* commands. The syntax:
+Now we can create the same tables for a subset of the data. After we have created the table, we want all our data to be available again. Then we can use the `temporary` and `select if` commands. The syntax:
 
 ``` spss
 TEMPORARY.
@@ -174,7 +174,7 @@ DESCRIPTIVES weight quantity value /statistics = sum mean min max.
 ![](images/knowyourdata-descriptives2.jpg)
 
 ### Means
-When we want to have numeric statistics grouped, we can use the means command. The measure is mentioned before the *by* parameter and the variable to group by after:
+When we want to have numeric statistics grouped, we can use the means command. The measure is mentioned before the `by` parameter and the variable to group by after:
 
 ``` spss
 MEANS value BY month.
@@ -487,5 +487,57 @@ VALUE LABELS country
 'ZW' 'ZW Zimbabué'
 'ZZ' 'ZZ Outros Países'
 .
+```
+
+Now we can make a frequency table to see if there are any countries which have not added text:
+
+``` spss
+FREQUENCIES country.
+```
+
+## New variables
+There are two different kind of variables we can use in SPSS:
+
+- String (character)
+- Numeric (includes date and time variables)
+
+String variables has to be defined before we assign them values. This is done with the `string` command. Numeric variables can assign a value when it is created. For both string and numeric variables, we assign values with the `compute` command. Here, we create a numeric variable for price and a string variable for HS2. For SPSS to actually do these calculations, we can add the `execute` command:
+
+``` spss
+COMPUTE pricekg = value / weight.
+
+STRING hs2 (a2).
+COMPUTE hs2 = CHAR.SUBSTR(comno,1,2).
+
+EXECUTE.
+```
+
+We see in the syntax above that we use `char.substr`. This is a function that extracts parts of a string variable. The `char.substr` takes three parameters:
+- the name of the variable to extract from
+- the first position to extract
+- the number of characters to extract
+
+There are many useful functions in SPSS in addition to `char.substr`.
+
+## Format variables
+SPSS determines have to display variables. For numeric variables, the display format chosen by SPSS may not be as we like it to be. We can then change it by using the `formats` command. This command does not change any data, just the way it is displayed. Here we format the price per kg with 2 decimals:
+
+``` spss
+FORMATS pricekg (f14.2).
+```
+
+14 digit is the total number of characters to display, of which 2 is decimals and 1 is the decimal sign.
+
+## Save datasets
+To save a dataset, we use the `save` command:
+
+``` spss
+SAVE OUTFILE='C:\Users\krl\TradeIndexMozambique\data\export_2021.sav'.
+``` 
+
+We see above and the other places where datasets are mentioned that the whole path to the file is included. This is not ideal because there will be several places to change if we cahnge the location of the data files. Instead we should extract the main path from the string and put it in a `cd` command. The `cd` (change directory) is changing the working directory for the SPSS files. This command should be put in a separate syntax file, which we should always run as our first syntax every time we open SPSS.
+
+``` spss
+CD 'c:\users\krl\TradeIndexMozambique'.
 ```
 
