@@ -34,7 +34,7 @@ RESTORE.
 * Enhanced syntax: made sure we don't have more than one dataset open at a time, changed file types, omitted last variable, deleted preserve, set and restore.
 DATASET CLOSE all.
 GET DATA  /TYPE=TXT
-  /FILE="C:\Users\krl\TradeIndexMozambique\data\Export - 2018_XPMI.csv"
+  /FILE="C:\Users\krl\TradeIndexMozambique\data\Export - 2021_XPMI.csv"
   /ENCODING='UTF-8'
   /DELCASE=LINE
   /DELIMITERS=";"
@@ -45,9 +45,9 @@ GET DATA  /TYPE=TXT
   flow A1
   year A4
   month A2
+  comno A8
   ref A11
   ItemID A8
-  comno A8
   country A2
   unit AUTO
   weight AUTO
@@ -77,6 +77,8 @@ MEANS value BY month.
 MEANS value BY month /CELLS=sum min max mean.
 
 MEANS weight value BY month /CELLS=sum mean.
+
+SORT CASES BY flow year month comno country.
 
 
 SAVE OUTFILE='C:\Users\krl\TradeIndexMozambique\data\export_2021.sav'.
@@ -359,5 +361,27 @@ VALUE LABELS country
 .
 
 FREQUENCIES country.
+
+
+AGGREGATE 
+    /OUTFILE=* 
+    /BREAK flow year country
+    /no_of_rows = N()
+    /valusd = SUM(valusd)
+    .
+
+DATASET CLOSE ALL.
+GET FILE='C:\Users\krl\TradeIndexMozambique\data\export_2021.sav'.
+
+AGGREGATE 
+    /OUTFILE=* MODE=ADDVARIABLES
+    /BREAK flow year comno
+    /no_of_rows = N()
+    /valusd_comno_max = MAX(valusd)
+    /valusd_comno_min = MIN(valusd)
+    .
+
+SORT CASES BY flow year comno (A) valusd (D).
+
 
 

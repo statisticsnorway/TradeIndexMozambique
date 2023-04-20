@@ -11,15 +11,15 @@ When we work in SPSS, we always work on SPSS datasets. They shall have the file 
 
 The first window will look something like this:
 
-![](images/examples-import1.jpg)
+![](images/examples-import1.jpg "Open data window")
 
 We will not open an SPSS file, but a csv file. We change the file type to csv and then some files shall appear. We click once on the last file and it will be shown in the file name part of the window:
 
-![](images/examples-import2.jpg)
+![](images/examples-import2.jpg "Files in folder")
 
 Now we must click on the paste button the make sure the syntax will the copied. When we do that, the next window will pop up:
 
-![](images/examples-import3.jpg)
+![](images/examples-import3.jpg "Import wizard - step 1")
 
 We go the next step and fill in the right parameters for: 
 
@@ -27,29 +27,29 @@ We go the next step and fill in the right parameters for:
 - header line
 - decimal symbol
 
-![](images/examples-import4.jpg)
+![](images/examples-import4.jpg "Import wizard - step 2")
 
 Then we choose the parameters for:
 - first line of data
 - case representation
 - number of cases to import
   
-![](images/examples-import5.jpg)
+![](images/examples-import5.jpg "Import wizard - step 3")
 
 Now we will choose the
 - delimiters (only semicolon in our data)
 - text qualifier
 - how to treat leading and trailing blanks
 
-![](images/examples-import6.jpg)
+![](images/examples-import6.jpg "Import wizard - step 4")
 
 In the next step we can change the names and types of the variables to be imported. It is often easier to do this after we have pasted the syntax so we leave it as it is:
 
-![](images/examples-import7.jpg)
+![](images/examples-import7.jpg "Import wizard - step 5")
 
 In the last step we can choose to cache the data which we usually don't need. We must remember to paste the syntax:
 
-![](images/examples-import8.jpg)
+![](images/examples-import8.jpg "Import wizard - step 6")
 
 The pastede syntax will look like this:
 
@@ -103,9 +103,9 @@ GET DATA  /TYPE=TXT
   flow A1
   year A4
   month A2
+  comno A8
   ref A11
   ItemID A8
-  comno A8
   country A2
   unit AUTO
   weight AUTO
@@ -137,7 +137,7 @@ FREQUENCIES flow unit.
 
 The output will be like this:
 
-![](images/knowyourdata-freq1.jpg)
+![](images/examples-freq1.jpg "Frequency of flow and unit")
 Before the actual frequency tables we get summary of missing values for each of the variables. In the frequency tables, we see that there is one row for each category and the number of cases are counted.
 
 Now we can create the same tables for a subset of the data. After we have created the table, we want all our data to be available again. Then we can use the `temporary` and `select if` commands. The syntax:
@@ -150,7 +150,7 @@ FREQUENCIES flow unit.
 
 Now, the frequency tables will only include exports to Portugal:
 
-![](images/knowyourdata-freq2.jpg)
+![](images/examples-freq2.jpg "Frequency of flow and unit for one country")
 
 ### Descriptives
 For numeric variables, we can get an overview by using the *descriptives* procedure. We can do like this:
@@ -161,7 +161,7 @@ DESCRIPTIVES weight quantity value.
 
 The output will be like this:
 
-![](images/knowyourdata-descriptives1.jpg)
+![](images/examples-descriptives1.jpg "Basic descriptives")
 
 Unfortunately, there is no way to avoid scientific notation on large numbers.
 
@@ -171,7 +171,7 @@ We can specify which statistics to calculate:
 DESCRIPTIVES weight quantity value /statistics = sum mean min max.
 ```
 
-![](images/knowyourdata-descriptives2.jpg)
+![](images/examples-descriptives2.jpg "Descriptives with selected statistics")
 
 ### Means
 When we want to have numeric statistics grouped, we can use the means command. The measure is mentioned before the `by` parameter and the variable to group by after:
@@ -182,7 +182,7 @@ MEANS value BY month.
 
 We get an output table like this:
 
-![](images/knowyourdata-means1.jpg)
+![](images/examples-means1.jpg "Basic means")
 
 We can choose the statistics ourselves:
 
@@ -192,7 +192,7 @@ MEANS value BY month /CELLS=sum min max mean.
 
 The output:
 
-![](images/knowyourdata-means2.jpg)
+![](images/examples-means2.jpg "Means with selected statistics")
 
 When have more than one measure variable, the table layout changes;
 
@@ -202,7 +202,7 @@ MEANS weight value BY month /CELLS=sum min.
 
 First, we get a case processing summary which gives us a brief overview of included and excluded cases. Then our statistics are pivoted 90 degrees:
 
-![](images/knowyourdata-means3.jpg)
+![](images/examples-means3.jpg "Descriptives with selected statistics for more measure variables")
 
 
 ## Value labels
@@ -210,7 +210,7 @@ When we want to present our results, we don't want to present codes. Instead, we
 
 If the classification is in an Excel spreadsheet with separate columns for the code and text, we can use an Excel function to put them together in a way that is suitable for SPSS. That means the code should be in quotes (for string variables), the text should be in quotes, and we can add the code to be a part of the text. The spreadsheet looks like this:
 
-![](images/examples-valuelabels1.jpg)
+![](images/examples-valuelabels1.jpg "Country list in Excel")
 
 When we have a spreadsheet with columns like these we can use this function to create a column with the classification ready for SPSS:
 
@@ -222,7 +222,7 @@ When we have a spreadsheet with columns like these we can use this function to c
 
 When this is working for one cell, we can copy the formula to all cells in the new column. The new column is added:
 
-![](images/examples-valuelabels2.jpg)
+![](images/examples-valuelabels2.jpg "Country list in Excel with value labels column" )
 
 Now we can copy the column and paste it into SPSS. Then we add the *value labels* command before the list and a dot after:
 
@@ -528,6 +528,19 @@ FORMATS pricekg (f14.2).
 
 14 digit is the total number of characters to display, of which 2 is decimals and 1 is the decimal sign.
 
+## Sort datasets
+We can sort our datasets either by ascending og descending values. The command we use is `sort cases`. The default is to sort by ascending values. To sort descening instead, we include `(D)` after the variables name in the `sort cases` command. However, all variables will now be sorted descending unless we add an (A) to the variable before the variable with `(D)`. We will now sort the data by the background variables:
+
+``` spss
+SORT CASES BY flow year month comno country.
+```
+
+To sort the last variable descending and the other ones ascending we can do like this:
+
+``` spss
+SORT CASES BY flow year comno (A) valusd (D).
+```
+
 ## Save datasets
 To save a dataset, we use the `save` command:
 
@@ -540,4 +553,55 @@ We see above and the other places where datasets are mentioned that the whole pa
 ``` spss
 CD 'c:\users\krl\TradeIndexMozambique'.
 ```
+
+## Open an SPSS dataset
+When we have saved an SPSS dataset it can later be opened again. We use the `get` command for this. But first, we should be certain that we don't have more than one dataset open at the same time, as this can cause problems and confusion. This is done with the command `dataset close all`. An example:
+
+``` spss
+DATASET CLOSE ALL.
+GET FILE='C:\Users\krl\TradeIndexMozambique\data\export_2021.sav'.
+```
+
+## Aggregation
+There are two ways we do aggregation:
+- Create a new dataset on an aggregated level of the data
+- Add aggregated data to every row of the dataset
+
+We can do both with the `aggregate` command. First, we will see how we can agregate to a new file. We knpw now that our data has one row for each combination of *flow*, *year*, *month*, *comno* and *country*. When we aggregate we first choose the aggregation level. For instance, we can aggregate to the level of *flow*, *year* and *country*. These will be our break variables. Now that we have decide the aggregation level, we need to decide what variables we want to aggregate and what kind of aggregation to do. The aggreagtion variables will usually be one or more of our measure variables. We can choose between different statistics for how to aggregate, like sum, mean, max, min etc. Here is an example where we calculate the sum of the *valusd* variable by *flow*, *year* and *country*:
+
+``` spss
+AGGREGATE 
+    /OUTFILE=* 
+    /BREAK flow year country
+    /no_of_rows = N()
+    /valusd = SUM(valusd)
+    .
+```
+The aggregated dataset:
+
+![](images/examples-aggregate1.jpg "Aggregated dataset")
+
+Now we will look at the second way to aggregate, where we add aggregated variables to the exixting dataset. First, we have to reopen the original dataset. Then we can add the new variables with the `aggregate` command. The clue here is to use the `mode = addvariables` parameter. The aggregated variables will get the same value for each row in the group of the break level, here *flow*, *year* and *comno*:
+
+``` spss
+DATASET CLOSE ALL.
+GET FILE='C:\Users\krl\TradeIndexMozambique\data\export_2021.sav'.
+
+AGGREGATE 
+    /OUTFILE=* MODE=ADDVARIABLES
+    /BREAK flow year comno
+    /no_of_rows = N()
+    /valusd_comno_max = MAX(valusd)
+    /valusd_comno_min = MIN(valusd)
+    .
+
+SORT CASES BY flow year comno (A) valusd (D).
+```
+
+Now we have added some aggregated variables. They all have the same values within the aggregation level used:
+
+![](images/examples-aggregate2.jpg "Aggregated variables added")
+
+
+
 
