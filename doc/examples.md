@@ -59,7 +59,6 @@ PRESERVE.
 
 GET DATA  /TYPE=TXT
   /FILE="C:\Users\krl\TradeIndexMozambique\data\Export - 2021_XPMI.csv"
-  /ENCODING='UTF8'
   /DELCASE=LINE
   /DELIMITERS=";"
   /ARRANGEMENT=DELIMITED
@@ -93,7 +92,6 @@ PRESERVE.
 
 GET DATA  /TYPE=TXT
   /FILE="C:\Users\krl\TradeIndexMozambique\data\Export - 2021_XPMI.csv"
-  /ENCODING='UTF8'
   /DELCASE=LINE
   /DELIMITERS=";"
   /ARRANGEMENT=DELIMITED
@@ -138,6 +136,7 @@ FREQUENCIES flow unit.
 The output will be like this:
 
 ![](images/examples-freq1.jpg "Frequency of flow and unit")
+
 Before the actual frequency tables we get summary of missing values for each of the variables. In the frequency tables, we see that there is one row for each category and the number of cases are counted.
 
 Now we can create the same tables for a subset of the data. After we have created the table, we want all our data to be available again. Then we can use the `temporary` and `select if` commands. The syntax:
