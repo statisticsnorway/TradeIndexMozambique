@@ -207,7 +207,7 @@ VALUE LABELS country
 'HU' 'HU Hungria'
 'ID' 'ID Indonésia'
 'IE' 'IE Irlanda'
-'Il' 'Il Israel'
+'IL' 'IL Israel'
 'IM' 'IM Ilha do Homen'
 'IN' 'IN Índia'
 'IO' 'IO Território Britânico no Oceano'
@@ -360,6 +360,9 @@ VALUE LABELS country
 'ZZ' 'ZZ Outros Países'
 .
 
+FREQUENCIES country.
+
+IF (country = 'UK') country = 'GB'.
 FREQUENCIES country.
 
 
