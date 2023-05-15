@@ -429,7 +429,7 @@ FREQUENCIES first_id.
 DELETE VARIABLES first_id.
 EXECUTE.
 
-SAVE OUTFILE='export_agg_2021.sav'.
+SAVE OUTFILE='data/export_agg_2021.sav'.
 
 
 
@@ -460,4 +460,16 @@ DELETE VARIABLES first_id.
 
 SAVE OUTFILE='data\commodity_sitc.sav'.
 
+DATASET CLOSE ALL.
+GET FILE='data\export_agg_2021.sav'.
+SORT CASES BY comno.
+
+MATCH FILES FILE=*
+           /TABLE='data\commodity_sitc.sav'
+           /IN=found_sitc
+           /BY comno
+           .
+
+FREQUENCIES found_sitc sitcr4_1.
+DELETE VARIABLES found_sitc.
 
