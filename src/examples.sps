@@ -83,6 +83,8 @@ SORT CASES BY flow year month comno country.
 
 SAVE OUTFILE='C:\Users\krl\TradeIndexMozambique\data\export_2021.sav'.
 
+CD 'c:\users\krl\TradeIndexMozambique'.
+
 COMPUTE pricekg = value / weight.
 FORMATS pricekg (f14.2).
 
@@ -374,7 +376,7 @@ AGGREGATE
     .
 
 DATASET CLOSE ALL.
-GET FILE='C:\Users\krl\TradeIndexMozambique\data\export_2021.sav'.
+GET FILE='data\export_2021.sav'.
 
 AGGREGATE 
     /OUTFILE=* MODE=ADDVARIABLES
@@ -386,5 +388,76 @@ AGGREGATE
 
 SORT CASES BY flow year comno (A) valusd (D).
 
+DATASET CLOSE ALL.
+GET FILE='data\export_2021.sav'.
+SORT CASES BY flow year month comno ref ItemID country.
+
+MATCH FILES FILE=*
+           /BY flow year month comno ref ItemID country
+           /FIRST = first_id
+           .
+
+FREQUENCIES first_id.
+
+DELETE VARIABLES first_id.
+
+SORT CASES BY flow year month comno country.
+
+MATCH FILES FILE=*
+           /BY flow year month comno country
+           /FIRST = first_id
+           .
+
+FREQUENCIES first_id.
+
+AGGREGATE 
+    /OUTFILE=* 
+    /BREAK flow year month comno country
+    /weight = SUM(weight)
+    /quantity = sum(quantity)
+    /value = SUM(value)
+    /valusd = SUM(valusd)
+    .
+
+MATCH FILES FILE=*
+           /BY flow year month comno country
+           /FIRST = first_id
+           .
+
+FREQUENCIES first_id.
+
+DELETE VARIABLES first_id.
+EXECUTE.
+
+SAVE OUTFILE='export_agg_2021.sav'.
+
+
+
+
+
+DATASET CLOSE ALL.
+GET DATA
+  /TYPE=XLSX
+  /FILE='data\Commodities_Catalogue_XPMI.xlsx'
+  /SHEET=name 'Pauta Grupos_2023_'
+  /CELLRANGE=FULL
+  /READNAMES=ON
+.
+EXECUTE.
+
+DELETE VARIABLES DescriçãoSH8 TO Descriptionsitcr4_3 Descriptionsitcr4_2 Descriptionsitcr4_1 TO becno.
+EXECUTE.
+
+SORT CASES BY comno.
+MATCH FILES FILE=*
+           /BY comno
+           /FIRST = first_id
+           .
+
+FREQUENCIES first_id.
+
+DELETE VARIABLES first_id.
+
+SAVE OUTFILE='data\commodity_sitc.sav'.
 
 

@@ -116,6 +116,7 @@ GET DATA  /TYPE=TXT
 RESTORE.
 ```
 
+
 ## Know your data
 When we have imported data to SPSS, we can begin to look at the data. There are some basic procedures we can use to get an overview of the data.
 
@@ -558,7 +559,7 @@ When we have saved an SPSS dataset it can later be opened again. We use the `get
 
 ``` spss
 DATASET CLOSE ALL.
-GET FILE='C:\Users\krl\TradeIndexMozambique\data\export_2021.sav'.
+GET FILE='data\export_2021.sav'.
 ```
 
 ## Aggregation
@@ -584,7 +585,7 @@ Now we will look at the second way to aggregate, where we add aggregated variabl
 
 ``` spss
 DATASET CLOSE ALL.
-GET FILE='C:\Users\krl\TradeIndexMozambique\data\export_2021.sav'.
+GET FILE='data\export_2021.sav'.
 
 AGGREGATE 
     /OUTFILE=* MODE=ADDVARIABLES
@@ -600,6 +601,122 @@ SORT CASES BY flow year comno (A) valusd (D).
 Now we have added some aggregated variables. They all have the same values within the aggregation level used:
 
 ![](images/examples-aggregate2.jpg "Aggregated variables added")
+
+## Duplicates
+We can use the ```match files``` command to check for duplicates. The way to do that is to mark each row in the dataset as first or not first within the group of variables we will check for duplicates within. Usually we check for duplicates on the variables that is to identify a row. In our dataset it is the variables *flow*, *year*, *month*, *comno*, *ref*, *ItemID* and *country*. After we have added the mark for first or not within the group, we can make a frequency table to get an owerview of the amount of duplicates. Here is an example on a duplicate check with a frequency check table:
+
+``` spss
+DATASET CLOSE ALL.
+GET FILE='C:\Users\krl\TradeIndexMozambique\data\export_2021.sav'.
+SORT CASES BY flow year month comno ref ItemID country.
+
+MATCH FILES FILE=*
+           /BY flow year month comno ref ItemID country
+           /FIRST = first_id
+           .
+
+FREQUENCIES first_id.
+```
+
+If there are any rows with *first_id* = 1, we can check them a little bit more. 
+
+We will now check for duplicates on the level of *flow*, *year*, *month*, *comno* and *country*:
+
+``` spss
+DELETE VARIABLES first_id.
+
+SORT CASES BY flow year month comno country.
+
+MATCH FILES FILE=*
+           /BY flow year month comno country
+           /FIRST = first_id
+           .
+
+FREQUENCIES first_id.
+```
+
+Before we create an index we want to aggregate the data to the level where there is one row for each combination of *flow*, *year*, *month*, *comno* and *country*:
+
+``` spss
+AGGREGATE 
+    /OUTFILE=* 
+    /BREAK flow year month comno country
+    /weight = SUM(weight)
+    /quantity = sum(quantity)
+    /value = SUM(value)
+    /valusd = SUM(valusd)
+    .
+```
+
+When we now do a duplicate check there are no duplicates:
+
+``` spss
+MATCH FILES FILE=*
+           /BY flow year month comno country
+           /FIRST = first_id
+           .
+
+FREQUENCIES first_id.
+```
+## Read Excel files
+We read an Excel file more or less the same way as a delimited text-file, with the *get data* command. This time we use type parameter xlsx. When we use the file, open wizard we paste a syntax like this:
+
+``` spss
+DATASET CLOSE ALL.
+GET DATA
+  /TYPE=XLSX
+  /FILE='data\Commodities_Catalogue_XPMI.xlsx'
+  /SHEET=name 'Pauta Grupos_2023_'
+  /CELLRANGE=FULL
+  /READNAMES=ON
+.
+EXECUTE.
+```
+
+We can delete variables we don't need and also check for duplicates:
+
+``` spss
+DELETE VARIABLES DescriçãoSH8 TO Descriptionsitcr4_3 Descriptionsitcr4_2 Descriptionsitcr4_1 TO becno.
+EXECUTE.
+
+SORT CASES BY comno.
+MATCH FILES FILE=*
+           /BY comno
+           /FIRST = first_id
+           .
+
+FREQUENCIES first_id.
+
+DELETE VARIABLES first_id.
+```
+Finally, we can save our dataset:
+
+``` spss
+SAVE OUTFILE='data\commodity_sitc.sav'.
+```
+
+## Matching files
+We use the *match files* command to macth files. It has two different ways to match files. Either we can choose that both files should provide with cases, or we can choose to use one of the files as a keyed table. A keyed table may not have any duplicates. Cases in the keyed table with key variables whose values do not appear in the other file are not written to the output file. If there are more than one case with the same key value and that value is in the keyed table as well, all cases will get the information from the keyed table. We define a data set as a keyed table by using the *table* subcommand. Ordinary files are named with the *file* subcommand. If there are duplicates (i.e. more than one case with the same values for the key variables) SPSS will match 1 to 1 as long as it is possible and then match 1 to 0 or 0 to 1. The files we match have to be sorted on the key variables by which they will be matched by before we use the *match files* command. 
+
+We now want to match the data file with the data file with the list of commodities and add the sitc codes to the data file. The list of commodities will be a keyd table which we define with the *table* sub-command. 
+
+To check whether the *comno* value is found in the catalog, we include the *in* sub-command. It will create a new variable, which value will be one when the catalog contribute to the match (it matches) and zero when it does not contribute (it does not match).
+
+``` spss
+DATASET CLOSE ALL.
+GET FILE='data\export_agg_2021.sav'.
+SORT CASES BY comno.
+
+MATCH FILES FILE=*
+           /TABLE='data\commodity_sitc.sav'
+           /IN=found_sitc
+           /BY comno
+           .
+
+FREQUENCIES found_sitc sitcr4_1.
+DELETE VARIABLES found_sitc.
+```
+
 
 
 
