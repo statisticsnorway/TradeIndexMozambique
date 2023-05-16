@@ -715,9 +715,175 @@ MATCH FILES FILE=*
 
 FREQUENCIES found_sitc sitcr4_1.
 DELETE VARIABLES found_sitc.
+SAVE OUTFILE='data\export_sitc_2021.sav'.
 ```
 
+## Tabulation
+We often want to present our data as tables. In SPSS, we can use the *ctables* command to create many different types of tables. We will look at a few of them now. The syntax for *ctables* is more complex than other commands, thus it is helpful to start with using the SPSS menus to create our first tables. However, we always paste the syntax. It is found under Analyze, Tables, Custom Tables.
 
+The Custom Tables window looks like this:
 
+![](images/examples-ctables1.jpg "The Custom Tables window")
+
+We will drag and drop variables into the rows and columns. The variables may be used as
+
+- Nominal: Each value of the variable will be a line or column 
+- Ordinal: Each value of the variable will be an ordered line or column 
+- Scale: A numeric variable used for measures
+
+If a variable is nor defined as the type it shall have in the table, we can right-click on the variable and change the type.
+
+For our first table, we want to have sitc 1 in the rows and months in the columns. We drag the variable *sitc4_1* from the list of variables and drop it within the Rows dimension and *month* in the Columns:
+
+![](images/examples-ctables2.jpg "One nominal variable in each dimension")
+
+We can now paste the syntax. It will look like this:
+
+```spss
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 month DISPLAY=LABEL
+  /TABLE sitcr4_1 BY month [COUNT F40.0]
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE.
+```
+
+These sub-commands are used:
+- vlabels: Define how labels are to be presented
+- table: The elements in the table and their placement
+- categories: Parameters for the categorical (nominal, ordinal) variables
+
+The table look like this when we run the syntax:
+
+![](images/examples-ctables3.jpg "Table with one variable in each dimension")
+
+We see that the number of cases is counted in the cells in the table. We can change that to a measure instead. We open the Custom tables window again. It will remember the previous table. Now we choose the *valusd* variable and drop it underneath the months: 
+
+![](images/examples-ctables4.jpg "Scale variable added")
+
+We can paste the syntax:
+
+```spss
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 month valusd DISPLAY=LABEL
+  /TABLE sitcr4_1 BY month > valusd [MEAN]
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE
+.
+```
+
+We run the program and get our table:
+
+![](images/examples-ctables5.jpg "Table with mean values")
+
+We see that the figures have 2 decimals, which we don't need. We open the window again. Then we click on *summary statistics* in bottom left corner which will open a new window. In this window, we change the format from *Auto* to *n,nnn*. Finally, we change to number of decimals to 0:
+
+![](images/examples-ctables6.jpg "Summary statistics window")
+
+We apply our changes to the selection and close the window. Then we can paste the syntax again:
+
+```spss
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 month valusd DISPLAY=LABEL
+  /TABLE sitcr4_1 BY month > valusd [MEAN F40.0]
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE
+.
+```
+
+Let us add som totals in the rows and columns. We can choose to put the totals before or after the categorical variables. In the Custom tables window, we can click on the categorical variable in the rows and then we will be able to click on the *Categories and totals* button. We choose that the totals should be before (above) the category:
+
+![](images/examples-ctables7.jpg "Categories and Totals")
+
+We apply the options and do the same for the *month* variable in the columns. Then we paste the syntax:
+
+```spss
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 month valusd DISPLAY=LABEL
+  /TABLE sitcr4_1 BY month > valusd [MEAN F40.0]
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+.
+```
+
+The change in the syntax is that the parameters *Total* and *Position* in the *categories* sub-command are added.   
+
+The table is now with total row and total column:
+
+![](images/examples-ctables8.jpg "Totals row and column")
+
+Now, we can add a title to the table. To do that we swap to the *titles* tab in the Custom tables window:
+
+![](images/examples-ctables9.jpg "Table titles")
+
+In the pasted syntax, a *titles* sub-command is added
+
+```spss
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 month valusd DISPLAY=LABEL
+  /TABLE sitcr4_1 BY month > valusd [MEAN F40.0]
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+   /TITLES
+    TITLE='Average export value in USD by sitc and month.'.
+```
+
+As we now have information in the title, we ca remove some of it in the table. First, we can hide the *mean* header in every column. We click on the *Hide* button. Then we want to remove the valusd header as well. We right-click on the *valusd* column and uncheck the display of variable label, and do the same for the *month* column:
+
+![](images/examples-ctables10.jpg "Hide column headers")
+
+In the syntax, there are some additions. One more *vlabels* sub-command and a *slabels* sub-command is added: 
+
+```spss
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 DISPLAY=LABEL  
+  /VLABELS VARIABLES=month valusd DISPLAY=NONE
+  /TABLE sitcr4_1 BY month > valusd [MEAN F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Average export value in USD by sitc and month.'.
+```
+
+The table looks quite nice now:
+
+![](images/examples-ctables11.jpg "Titles included")
+
+When we have two or more categories in the same dimension in the table, either rows or columns, we can either have them nested or stacked. We will first look at a nested table. Me move the *month* variable from the columns to the rows and put it to the right of the *sitc4_1* variable. It can be dropped when a red square appears at the right side of the variable.
+
+![](images/examples-ctables12.jpg "Categories nested")
+
+The syntax is here:
+
+```spss
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 DISPLAY=LABEL  
+  /VLABELS VARIABLES=month valusd DISPLAY=NONE
+  /TABLE sitcr4_1 > month BY valusd [MEAN F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Average export value in USD by sitc and month.'.
+```
+
+The first part of the table:
+
+![](images/examples-ctables13.jpg "Nested table")
+
+Now we can stack the variables instead. We move the *month* underneath the *sitc4_1* variable:
+
+![](images/examples-ctables14.jpg "Categories stacked")
+
+The pasted syntax:
+
+```spss
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 DISPLAY=LABEL  
+  /VLABELS VARIABLES=month valusd DISPLAY=NONE
+  /TABLE sitcr4_1 + month BY valusd [MEAN F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Average export value in USD by sitc and month.'.
+```
+The table is now stacked:
+
+![](images/examples-ctables15.jpg "Stacked table")
+
+The difference in the syntax between nested and stacked table is that the > sign is used for nested tables and the sign + for stacked.
 
 

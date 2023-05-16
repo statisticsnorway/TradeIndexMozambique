@@ -432,9 +432,6 @@ EXECUTE.
 SAVE OUTFILE='data/export_agg_2021.sav'.
 
 
-
-
-
 DATASET CLOSE ALL.
 GET DATA
   /TYPE=XLSX
@@ -473,3 +470,73 @@ MATCH FILES FILE=*
 FREQUENCIES found_sitc sitcr4_1.
 DELETE VARIABLES found_sitc.
 
+SAVE OUTFILE='data\export_sitc_2021.sav'.
+
+
+
+
+DATASET ACTIVATE $DataSet.
+* Custom Tables.
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 month DISPLAY=LABEL
+  /TABLE sitcr4_1 BY month [COUNT F40.0]
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE
+  .
+
+
+* Custom Tables.
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 month valusd DISPLAY=LABEL
+  /TABLE sitcr4_1 BY month > valusd [MEAN]
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE
+.
+
+
+* Custom Tables.
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 month valusd DISPLAY=LABEL
+  /TABLE sitcr4_1 BY month > valusd [MEAN F40.0]
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE
+.
+
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 month valusd DISPLAY=LABEL
+  /TABLE sitcr4_1 BY month > valusd [MEAN F40.0]
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+.
+
+
+* Custom Tables.
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 month valusd DISPLAY=LABEL
+  /TABLE sitcr4_1 BY month > valusd [MEAN F40.0]
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+   /TITLES
+    TITLE='Average export value in USD by sitc and month.'.
+
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 DISPLAY=LABEL  
+  /VLABELS VARIABLES=month valusd DISPLAY=NONE
+  /TABLE sitcr4_1 BY month > valusd [MEAN F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Average export value in USD by sitc and month.'.
+
+* Custom Tables.
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 DISPLAY=LABEL  /VLABELS VARIABLES=month valusd DISPLAY=NONE
+  /TABLE sitcr4_1 > month BY valusd [MEAN F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Average export value in USD by sitc and month.'.
+
+
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 DISPLAY=LABEL  /VLABELS VARIABLES=month valusd DISPLAY=NONE
+  /TABLE sitcr4_1 + month BY valusd [MEAN F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Average export value in USD by sitc and month.'.
