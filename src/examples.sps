@@ -68,7 +68,7 @@ FREQUENCIES flow unit.
 
 FREQUENCIES flow month country unit.
 
-DESCRIPTIVES weight quantity value.
+DESCRIPTIVES weight quantity value valusd.
 
 DESCRIPTIVES weight quantity value /statistics = sum mean min max.
 
@@ -473,6 +473,8 @@ DELETE VARIABLES found_sitc.
 SAVE OUTFILE='data\export_sitc_2021.sav'.
 
 
+DATASET CLOSE ALL.
+GET FILE='data\export_sitc_2021.sav'.
 
 
 DATASET ACTIVATE $DataSet.
@@ -498,6 +500,7 @@ CTABLES
   /TABLE sitcr4_1 BY month > valusd [MEAN F40.0]
   /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE
 .
+
 
 CTABLES
   /VLABELS VARIABLES=sitcr4_1 month valusd DISPLAY=LABEL
@@ -540,3 +543,114 @@ CTABLES
   /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
   /TITLES
     TITLE='Average export value in USD by sitc and month.'.
+
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 DISPLAY=LABEL  /VLABELS VARIABLES=month value DISPLAY=NONE
+  /TABLE sitcr4_1 + month BY value [SUM F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Export value by sitc and month.'.
+
+CTABLES
+  /FORMAT EMPTY=ZERO MISSING='.' MINCOLWIDTH=36 MAXCOLWIDTH=132 UNITS=POINTS
+  /VLABELS VARIABLES=sitcr4_1 DISPLAY=LABEL  /VLABELS VARIABLES=month value DISPLAY=NONE
+  /TABLE sitcr4_1 + month BY value [SUM F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Export value by sitc and month.'.
+
+
+
+
+DEFINE tabul (rowvar=!tokens(1))
+
+CTABLES
+  /FORMAT EMPTY=ZERO MISSING='.' MINCOLWIDTH=36 MAXCOLWIDTH=132 UNITS=POINTS
+  /VLABELS VARIABLES=!rowvar DISPLAY=LABEL  
+  /VLABELS VARIABLES=month valusd DISPLAY=NONE
+  /TABLE !rowvar BY month > valusd [MEAN F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=!rowvar month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Average export value in USD by sitc and month.'.
+
+!ENDDEFINE.
+
+tabul rowvar=sitcr4_1.
+tabul rowvar=sitcr4_2.
+
+DEFINE tabul (rowvar=!tokens(1)
+             /colvar=!tokens(1)
+             /measurevar=!tokens(1)
+             )
+
+CTABLES
+  /FORMAT EMPTY=ZERO MISSING='.' MINCOLWIDTH=36 MAXCOLWIDTH=132 UNITS=POINTS
+  /VLABELS VARIABLES=!rowvar DISPLAY=LABEL  
+  /VLABELS VARIABLES=!colvar !measurevar DISPLAY=NONE
+  /TABLE !rowvar BY !colvar > !measurevar [MEAN F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=!rowvar !colvar ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Average export value in USD by sitc and month.'.
+
+!ENDDEFINE.
+
+tabul rowvar=sitcr4_1 colvar=month measurevar=valusd.
+tabul rowvar=month colvar=sitcr4_1 measurevar=valusd.
+tabul rowvar=sitcr4_2 colvar=flow measurevar=value.
+
+DEFINE tabul (rowvar=!tokens(1)
+             /colvar=!tokens(1)
+             /measurevar=!tokens(1)
+             /stat=!tokens(1) 
+             )
+
+CTABLES
+  /FORMAT EMPTY=ZERO MISSING='.' MINCOLWIDTH=36 MAXCOLWIDTH=132 UNITS=POINTS
+  /VLABELS VARIABLES=!rowvar DISPLAY=LABEL  
+  /VLABELS VARIABLES=!colvar !measurevar DISPLAY=NONE
+  /TABLE !rowvar BY !colvar > !measurevar [!stat F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=!rowvar !colvar ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Average export value in USD by sitc and month.'.
+
+!ENDDEFINE.
+
+tabul rowvar=sitcr4_1 colvar=month measurevar=valusd stat=sum.
+tabul rowvar=country colvar=month measurevar=valusd stat=mean.
+
+
+DEFINE tabul (rowvar=!tokens(1)
+             /colvar=!tokens(1)
+             /measurevar=!tokens(1)
+             /stat=!tokens(1)
+             /title=!tokens(1) 
+             )
+
+CTABLES
+  /FORMAT EMPTY=ZERO MISSING='.' MINCOLWIDTH=36 MAXCOLWIDTH=132 UNITS=POINTS
+  /VLABELS VARIABLES=!rowvar DISPLAY=LABEL  
+  /VLABELS VARIABLES=!colvar !measurevar DISPLAY=NONE
+  /TABLE !rowvar BY !colvar > !measurevar [!stat F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=!rowvar !colvar ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE=!title.
+
+!ENDDEFINE.
+
+tabul rowvar=sitcr4_1 
+      colvar=month 
+      measurevar=value
+      stat=sum 
+      title='Export value by sitc and month.'
+.
+
+
+
+
+

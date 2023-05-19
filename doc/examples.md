@@ -886,4 +886,236 @@ The table is now stacked:
 
 The difference in the syntax between nested and stacked table is that the > sign is used for nested tables and the sign + for stacked.
 
+When the figures in the cells are very high, they may be presented in a less radable way. When we for instance change from dollars to meticais for the measured values and also change from mean to sum, the figures will be much higher. Here is the syntax:
+
+```spss
+CTABLES
+  /VLABELS VARIABLES=sitcr4_1 DISPLAY=LABEL  /VLABELS VARIABLES=month value DISPLAY=NONE
+  /TABLE sitcr4_1 + month BY value [SUM F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Export value by sitc and month.'.
+```
+And here is the output:
+
+![](images/examples-ctables16.jpg "Figures with scientific notation due to lack of space")
+
+These figures are not easy to read. To get rid of the scientific notation, we choose the options in the ctables windows and change the maximum width:
+
+![](images/examples-ctables17.jpg "Ctables otions window")
+
+When we paste the syntax, a *format* sub-command will be added to our syntax:
+
+```spss
+CTABLES
+  /FORMAT EMPTY=ZERO MISSING='.' MINCOLWIDTH=36 MAXCOLWIDTH=132 UNITS=POINTS
+  /VLABELS VARIABLES=sitcr4_1 DISPLAY=LABEL  /VLABELS VARIABLES=month value DISPLAY=NONE
+  /TABLE sitcr4_1 + month BY value [SUM F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=sitcr4_1 month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Export value by sitc and month.'.
+```
+
+The figures are now formatted in a better way for presentation:
+![](images/examples-ctables18.jpg "Better cell display format")
+
+
+## Macros
+We use macros when we want to execute almost the same syntax code several times. Instead of copying the code lots of times, we write it in a macro. The places in the code that will be changed each time we run the code, will be replaced with macro variables. These macro variables will be used as parameters to the macro.
+
+A macro is defined with a DEFINE command and ends with an !ENDDEFINE command. The macro consists of a set of SPSS commands. To be able to change the code slightly each time we execute it, we use macro variables as parameters. These macro variables are set to different values each time we call the macro. We need to call the macro with its name for execution. We can call the macro as many times as we like. When we call the macro we also set the values for the macro variables used in the macro. The macro variables values are used as parameters in the macro. Each place the macro variable is mentioned in the macro, the parameter will replace the macro name. 
+
+We will now make a macro for a simple *ctables* command. We start simple with just one parameter that can be changed, the variable in the rows. We call the parameter rowvar. This parameter is to be defined in the *define* command. The parameter has a keyword telling how the parameter is to be used. Most often we use the keyword *tokens(1)*, which means the parameter has one value. 
+
+Every place in our code where we want to replace the value of the parameter, we type in the parameter with the prefix !. We see that in the syntax  below, where we have replaced the variable name *sitcr4_1* with *!rowvar* three places:
+
+```spss
+DEFINE tabul (rowvar=!tokens(1))
+
+CTABLES
+  /FORMAT EMPTY=ZERO MISSING='.' MINCOLWIDTH=36 MAXCOLWIDTH=132 UNITS=POINTS
+  /VLABELS VARIABLES=!rowvar DISPLAY=LABEL  
+  /VLABELS VARIABLES=month valusd DISPLAY=NONE
+  /TABLE !rowvar BY month > valusd [MEAN F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=!rowvar month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Average export value in USD by sitc and month.'.
+
+!ENDDEFINE.
+```
+
+The macro is now defined and can be used. We do that by giving the name of the macro followed by the parameter with its value. Here we call it two times with different values:
+```spss
+tabul rowvar=sitcr4_1.
+tabul rowvar=sitcr4_2.
+```
+
+Let us make the macro a little bit more flexible. We add two more parameters, one for the column variable and one for the measure variable:
+
+```spss
+DEFINE tabul (rowvar=!tokens(1)
+             /colvar=!tokens(1)
+             /measurevar=!tokens(1)
+             )
+
+CTABLES
+  /FORMAT EMPTY=ZERO MISSING='.' MINCOLWIDTH=36 MAXCOLWIDTH=132 UNITS=POINTS
+  /VLABELS VARIABLES=!rowvar DISPLAY=LABEL  
+  /VLABELS VARIABLES=!colvar !measurevar DISPLAY=NONE
+  /TABLE !rowvar BY !colvar > !measurevar [MEAN F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=!rowvar !colvar ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Average export value in USD by sitc and month.'.
+
+!ENDDEFINE.
+```
+When we run the macro, we add the new parameters and run three times with different values:
+
+```spss
+tabul rowvar=sitcr4_1 colvar=month measurevar=valusd.
+tabul rowvar=month colvar=sitcr4_1 measurevar=valusd.
+tabul rowvar=sitcr4_2 colvar=flow measurevar=value.
+```
+
+We enhance the macro some more by introducing the possibility to decide the measure type ourselves. This is added as a new parameter, called *stat*:
+
+```spss
+DEFINE tabul (rowvar=!tokens(1)
+             /colvar=!tokens(1)
+             /measurevar=!tokens(1)
+             /stat=!tokens(1) 
+             )
+
+CTABLES
+  /FORMAT EMPTY=ZERO MISSING='.' MINCOLWIDTH=36 MAXCOLWIDTH=132 UNITS=POINTS
+  /VLABELS VARIABLES=!rowvar DISPLAY=LABEL  
+  /VLABELS VARIABLES=!colvar !measurevar DISPLAY=NONE
+  /TABLE !rowvar BY !colvar > !measurevar [!stat F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=!rowvar !colvar ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Average export value in USD by sitc and month.'.
+
+!ENDDEFINE.
+```
+
+Two executions of the macro with different parameter values:
+
+```spss
+tabul rowvar=sitcr4_1 colvar=month measurevar=valusd stat=sum.
+tabul rowvar=country colvar=month measurevar=valusd stat=mean.
+```
+
+When we look at the table, we see that the title is not updated when we do changes. It is important that i reflects the actual content of the table. Hence, we add a title parameter to our macro:
+
+```spss
+DEFINE tabul (rowvar=!tokens(1)
+             /colvar=!tokens(1)
+             /measurevar=!tokens(1)
+             /stat=!tokens(1)
+             /title=!tokens(1) 
+             )
+
+CTABLES
+  /FORMAT EMPTY=ZERO MISSING='.' MINCOLWIDTH=36 MAXCOLWIDTH=132 UNITS=POINTS
+  /VLABELS VARIABLES=!rowvar DISPLAY=LABEL  
+  /VLABELS VARIABLES=!colvar !measurevar DISPLAY=NONE
+  /TABLE !rowvar BY !colvar > !measurevar [!stat F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=!rowvar !colvar ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE=!title.
+
+!ENDDEFINE.
+```
+Now ,we can run a table again:
+
+```spss
+tabul rowvar=sitcr4_1 
+      colvar=month 
+      measurevar=value
+      stat=sum 
+      title='Export value by sitc and month.'
+.
+```
+
+We can make another macro. This time we want to make a macro that read an external csv file and saves it as an SPSS file. The parameters to change will be:
+
+- Flow (export or import)
+- Year
+- Quarter
+
+As all these parameters are parts of the file name, which is given within a string, we have to use the macro function *!concat* to add the string togehter. Furthermore, we have to use the *!quote* macro function to add quotes to the text. We also have to use slash (/) instead of backslash (\\) in the path of the filename. The syntax look like this:
+
+```spss
+DEFINE read_quarter(flow=!tokens(1)
+                   /year=!tokens(1)
+                   /quarter=!tokens(1)
+                   )
+PRESERVE.
+SET DECIMAL DOT.
+
+DATASET CLOSE ALL.
+
+GET DATA  /TYPE=TXT
+  /FILE=!quote(!concat("data/",!flow," - ",!year,"_XPMI_Q",!quarter,".csv"))
+  /ENCODING='UTF8'
+  /DELCASE=LINE
+  /DELIMITERS=","
+  /ARRANGEMENT=DELIMITED
+  /FIRSTCASE=2
+  /LEADINGSPACES IGNORE=YES
+  /VARIABLES=
+  flow A1
+  year A4
+  month A2
+  ref A14
+  ItemID A8
+  comno A8
+  country A2
+  unit A8
+  weight AUTO
+  quantity AUTO
+  value AUTO
+  valUSD AUTO
+  itemno AUTO
+  exporterNUIT A9
+  /MAP.
+RESTORE.
+
+FORMATS weight quantity (F12.0) value valusd (F17.0).
+
+SAVE OUTFILE=!quote(!concat("data/",!flow,"_",!year,"Q",!quarter,".sav"))
+
+!ENDDEFINE.
+```
+
+Now, we can read the files for one year:
+
+```spss
+read_quarter flow=Export year=2018 quarter=1.
+read_quarter flow=Export year=2018 quarter=2.
+read_quarter flow=Export year=2018 quarter=3.
+read_quarter flow=Export year=2018 quarter=4.
+```
+
+# Add files together
+Files with the same attributes can be added together. The attributes that need to be the same is the variable names and variable types. The rows in all the added files will be concatenated dataset by dataset.
+
+In this example we add the files for each quarter together to create a file for the whole year. But first, we make sure that the file for the first quarter is the active file:
+
+```spss
+DATASET CLOSE ALL.
+GET FILE='data/Export_2018Q1.sav'.
+ADD FILES FILE=*
+         /FILE='data/Export_2018Q2.sav'
+         /FILE='data/Export_2018Q3.sav'
+         /FILE='data/Export_2018Q4.sav'
+.
+EXECUTE.
+```
 
