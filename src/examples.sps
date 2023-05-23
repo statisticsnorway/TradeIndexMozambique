@@ -651,6 +651,3 @@ tabul rowvar=sitcr4_1
 .
 
 
-
-
-

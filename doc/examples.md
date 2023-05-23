@@ -174,7 +174,7 @@ DESCRIPTIVES weight quantity value /statistics = sum mean min max.
 ![](images/examples-descriptives2.jpg "Descriptives with selected statistics")
 
 ### Means
-When we want to have numeric statistics grouped, we can use the means command. The measure is mentioned before the `by` parameter and the variable to group by after:
+When we want to have numeric statistics grouped, we can use the `means` command. The measure is mentioned before the `by` parameter and the variable to group by after:
 
 ``` spss
 MEANS value BY month.
@@ -224,7 +224,7 @@ When this is working for one cell, we can copy the formula to all cells in the n
 
 ![](images/examples-valuelabels2.jpg "Country list in Excel with value labels column" )
 
-Now we can copy the column and paste it into SPSS. Then we add the *value labels* command before the list and a dot after:
+Now we can copy the column and paste it into SPSS. Then we add the `value labels` command before the list and a dot after:
 
 ``` spss
 VALUE LABELS country
@@ -603,7 +603,7 @@ Now we have added some aggregated variables. They all have the same values withi
 ![](images/examples-aggregate2.jpg "Aggregated variables added")
 
 ## Duplicates
-We can use the ```match files``` command to check for duplicates. The way to do that is to mark each row in the dataset as first or not first within the group of variables we will check for duplicates within. Usually we check for duplicates on the variables that is to identify a row. In our dataset it is the variables *flow*, *year*, *month*, *comno*, *ref*, *ItemID* and *country*. After we have added the mark for first or not within the group, we can make a frequency table to get an owerview of the amount of duplicates. Here is an example on a duplicate check with a frequency check table:
+We can use the `match files` command to check for duplicates. The way to do that is to mark each row in the dataset as first or not first within the group of variables we will check for duplicates within. Usually we check for duplicates on the variables that is to identify a row. In our dataset it is the variables *flow*, *year*, *month*, *comno*, *ref*, *ItemID* and *country*. After we have added the mark for first or not within the group, we can make a frequency table to get an owerview of the amount of duplicates. Here is an example on a duplicate check with a frequency check table:
 
 ``` spss
 DATASET CLOSE ALL.
@@ -659,7 +659,7 @@ MATCH FILES FILE=*
 FREQUENCIES first_id.
 ```
 ## Read Excel files
-We read an Excel file more or less the same way as a delimited text-file, with the *get data* command. This time we use type parameter xlsx. When we use the file, open wizard we paste a syntax like this:
+We read an Excel file more or less the same way as a delimited text-file, with the `get data` command. This time we use type parameter xlsx. When we use the file, open wizard we paste a syntax like this:
 
 ``` spss
 DATASET CLOSE ALL.
@@ -696,11 +696,11 @@ SAVE OUTFILE='data\commodity_sitc.sav'.
 ```
 
 ## Matching files
-We use the *match files* command to macth files. It has two different ways to match files. Either we can choose that both files should provide with cases, or we can choose to use one of the files as a keyed table. A keyed table may not have any duplicates. Cases in the keyed table with key variables whose values do not appear in the other file are not written to the output file. If there are more than one case with the same key value and that value is in the keyed table as well, all cases will get the information from the keyed table. We define a data set as a keyed table by using the *table* subcommand. Ordinary files are named with the *file* subcommand. If there are duplicates (i.e. more than one case with the same values for the key variables) SPSS will match 1 to 1 as long as it is possible and then match 1 to 0 or 0 to 1. The files we match have to be sorted on the key variables by which they will be matched by before we use the *match files* command. 
+We use the `match files` command to macth files. It has two different ways to match files. Either we can choose that both files should provide with cases, or we can choose to use one of the files as a keyed table. A keyed table may not have any duplicates. Cases in the keyed table with key variables whose values do not appear in the other file are not written to the output file. If there are more than one case with the same key value and that value is in the keyed table as well, all cases will get the information from the keyed table. We define a data set as a keyed table by using the `table` subcommand. Ordinary files are named with the `file` subcommand. If there are duplicates (i.e. more than one case with the same values for the key variables) SPSS will match 1 to 1 as long as it is possible and then match 1 to 0 or 0 to 1. The files we match have to be sorted on the key variables by which they will be matched by before we use the `match files` command. 
 
-We now want to match the data file with the data file with the list of commodities and add the sitc codes to the data file. The list of commodities will be a keyd table which we define with the *table* sub-command. 
+We now want to match the data file with the data file with the list of commodities and add the sitc codes to the data file. The list of commodities will be a keyd table which we define with the `table` sub-command. 
 
-To check whether the *comno* value is found in the catalog, we include the *in* sub-command. It will create a new variable, which value will be one when the catalog contribute to the match (it matches) and zero when it does not contribute (it does not match).
+To check whether the *comno* value is found in the catalog, we include the `in` sub-command. It will create a new variable, which value will be one when the catalog contribute to the match (it matches) and zero when it does not contribute (it does not match).
 
 ``` spss
 DATASET CLOSE ALL.
@@ -719,7 +719,7 @@ SAVE OUTFILE='data\export_sitc_2021.sav'.
 ```
 
 ## Tabulation
-We often want to present our data as tables. In SPSS, we can use the *ctables* command to create many different types of tables. We will look at a few of them now. The syntax for *ctables* is more complex than other commands, thus it is helpful to start with using the SPSS menus to create our first tables. However, we always paste the syntax. It is found under Analyze, Tables, Custom Tables.
+We often want to present our data as tables. In SPSS, we can use the `ctables` command to create many different types of tables. We will look at a few of them now. The syntax for `ctables` is more complex than other commands, thus it is helpful to start with using the SPSS menus to create our first tables. However, we always paste the syntax. It is found under Analyze, Tables, Custom Tables.
 
 The Custom Tables window looks like this:
 
@@ -801,7 +801,7 @@ CTABLES
 .
 ```
 
-The change in the syntax is that the parameters *Total* and *Position* in the *categories* sub-command are added.   
+The change in the syntax is that the parameters *Total* and *Position* in the `categories` sub-command are added.   
 
 The table is now with total row and total column:
 
@@ -811,7 +811,7 @@ Now, we can add a title to the table. To do that we swap to the *titles* tab in 
 
 ![](images/examples-ctables9.jpg "Table titles")
 
-In the pasted syntax, a *titles* sub-command is added
+In the pasted syntax, a `titles` sub-command is added
 
 ```spss
 CTABLES
@@ -826,7 +826,7 @@ As we now have information in the title, we ca remove some of it in the table. F
 
 ![](images/examples-ctables10.jpg "Hide column headers")
 
-In the syntax, there are some additions. One more *vlabels* sub-command and a *slabels* sub-command is added: 
+In the syntax, there are some additions. One more `vlabels` sub-command and a `slabels` sub-command is added: 
 
 ```spss
 CTABLES
@@ -905,7 +905,7 @@ These figures are not easy to read. To get rid of the scientific notation, we ch
 
 ![](images/examples-ctables17.jpg "Ctables otions window")
 
-When we paste the syntax, a *format* sub-command will be added to our syntax:
+When we paste the syntax, a `format` sub-command will be added to our syntax:
 
 ```spss
 CTABLES
@@ -925,9 +925,9 @@ The figures are now formatted in a better way for presentation:
 ## Macros
 We use macros when we want to execute almost the same syntax code several times. Instead of copying the code lots of times, we write it in a macro. The places in the code that will be changed each time we run the code, will be replaced with macro variables. These macro variables will be used as parameters to the macro.
 
-A macro is defined with a DEFINE command and ends with an !ENDDEFINE command. The macro consists of a set of SPSS commands. To be able to change the code slightly each time we execute it, we use macro variables as parameters. These macro variables are set to different values each time we call the macro. We need to call the macro with its name for execution. We can call the macro as many times as we like. When we call the macro we also set the values for the macro variables used in the macro. The macro variables values are used as parameters in the macro. Each place the macro variable is mentioned in the macro, the parameter will replace the macro name. 
+A macro is defined with a `define` command and ends with an `!enddefine` command. The macro consists of a set of SPSS commands. To be able to change the code slightly each time we execute it, we use macro variables as parameters. These macro variables are set to different values each time we call the macro. We need to call the macro with its name for execution. We can call the macro as many times as we like. When we call the macro we also set the values for the macro variables used in the macro. The macro variables values are used as parameters in the macro. Each place the macro variable is mentioned in the macro, the parameter will replace the macro name. 
 
-We will now make a macro for a simple *ctables* command. We start simple with just one parameter that can be changed, the variable in the rows. We call the parameter rowvar. This parameter is to be defined in the *define* command. The parameter has a keyword telling how the parameter is to be used. Most often we use the keyword *tokens(1)*, which means the parameter has one value. 
+We will now make a macro for a simple `ctables` command. We start simple with just one parameter that can be changed, the variable in the rows. We call the parameter rowvar. This parameter is to be defined in the `define` command. The parameter has a keyword telling how the parameter is to be used. Most often we use the keyword *tokens(1)*, which means the parameter has one value. 
 
 Every place in our code where we want to replace the value of the parameter, we type in the parameter with the prefix !. We see that in the syntax  below, where we have replaced the variable name *sitcr4_1* with *!rowvar* three places:
 

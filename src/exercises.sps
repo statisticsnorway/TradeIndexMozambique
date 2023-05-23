@@ -190,7 +190,7 @@ VALUE LABELS country
 'HU' 'HU Hungria'
 'ID' 'ID Indonésia'
 'IE' 'IE Irlanda'
-'Il' 'Il Israel'
+'IL' 'IL Israel'
 'IM' 'IM Ilha do Homen'
 'IN' 'IN Índia'
 'IO' 'IO Território Britânico no Oceano'
@@ -361,6 +361,7 @@ MEANS price_usd by hs2.
 FORMATS price_usd (F13.2).
 
 SAVE OUTFILE='C:\Users\krl\TradeIndexMozambique\data\export_2019.sav'.
+
 SAVE OUTFILE='data\export_2019.sav'.
 
 
@@ -391,5 +392,162 @@ AGGREGATE
     /BREAK flow year 
     /t_sum_valusd = SUM(valusd)
     .
+
+
+PRESERVE.
+SET DECIMAL DOT.
+
+GET DATA  /TYPE=TXT
+  /FILE="data\Export - 2021_XPMI_Q1.csv"
+  /ENCODING='UTF8'
+  /DELCASE=LINE
+  /DELIMITERS=","
+  /ARRANGEMENT=DELIMITED
+  /FIRSTCASE=2
+  /VARIABLES=
+  flow A1
+  year A4
+  month A2
+  ref A14
+  ItemID A8
+  comno A8
+  country A2
+  unit A8
+  weight AUTO
+  quantity AUTO
+  value AUTO
+  valUSD AUTO
+  itemno AUTO
+  exporterNUIT A9
+  /MAP.
+RESTORE.
+
+FORMATS weight quantity value valusd (f14).
+
+SORT CASES BY flow year month comno ref ItemID country.
+
+MATCH FILES FILE=*
+           /BY flow year month comno ref ItemID country
+           /FIRST = first_id
+           .
+
+FREQUENCIES first_id.
+
+DELETE VARIABLES first_id.
+
+SAVE OUTFILE='data/export_2021Q1.sav'.
+
+DATASET CLOSE ALL.
+GET DATA
+  /TYPE=XLSX
+  /FILE='data\Commodities_Catalogue_XPMI.xlsx'
+  /SHEET=name 'Pauta Grupos_2023_'
+  /CELLRANGE=FULL
+  /READNAMES=ON
+.
+EXECUTE.
+
+DELETE VARIABLES DescriçãoSH8 TO Descriptionsitcr4_3 Descriptionsitcr4_2 Descriptionsitcr4_1 TO becno.
+EXECUTE.
+
+SORT CASES BY comno.
+MATCH FILES FILE=*
+           /BY comno
+           /FIRST = first_id
+           .
+
+FREQUENCIES first_id.
+
+DELETE VARIABLES first_id.
+
+SAVE OUTFILE='data\commodity_sitc.sav'.
+
+DATASET CLOSE ALL.
+GET FILE='data/export_2021Q1.sav'.
+
+SORT CASES BY comno.
+MATCH FILES FILE=*
+           /TABLE='data\commodity_sitc.sav'
+           /IN=found_sitc
+           /BY comno
+           .
+
+FREQUENCIES found_sitc sitcr4_1.
+DELETE VARIABLES found_sitc.
+
+
+CTABLES
+  /VLABELS VARIABLES=unit month DISPLAY=LABEL
+  /TABLE unit [COUNT F40.0] BY month
+  /CATEGORIES VARIABLES=unit month ORDER=A KEY=VALUE EMPTY=EXCLUDE
+  /CRITERIA CILEVEL=95.
+
+CTABLES
+  /VLABELS VARIABLES=unit month valUSD DISPLAY=LABEL
+  /TABLE unit BY month > valUSD [MEAN]
+  /CATEGORIES VARIABLES=unit month ORDER=A KEY=VALUE EMPTY=EXCLUDE
+  /CRITERIA CILEVEL=95.
+
+
+CTABLES
+  /VLABELS VARIABLES=unit month valUSD DISPLAY=LABEL
+  /TABLE unit BY month > valUSD [COUNT F40.0, MEAN F40.0, SUM F40.0]
+  /CATEGORIES VARIABLES=unit month ORDER=A KEY=VALUE EMPTY=EXCLUDE
+  /CRITERIA CILEVEL=95.
+
+
+
+CTABLES
+  /VLABELS VARIABLES=unit month valUSD DISPLAY=LABEL
+  /TABLE unit BY month > valUSD [COUNT F40.0, MEAN F40.0, SUM F40.0]
+  /CATEGORIES VARIABLES=unit month ORDER=A KEY=VALUE EMPTY=EXCLUDE
+  /CRITERIA CILEVEL=95
+  /TITLES
+    TITLE='Value in USD by unit and month'.
+
+
+
+AGGREGATE 
+    /OUTFILE=* 
+    /BREAK country
+    /valusd_sum = SUM(value)
+    .
+
+SORT CASES BY valusd_sum (D).
+
+SELECT IF ($casenum <=10).
+EXECUTE.
+SORT CASES BY country.
+
+SAVE OUTFILE='data/big10.sav' / keep=country.
+
+DATASET CLOSE ALL.
+GET FILE='data/export_2021Q1.sav'.
+
+SORT CASES BY country.
+MATCH FILES FILE=*
+           /TABLE='data\big10.sav'
+           /IN=found_big
+           /BY country
+           .
+EXECUTE.
+
+IF (found_big = 0) country='ZZ'.
+
+FREQUENCIES country.
+
+CTABLES
+  /VLABELS VARIABLES=country month valUSD DISPLAY=NONE
+  /TABLE country BY month > valUSD [SUM F40.0]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=country ORDER=D KEY=SUM (valUSD) EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /CATEGORIES VARIABLES=month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /CRITERIA CILEVEL=95
+  /TITLES
+    TITLE='Value in USD for 10 largest export countries, by month. '.
+
+
+
+
 
 
