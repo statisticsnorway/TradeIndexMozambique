@@ -47,3 +47,29 @@ These exercises is using data from the foreign trade in INE Mozambique. The data
 1. Aggregate the dataset to *flow*, *year* and *country*. Calculate the sum, mean and median of the variable *value* as *value_sum*, *value_mean* and *value_median*. 
 2. Reopen the SPSS dataset. Then add the aggregated variables *price_usd_max*, *price_usd_min*, *price_usd_median*, *price_usd_sd* and *price_usd_mean* as the max, min, median, standard deviation and mean of the *price_usd* variable. Also add the *no_of_months* variable as the count of rows. The aggregation level is *flow*, *year*, *comno* and *country*.
 3. Add the sum of the valusd as *t_sum_valusd* by the aggregation level *flow* and *year*.
+
+## Duplicates
+1. Import the export for 2020 quarter 1.
+2. Format the variables *weight quantity value valusd* with the f14 format.
+3. Check for duplicates by the variables *flow year month comno ref ItemID country*. Remember to keep a variable that gives information if a row is first within the group or not, call it *first _id*
+4. Make a frequency table for the variable *first _id*.
+5. Delete the variable *first _id*
+6. Save the dataset as 'data/export_2020Q1.sav'
+7. Import the spreadsheet 'data\Commodities_Catalogue_XPMI.xlsx'
+8. Delete all variables except *comno, sitcr4_1* and *sitcr4_2*
+9. Rename the variables *sitcr4_1* to *sitc1* and *sitcr4_2* to *sitc2*.
+10. Check for duplicates by comno the same way as for the previous dataset
+11. Delete the *first_id* variable
+12. Save the dataset as 'data\commodity_sitc.sav'
+
+## Match files
+1. Match the file 'data/export_2020Q1.sav' and 'data\commodity_sitc.sav' by comno. The last dataset is a table dataset. Create a variable called *found_sitc* which is true (1)when sitc codes are found in the table and false (0) when they are not found 
+2. Make a frequency table for the variables *found_sitc* and *sitc1*.
+3. Delete the variable *found_sitc*
+
+## Tabulation
+1. Make a table from the above dataset *unit* as a nominal variable in the rows and *month* as a nominal variable in the columns. Count number of rows.
+2. Do the same table as above, but count the average of the variable *valusd*.
+3. Expand the table with the count and sum of the variable *valusd*.
+4. Add a title to the table and remove the labels from the *unit* and *month* variables.
+5. Create a table for *country* where there is one row for each of the largest by valusd. The other countries should be gathered in a *other* group. To find the 10 largest we can use the `aggregate` command with country as the break variable. Then we can sort the cases by descending *valusd*. Then we select the first 10 cases by using the internal variable *$casenum* in a `select if` command. Then we sort the cases by *country* and save the dataset with a new name. Now it is time to match the two files together and mark when big countries are found. If a big country is found we recode the country to ZZ. Finally, we can make the table with `ctables` and order the countries by descending *valusd*.

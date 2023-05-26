@@ -398,7 +398,7 @@ PRESERVE.
 SET DECIMAL DOT.
 
 GET DATA  /TYPE=TXT
-  /FILE="data\Export - 2021_XPMI_Q1.csv"
+  /FILE="data\Export - 2020_XPMI_Q1.csv"
   /ENCODING='UTF8'
   /DELCASE=LINE
   /DELIMITERS=","
@@ -435,7 +435,7 @@ FREQUENCIES first_id.
 
 DELETE VARIABLES first_id.
 
-SAVE OUTFILE='data/export_2021Q1.sav'.
+SAVE OUTFILE='data/export_2020Q1.sav'.
 
 DATASET CLOSE ALL.
 GET DATA
@@ -450,6 +450,8 @@ EXECUTE.
 DELETE VARIABLES DescriçãoSH8 TO Descriptionsitcr4_3 Descriptionsitcr4_2 Descriptionsitcr4_1 TO becno.
 EXECUTE.
 
+RENAME VARIABLES sitcr4_1 = sitc1 sitcr4_2 = sitc2.
+
 SORT CASES BY comno.
 MATCH FILES FILE=*
            /BY comno
@@ -463,7 +465,7 @@ DELETE VARIABLES first_id.
 SAVE OUTFILE='data\commodity_sitc.sav'.
 
 DATASET CLOSE ALL.
-GET FILE='data/export_2021Q1.sav'.
+GET FILE='data/export_2020Q1.sav'.
 
 SORT CASES BY comno.
 MATCH FILES FILE=*
@@ -472,7 +474,7 @@ MATCH FILES FILE=*
            /BY comno
            .
 
-FREQUENCIES found_sitc sitcr4_1.
+FREQUENCIES found_sitc sitc1.
 DELETE VARIABLES found_sitc.
 
 
@@ -480,31 +482,29 @@ CTABLES
   /VLABELS VARIABLES=unit month DISPLAY=LABEL
   /TABLE unit [COUNT F40.0] BY month
   /CATEGORIES VARIABLES=unit month ORDER=A KEY=VALUE EMPTY=EXCLUDE
-  /CRITERIA CILEVEL=95.
+.
 
 CTABLES
   /VLABELS VARIABLES=unit month valUSD DISPLAY=LABEL
   /TABLE unit BY month > valUSD [MEAN]
   /CATEGORIES VARIABLES=unit month ORDER=A KEY=VALUE EMPTY=EXCLUDE
-  /CRITERIA CILEVEL=95.
+.
 
 
 CTABLES
   /VLABELS VARIABLES=unit month valUSD DISPLAY=LABEL
   /TABLE unit BY month > valUSD [COUNT F40.0, MEAN F40.0, SUM F40.0]
   /CATEGORIES VARIABLES=unit month ORDER=A KEY=VALUE EMPTY=EXCLUDE
-  /CRITERIA CILEVEL=95.
+.
 
 
 
 CTABLES
-  /VLABELS VARIABLES=unit month valUSD DISPLAY=LABEL
+  /VLABELS VARIABLES=unit month valUSD DISPLAY=NONE
   /TABLE unit BY month > valUSD [COUNT F40.0, MEAN F40.0, SUM F40.0]
   /CATEGORIES VARIABLES=unit month ORDER=A KEY=VALUE EMPTY=EXCLUDE
-  /CRITERIA CILEVEL=95
   /TITLES
     TITLE='Value in USD by unit and month'.
-
 
 
 AGGREGATE 
@@ -522,7 +522,7 @@ SORT CASES BY country.
 SAVE OUTFILE='data/big10.sav' / keep=country.
 
 DATASET CLOSE ALL.
-GET FILE='data/export_2021Q1.sav'.
+GET FILE='data/export_2020Q1.sav'.
 
 SORT CASES BY country.
 MATCH FILES FILE=*
@@ -542,7 +542,6 @@ CTABLES
   /SLABELS VISIBLE=NO
   /CATEGORIES VARIABLES=country ORDER=D KEY=SUM (valUSD) EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
   /CATEGORIES VARIABLES=month ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
-  /CRITERIA CILEVEL=95
   /TITLES
     TITLE='Value in USD for 10 largest export countries, by month. '.
 
