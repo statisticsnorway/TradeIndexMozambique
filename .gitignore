@@ -21,6 +21,7 @@
 *.dta
 *.sas7bdat
 *.pkl
+*.bak
 
 # Blaise
 *.bdix
