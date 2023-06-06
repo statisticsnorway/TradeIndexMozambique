@@ -562,7 +562,7 @@ CTABLES
     TITLE='Export value by sitc and month.'.
 
 
-
+SET MPRINT = on.
 
 DEFINE tabul (rowvar=!tokens(1))
 

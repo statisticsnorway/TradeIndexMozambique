@@ -545,8 +545,76 @@ CTABLES
   /TITLES
     TITLE='Value in USD for 10 largest export countries, by month. '.
 
+DATASET CLOSE ALL.
+GET FILE='data/export_2020Q1.sav'.
 
+TEMPORARY.
+SELECT IF (any(country,'SE','NO')).
+MEANS valusd BY comno /CELLS=count sum min max mean .
 
+SET MPRINT = on.
 
+DEFINE selected_means (value=!tokens(1))
+
+TEMPORARY.
+SELECT IF (any(country,!value)).
+MEANS valusd BY comno /CELLS=count sum min max mean .
+
+!ENDDEFINE.
+
+selected_means value='SE'.
+selected_means value='NO'.
+
+DEFINE selected_means (values=!ENCLOSE('[',']'))
+
+TEMPORARY.
+SELECT IF (any(country,!values)).
+MEANS valusd BY comno /CELLS=count sum min max mean .
+
+!ENDDEFINE.
+
+selected_means values=['NO','SE'].
+selected_means values=['DK','FI'].
+
+DEFINE selected_means (selection_variable=!TOKENS(1),
+                      /values=!ENCLOSE('[',']'))
+
+TEMPORARY.
+SELECT IF (any(!selection_variable,!values)).
+MEANS valusd BY comno /CELLS=count sum min max mean .
+
+!ENDDEFINE.
+
+selected_means selection_variable=country values=['NO','SE'].
+selected_means selection_variable=unit values=['L'].
+selected_means selection_variable=unit values=['L','LI'].
+
+SET MPRINT = off.
+DEFINE selected_means (selection_variable=!TOKENS(1),
+                      /values=!ENCLOSE('[',']')
+                      /measure_variable=!TOKENS(1),
+                      /by_variable=!TOKENS(1)
+                      )
+
+TEMPORARY.
+SELECT IF (any(!selection_variable,!values)).
+TITLE !CONCAT('Table selected on ',!selection_variable,': ',!values,'.').
+MEANS !measure_variable BY !by_variable /CELLS=count sum min max mean .
+
+!ENDDEFINE.
+
+selected_means 
+    selection_variable=unit 
+    values=['L','LI']
+    measure_variable=weight
+    by_variable=month
+    .
+
+selected_means 
+    selection_variable=comno 
+    values=['05119990','07049000']
+    measure_variable=valusd
+    by_variable=country
+    .
 
 

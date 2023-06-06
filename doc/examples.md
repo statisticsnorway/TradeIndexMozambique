@@ -929,6 +929,12 @@ A macro is defined with a `define` command and ends with an `!enddefine` command
 
 We will now make a macro for a simple `ctables` command. We start simple with just one parameter that can be changed, the variable in the rows. We call the parameter rowvar. This parameter is to be defined in the `define` command. The parameter has a keyword telling how the parameter is to be used. Most often we use the keyword *tokens(1)*, which means the parameter has one value. 
 
+To make it easier to see what changes SPSS does when the macro executes, we can set the *mprint* option to *on*:
+
+```spss
+SET MPRINT = on.
+```
+
 Every place in our code where we want to replace the value of the parameter, we type in the parameter with the prefix !. We see that in the syntax  below, where we have replaced the variable name *sitcr4_1* with *!rowvar* three places:
 
 ```spss
