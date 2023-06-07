@@ -22,6 +22,7 @@
 *.sas7bdat
 *.pkl
 *.bak
+*.rar
 
 # Blaise
 *.bdix
