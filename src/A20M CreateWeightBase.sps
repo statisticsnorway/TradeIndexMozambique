@@ -143,7 +143,7 @@ EXECUTE.
 list all.
 SAVE OUTFILE=!quote(!concat('data/coverage_sitc1_',!year_1,'.sav')).
 
-* Check the coverage by sitc1 and total.
+* Check the coverage by sitc2 and total.
 DATASET CLOSE all.
 GET file='temp\sample.sav'.
 

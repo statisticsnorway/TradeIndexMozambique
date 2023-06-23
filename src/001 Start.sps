@@ -6,3 +6,4 @@ SET FORMAT=F12.0.
 SHOW DECIMAL UNICODE WIDTH FORMAT.
 CD 'c:\users\krl\TradeIndexMozambique'.
 *CD 'c:\TradeIndex'.
+*set MPRINT=ON.

@@ -1,6 +1,8 @@
 ﻿* Encoding: UTF-8.
 
-DEFINE create_weight_base_population(year_1=!tokens(1))
+DEFINE create_weight_base_population(year_1=!tokens(1),
+                                    /outlier_limit=!tokens(1) 
+                                    )
 
 EXECUTE.
  GET FILE=!quote(!concat('data/Export_',!year_1,'Q1.sav')).
@@ -13,6 +15,29 @@ EXECUTE.
 COMPUTE price = value / weight.
 execute.
 
+AGGREGATE
+  /OUTFILE=* MODE=ADDVARIABLES
+  /BREAK=flow comno 
+  /sd_comno=SD(price)
+  /mean_comno=MEAN(price)
+.
+
+* Delete outliers.
+compute ul = mean_comno + (!outlier_limit * sd_comno).
+compute ll = mean_comno - (!outlier_limit * sd_comno).
+EXECUTE.
+COMPUTE outlier = 0.
+if (price < ll or price > ul) outlier=1.
+EXECUTE.
+
+FREQUENCIES outlier.
+MEANS TABLES=valusd BY outlier
+  /CELLS=MEAN COUNT STDDEV SUM.
+
+SELECT IF (outlier = 0).
+EXECUTE.
+
+*delete variables ul ll outlier mean_comno sd_comno.
 * Add totals for different levels for the value for all cases.
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES

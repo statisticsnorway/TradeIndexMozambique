@@ -23,7 +23,7 @@ read_quarter flow=Export year=2018 quarter=4.
 
 
 * Yearly (first year 2019, base year 2018).
-create_weight_base_population year_1=2018.
+create_weight_base_population year_1=2018 outlier_limit=2.0 .
 create_weight_base year_1=2018 
                    share_total=0.05
                    no_of_months=5
@@ -33,7 +33,7 @@ create_weight_base year_1=2018
                    max_by_min=10
                    max_by_median=5
                    median_by_min=5
-                   share_small=0.001
+                   share_small=0.0001
                    .
 base_prices year=2019 year_1 = 2018.
 
@@ -62,7 +62,7 @@ indices_unchained year_base=2018 year=2019 quarter=4.
 chain_first_year year=2019.
 
 * Yearly (2020, base 2019).
-create_weight_base_population year_1=2019.
+create_weight_base_population year_1=2019 outlier_limit=2.0 .
 create_weight_base year_1=2019 
                    share_total=0.05
                    no_of_months=5
@@ -103,7 +103,7 @@ chain_year year_base=2019 year=2020 .
 
 
 * Yearly (2021, base 2020).
-create_weight_base_population year_1=2020.
+create_weight_base_population year_1=2020 outlier_limit=2.0 .
 create_weight_base year_1=2020 
                    share_total=0.05
                    no_of_months=5
