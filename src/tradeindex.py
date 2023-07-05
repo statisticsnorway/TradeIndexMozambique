@@ -3,14 +3,20 @@
 
 import pandas as pd
 import numpy as np
+import json
 from pathlib import Path
+from itables import init_notebook_mode
 #from trade_index_functions import *
 #pd.set_option('display.float_format',  '{:18,.0}'.format)
 #pd.set_option('display.float_format', lambda x: f'{x:15.0f}' if abs(x)>1e12 else f'{x:15.1f}')
-pd.set_option('display.float_format', lambda x: f'{x:15,.0f}')
+pd.set_option('display.float_format', lambda x: f'{x:15,.0f}' if abs(x)>1e5 else f'{x:15.2f}')
 
 display(pd.get_option('display.precision'))
 display(pd.get_option('display.float_format'))
+
+# Set the option for interactive browsing of dataframes
+
+init_notebook_mode(all_interactive=True)
 
 # ## Import chapter and section correspondance
 
@@ -18,7 +24,7 @@ exec(open("005 Import_chapter_catalog.py").read())
 
 # ## Import commodity and sitc correspondance
 
-exec(open("007 Import_commodities_catalog.py").read())
+exec(open("007 Import_commodities_catalog.py", encoding="utf-8").read())
 commodity_sitc = pd.read_parquet('../data/commodity_sitc.parquet')
 commodity_sitc
 
@@ -54,10 +60,83 @@ max_by_median=5
 median_by_min=5
 share_small=0.0001
 exec(open("A20M CreateWeightBase.py").read())
-basedata
+
 
 # ## Base prices
 
+def coverage(df: pd.DataFrame, groupcol, aggcol1, aggcol2) -> pd.DataFrame:
+    result = df.groupby(['year', 'flow', groupcol]).agg(
+        Ssample_sum=(aggcol1, 'sum'),
+        Spop_sum=('S1_sum', 'mean'),
+        Sno_of_comm=('S1_sum', 'size')
+        )
+    result['Tsample_sum'] = result.groupby(['year', 'flow'])['Ssample_sum'].transform('sum')
+    result['Tpop_sum'] = result.groupby(['year', 'flow'])['Spop_sum'].transform('sum')
+    result['Tno_of_comm'] = result.groupby(['year', 'flow'])['Sno_of_comm'].transform('sum')
+    result['Scoverage'] = result['Ssample_sum'] * 100 / result['Spop_sum']
+    return result
 
+
+coverage(basedata, 'sitc1', 'HS_sum', 'S1_sum')
+
+data_dir = Path('../data')
+tradedata = pd.concat(
+    pd.read_parquet(parquet_file)
+    for parquet_file in data_dir.glob(f'{flow}_{year}q*.parquet')
+)
+tradedata
+
+
+def coverage(df: pd.DataFrame, groupcol, aggcol) -> pd.DataFrame:
+    result = df.groupby(['year', 'flow', groupcol]).agg(
+        Ssample_sum=('HS_sum', 'sum'),
+        Spop_sum=('S1_sum', 'mean'),
+        Sno_of_comm=('S1_sum', 'size')
+        )
+    result['Tsample_sum'] = result.groupby(['year', 'flow'])['Ssample_sum'].transform('sum')
+    result['Tpop_sum'] = result.groupby(['year', 'flow'])['Spop_sum'].transform('sum')
+    result['Tno_of_comm'] = result.groupby(['year', 'flow'])['Sno_of_comm'].transform('sum')
+    result['Scoverage'] = result['Ssample_sum'] * 100 / result['Spop_sum']
+#    result[groupcol] = result[groupcol].map(labels[groupcol])
+    return result
+
+
+c1 = coverage(basedata, 'sitc2', 'S2_sum')
+labels
+
+
+def class_from_comm(df: pd.DataFrame, code:str, text:str, label:str):
+    df1 = df[[code, text]].rename(columns={text: label})
+    df1 = df1[df1.duplicated([code], keep='first') == False].sort_values([code])
+    df1[label] = df1[code] + ' ' + df1[label]
+    label_dict = df1[[code, label]].set_index(code).to_dict()
+    return label_dict
+
+
+chapter_dict = class_from_comm(commodity_sitc, 'hs2', 'hs2_text', 'chapter')
+sitc1_dict = class_from_comm(commodity_sitc, 'sitcr4_1', 'sitc1_text', 'sitc1')
+sitc2_dict = class_from_comm(commodity_sitc, 'sitcr4_2', 'sitc2_text', 'sitc2')
+labels = chapter_dict | sitc1_dict | sitc2_dict
+labels
+
+chapter = commodity_sitc[['hs2', 'hs2_text']].rename(columns={'hs2_text': 'chapter'})
+chapter = chapter[chapter.duplicated(['hs2'], keep='first') == False].sort_values(['hs2'])
+chapter['chapter'] = chapter['hs2'] + ' ' + chapter['chapter']
+chapter_dict = chapter[['hs2', 'chapter']].set_index('hs2').to_dict()
+chapter_dict
+
+commodity_sitc.info()
+
+# +
+labels.to_parquet('../data/labels.parquet')
+
+#.to_pydict()
+# -
+
+
+
+with open('../data/labels.json') as json_file:
+    data = json.load(json_file)
+data    
 
 

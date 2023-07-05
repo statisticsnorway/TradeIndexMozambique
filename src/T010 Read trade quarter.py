@@ -24,7 +24,8 @@ tradedata = pd.read_csv(
         'itemno': 'object',
         'exporterNUIT': 'object'
         },
-    na_values={'.',' .'}
+    na_values={'.',' .'},
+    encoding= 'unicode_escape'
 )
 
 # ## Read parquet files

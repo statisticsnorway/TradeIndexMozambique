@@ -7,7 +7,7 @@ data_dir = Path('../data')
 tradedata = pd.concat(
     pd.read_parquet(parquet_file)
     for parquet_file in data_dir.glob(f'{flow}_{year}q*.parquet')
-).reset_index()
+)
 
 tradedata['price'] = tradedata['value'] / tradedata['weight']
 tradedata.info()
@@ -20,11 +20,11 @@ tradedata['sd_comno'] = tradedata.groupby(['flow', 'comno'])['price'].transform(
 tradedata['mean_comno'] = tradedata.groupby(['flow', 'comno'])['price'].transform('mean')
 
 # ## Delete outliers
-# The limit is set before we run this syntax
+# The limit is set before we run this syntax. We use axis=0 to avoid a lot of messages
 
 tradedata['outlier_price'] = (
     tradedata.groupby(['flow', 'comno'], as_index=False)['price']
-    .transform(lambda x: abs(x - np.mean(x) > outlier_limit * np.std(x))).astype(int)
+    .transform(lambda x: abs(x - np.mean(x, axis=0) > outlier_limit * np.std(x))).astype(int)
 )
 print(f'Value of price outliers for {flow} in {year} for comno price with limit {outlier_limit}')
 display(
