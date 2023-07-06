@@ -2,16 +2,17 @@
 
 # ## Add parquet files for the whole year together
 
-# +
 data_dir = Path('../data')
 tradedata = pd.concat(
     pd.read_parquet(parquet_file)
     for parquet_file in data_dir.glob(f'{flow}_{year}q*.parquet')
 )
-
+print(f'{tradedata.shape[0]} rows read from parquet files for {year}\n')
 tradedata['price'] = tradedata['value'] / tradedata['weight']
-tradedata.info()
-# -
+
+# ## List rows where price is set to Infinity
+
+display(tradedata.loc[np.isinf(tradedata['price'])])
 
 # ## Add std and mean at commodity level
 # We actually don't need these to, except for control
@@ -22,10 +23,12 @@ tradedata['mean_comno'] = tradedata.groupby(['flow', 'comno'])['price'].transfor
 # ## Delete outliers
 # The limit is set before we run this syntax. We use axis=0 to avoid a lot of messages
 
-tradedata['outlier_price'] = (
-    tradedata.groupby(['flow', 'comno'], as_index=False)['price']
-    .transform(lambda x: abs(x - np.mean(x, axis=0) > outlier_limit * np.std(x))).astype(int)
-)
+# This calculates the 2*std inncorrect
+#tradedata['outlier_price'] = (
+#    tradedata.groupby(['flow', 'comno'], as_index=False)['price']
+#    .transform(lambda x: abs(x - np.mean(x, axis=0) > outlier_limit * np.std(x))).astype(int)
+#)
+tradedata['outlier_price'] = np.where((abs(tradedata['price'] - tradedata['mean_comno']) > (2 * tradedata['sd_comno'])), 1, 0)
 print(f'Value of price outliers for {flow} in {year} for comno price with limit {outlier_limit}')
 display(
     (pd.crosstab(tradedata['outlier_price'], 
@@ -36,10 +39,17 @@ display(
     .style.format('{:.0f}')
     )
 )
-print(f'List of price outlier for {flow} in {year} for comno price with limit {outlier_limit}')
+display(tradedata.groupby('outlier_price').agg(
+    valUSD_count=('valUSD', 'count'),
+    valUSD_mean=('valUSD', 'mean'),
+    valUSD_sum=('valUSD', 'sum'),
+    valUSD_std=('valUSD', 'std')
+    )
+)        
+print(f'List of price outliers for {flow} in {year} for comno price with limit {outlier_limit}')
 display(tradedata.loc[tradedata['outlier_price'] == 1])
 tradedata = tradedata.loc[tradedata['outlier_price'] == 0]
-tradedata.drop(columns=['outlier_price', 'sd_comno', 'mean_comno'], inplace=True)
+#tradedata.drop(columns=['outlier_price', 'sd_comno', 'mean_comno'], inplace=True)
 
 # ## Add columns for to check for homogenity in the data
 # These columns will be checked against the edge values that we choose
@@ -61,4 +71,4 @@ tradedata['S2_sum'] = tradedata.groupby(['flow', 'sitc2'])['value'].transform('s
 # ## Save as parquet file
 
 tradedata.to_parquet(f'../data/{flow}_{year}.parquet')
-print(f'\nNOTE: Parquet file ../data/{flow}_{year}.parquet written\n')
+print(f'\nNOTE: Parquet file ../data/{flow}_{year}.parquet written with {tradedata.shape[0]} rows and {tradedata.shape[1]} columns\n')

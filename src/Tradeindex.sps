@@ -1,5 +1,6 @@
 ﻿* Encoding: UTF-8.
 * Execute only once.
+INSERT file='src\002 ValueLabelFromDataset.sps'.
 INSERT file='src\005 Import_chapter_catalog.sps'.
 INSERT file='src\007 Import_commodities_catalog.sps'.
 

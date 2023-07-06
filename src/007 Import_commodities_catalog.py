@@ -36,12 +36,13 @@ def class_from_comm(df: pd.DataFrame, code:str, text:str, label:str):
 chapter_dict = class_from_comm(commodity_sitc, 'hs2', 'hs2_text', 'chapter')
 sitc1_dict = class_from_comm(commodity_sitc, 'sitcr4_1', 'sitc1_text', 'sitc1')
 sitc2_dict = class_from_comm(commodity_sitc, 'sitcr4_2', 'sitc2_text', 'sitc2')
-labels = chapter_dict | sitc1_dict | sitc2_dict
+#labels = chapter_dict | sitc1_dict | sitc2_dict
+labels = {**chapter_dict, **sitc1_dict, **sitc2_dict}
 
 # ## Save labels dictionary as json file
 
 with open("../data/labels.json", "w") as outfile:
-    json.dump(labels, outfile)
+    json.dump(labels, outfile, indent=4)
 
 # ## Keep only the columns for match with commodities
 
@@ -50,4 +51,5 @@ commodity_sitc = commodity_sitc[['comno', 'sitcr4_1', 'sitcr4_2']].rename(column
 
 # ## Save as parquet file
 
+print(f'\nNOTE: Parquet file ../data/commodity_sitc.parquet written with {commodity_sitc.shape[0]} rows and {commodity_sitc.shape[1]} columns\n')
 commodity_sitc.to_parquet('../data/commodity_sitc.parquet')

@@ -3,6 +3,7 @@
 # ## Open parquet file
 
 basedata = pd.read_parquet(f'../data/{flow}_{year}.parquet')
+print(f'{basedata.shape[0]} rows read from parquet file ../data/{flow}_{year}.parquet\n')
 
 # ## Compute share of total
 
@@ -59,9 +60,9 @@ basedata['median_by_min'] = basedata['price_median'] / basedata['price_min']
 print(f'Number of commodities before selection')
 display(pd.crosstab(basedata['flow'], columns='Frequency', margins=True))
 
-# ### Seasonal commodities
+# ### Extract those with enough months and Seasonal commodities
 
-basedata = basedata.loc[(basedata['no_of_months'] >= no_of_months) | ((basedata['no_of_months'] >= no_of_months) &
+basedata = basedata.loc[(basedata['no_of_months'] >= no_of_months) | ((basedata['no_of_months'] >= no_of_months_seasons) &
                         (basedata['section'] == section_seasons))]
 print(f'Number of commodities after selection of at least {no_of_months} months or seasonal commodities in section {section_seasons} with {no_of_months_seasons} or more months')
 display(pd.crosstab(basedata['flow'], columns='Frequency', margins=True))
@@ -92,7 +93,7 @@ display(pd.crosstab(basedata['flow'], columns='Frequency', margins=True))
 
 # ### share small
 
-basedata = basedata.loc[(basedata['share_small'] < share_small)]
+basedata = basedata.loc[(basedata['share_small'] > share_small)]
 print(f'Number of commodities after selection of at those with share of small {share_small} or more')
 display(pd.crosstab(basedata['flow'], columns='Frequency', margins=True))
 
@@ -100,22 +101,23 @@ display(pd.crosstab(basedata['flow'], columns='Frequency', margins=True))
 
 with open('../data/labels.json') as json_file:
     labels = json.load(json_file)
-print(labels)
+labels
 
 
 # ## Function to calculate the coverage
 # As we calculate the coverage for different aggregation levels, we make a function for it
 
 def coverage(df: pd.DataFrame, groupcol, aggcol) -> pd.DataFrame:
-    result = df.groupby(['year', 'flow', groupcol]).agg(
+    result = df.groupby(['year', 'flow', groupcol], as_index=False).agg(
         Ssample_sum=('HS_sum', 'sum'),
-        Spop_sum=('S1_sum', 'mean'),
-        Sno_of_comm=('S1_sum', 'size')
+        spop_sum=(aggcol, 'mean'),
+        Sno_of_comm=(aggcol, 'size')
         )
     result['Tsample_sum'] = result.groupby(['year', 'flow'])['Ssample_sum'].transform('sum')
-    result['Tpop_sum'] = result.groupby(['year', 'flow'])['Spop_sum'].transform('sum')
+    result['Tpop_sum'] = result.groupby(['year', 'flow'])['spop_sum'].transform('sum')
     result['Tno_of_comm'] = result.groupby(['year', 'flow'])['Sno_of_comm'].transform('sum')
-    result['Scoverage'] = result['Ssample_sum'] * 100 / result['Spop_sum']
+    result['Scoverage'] = result['Ssample_sum'] * 100 / result['spop_sum']
+    result['Tcoverage'] = result['Tsample_sum'] * 100 / result['Tpop_sum']
     result = result.replace(labels)
     return result
 

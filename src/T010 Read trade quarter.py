@@ -56,8 +56,13 @@ t_section.drop(columns='_merge', inplace=True)
 t_section['quarter'] = t_section['month'].astype(int) / 3
 t_section['quarter'] = np.trunc(t_section['quarter']) + (t_section['quarter'] > np.trunc(t_section['quarter']))
 
+# ## Set weight to at least 1
+# When the weight is 0 we set it to 1 as suggested by INE.
+
+t_section['weight'] = np.where(t_section['weight'] == 0, 1, t_section['weight'])
+
 # ## Save as parquet
 # The quarter file is save as a parquet file
 
 t_section.to_parquet(f'../data/{flow}_{year}q{quarter}.parquet')
-print(f'\nNOTE: Parquet file ../data/{flow}_{year}q{quarter}.parquet written\n')
+print(f'\nNOTE: Parquet file ../data/{flow}_{year}q{quarter}.parquet written with {t_section.shape[0]} rows and {t_section.shape[1]} columns\n')

@@ -9,6 +9,37 @@ GET DATA
 .
 EXECUTE.
 
+SAVE OUTFILE='temp/commcat.sav'.
+
+ValueLabelFromDataset 
+ infile='temp/commcat.sav' 
+ codevar=sitcr4_1 
+ textvar=Descriptionsitcr4_1
+ vars=sitc1 \
+ outfile="src/valuelabels_sitc1.sps" 
+ includecode=1
+ .
+
+ValueLabelFromDataset 
+ infile='temp/commcat.sav' 
+ codevar=sitcr4_2 
+ textvar=Descriptionsitcr4_2
+ vars=sitc2 \
+ outfile="src/valuelabels_sitc2.sps" 
+ includecode=1
+ .
+
+ValueLabelFromDataset 
+ infile='temp/commcat.sav' 
+ codevar=SH2 
+ textvar=DescriçãoSH2
+ vars=chapter \
+ outfile="src/valuelabels_chapter.sps" 
+ includecode=1
+ .
+
+GET FILE='temp/commcat.sav'.
+
 DELETE VARIABLES DescriçãoSH8 TO Descriptionsitcr4_3 Descriptionsitcr4_2 Descriptionsitcr4_1 TO becno.
 EXECUTE.
 
@@ -25,6 +56,7 @@ RENAME VARIABLES sitcr4_1 = sitc1 sitcr4_2 = sitc2.
 EXECUTE.
 
 SAVE OUTFILE='data\commodity_sitc.sav'.
+
 
 
 

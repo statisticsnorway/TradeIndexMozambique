@@ -23,6 +23,7 @@
 *.pkl
 *.bak
 *.rar
+*.json
 
 # Blaise
 *.bdix

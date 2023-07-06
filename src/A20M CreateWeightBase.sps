@@ -66,6 +66,7 @@ FORMATS max_by_min max_by_median median_by_min (f8.4).
 
 * The section_season macro variable does not work with more than one section!.
 SELECT IF (no_of_months >= !no_of_months or (any(section,!section_seasons) and no_of_months >= !no_of_months_seasons)).
+TITLE !CONCAT('After selection of no of months at least ',!no_of_months).
 FREQUENCIES flow.
 CTABLES
   /VLABELS VARIABLES=chapter no_of_months DISPLAY=LABEL
@@ -74,16 +75,24 @@ CTABLES
   /CATEGORIES VARIABLES=no_of_months ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=AFTER
   /CRITERIA CILEVEL=95.
 
-
 SELECT IF (price_cv < !price_cv).
+TITLE !CONCAT('After selection of price co-variance less than ',!price_cv).
 FREQUENCIES flow .
+
 SELECT IF (max_by_min < !max_by_min).
+TITLE !CONCAT('After selection of price max-by-min less than ',!max_by_min).
 FREQUENCIES flow .
+
 SELECT IF (max_by_median < !max_by_median).
+TITLE !CONCAT('After selection of price max-by-median less than ',!max_by_median).
 FREQUENCIES flow .
+
 SELECT IF (median_by_min < !median_by_min).
+TITLE !CONCAT('After selection of price median-by-min less than ',!median_by_min).
 FREQUENCIES flow .
+
 SELECT IF (share_small > !share_small).
+TITLE !CONCAT('After selection of share of small more than ',!share_small).
 FREQUENCIES flow.
 
 SORT CASES by flow section.

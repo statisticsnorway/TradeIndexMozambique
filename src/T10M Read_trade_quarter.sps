@@ -64,6 +64,9 @@ COMPUTE quarter = number(month,f2) / 3.
 COMPUTE quarter = TRUNC(quarter) + (quarter > TRUNC(quarter)).
 EXECUTE.
 
+* When the weight is 0 we set it to 1 as suggested by INE.
+IF (weight = 0) weight = 1.
+
 SAVE OUTFILE=!quote(!concat("data/",!flow,"_",!year,"Q",!quarter,".sav"))
 
 !ENDDEFINE.
