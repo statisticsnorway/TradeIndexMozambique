@@ -54,7 +54,7 @@ t_section.drop(columns='_merge', inplace=True)
 # ## Add a quarter column 
 
 t_section['quarter'] = t_section['month'].astype(int) / 3
-t_section['quarter'] = np.trunc(t_section['quarter']) + (t_section['quarter'] > np.trunc(t_section['quarter']))
+t_section['quarter'] = (np.trunc(t_section['quarter']) + (t_section['quarter'] > np.trunc(t_section['quarter']))).astype('str')
 
 # ## Set weight to at least 1
 # When the weight is 0 we set it to 1 as suggested by INE.

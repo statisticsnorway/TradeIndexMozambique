@@ -130,3 +130,77 @@ print('Coverage of sitc 1')
 display(coverage(basedata, 'sitc1', 'S1_sum'))
 print('Coverage of sitc 2')
 display(coverage(basedata, 'sitc2', 'S2_sum'))
+
+# ## Keep only columns that will be used later
+
+keepcol = ['flow',
+           'year',
+           'comno',
+           'sitc1',
+           'sitc2',
+           'chapter',
+           'section',
+           'quarter',
+           'T_sum',
+           'HS_sum',
+           'S_sum',
+           'C_sum',
+           'S1_sum',
+           'S2_sum'
+           ]
+basedata = basedata[keepcol]
+
+
+# ## Function to calculate weights
+
+def calculate_weights(df:pd.DataFrame, level, aggcol, mult1, mult2, weight) -> pd.DataFrame:
+    result = (df[df.duplicated(['year', 'flow', level], keep='first') == False]
+            .sort_values(['year', 'flow', level])
+    )
+    if level == 'section':
+        result[aggcol] = result.groupby(['year', 'flow'])[mult2].transform('sum')
+    else:
+        result[aggcol] = result.groupby(['year', 'flow', 'section'])[mult2].transform('sum')
+    result[weight] = result[mult1] * result[mult2] / result[aggcol]
+    result = result[['year', 'flow', level, aggcol, weight]]
+    return result
+
+
+# ## Calculate weights for section
+
+# section_weights = calculate_weights(basedata, 
+#                                     level='section', 
+#                                     aggcol='Tsample_sum', 
+#                                     mult1='T_sum', 
+#                                     mult2='S_sum',
+#                                     weight='Weight_S'
+#                                    )
+
+# ## Add section weights to weight data
+
+basedata = pd.merge(basedata, section_weights, on=(['year', 'flow', 'section']), how='left')
+
+# ## Calculate weights for chapter
+
+chapter_weights = calculate_weights(basedata, 
+                                    level='chapter', 
+                                    aggcol='Ssample_sum', 
+                                    mult1='Weight_S', 
+                                    mult2='C_sum',
+                                    weight='Weight_C'
+                                   )                                 
+
+# ## Add chapter weights to weight data
+
+basedata = pd.merge(basedata, chapter_weights, on=(['year', 'flow', 'chapter']), how='left')
+
+# ## Calculate weight_HS
+# This is the weight for commodities
+
+basedata['Csample_sum'] = basedata.groupby(['year', 'flow', 'chapter'])['HS_sum'].transform('sum')
+basedata['Weight_HS'] = basedata['Weight_C'] * basedata['HS_sum'] / basedata['Csample_sum']
+
+# ## Save as parquet file
+
+basedata.to_parquet(f'../data/weight_base_{flow}_{year}.parquet')
+print(f'\nNOTE: Parquet file ../data/weight_base_data/{flow}_{year}.parquet written with {basedata.shape[0]} rows and {basedata.shape[1]} columns\n')

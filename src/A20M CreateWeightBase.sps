@@ -160,7 +160,7 @@ AGGREGATE
   /OUTFILE=* 
   /BREAK=year flow sitc2  
   /Ssample_sum=SUM(HS_sum)
-  /Spop_sum=MEAN(S1_sum)
+  /Spop_sum=MEAN(S2_sum)
   /Sno_of_comm = N
   .
 

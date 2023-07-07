@@ -12,6 +12,7 @@ tradedata['price'] = tradedata['value'] / tradedata['weight']
 
 # ## List rows where price is set to Infinity
 
+print(f'This list shows rows where price could not be calculated. It should be empty.\n')
 display(tradedata.loc[np.isinf(tradedata['price'])])
 
 # ## Add std and mean at commodity level
