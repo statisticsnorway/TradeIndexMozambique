@@ -140,7 +140,7 @@ trade_without_outliers_r.rename(columns = {'price_4.0': 'base_price'}, inplace =
 # ## Save as parquet file
 
 baseprice = trade_without_outliers_r[['year', 'flow', 'comno', 'base_price', 'impute_base']]
-basedata.to_parquet(f'../data/base_price{flow}_{year}.parquet')
-print(f'\nNOTE: Parquet file ../data/base_price/{flow}_{year}.parquet written with {basedata.shape[0]} rows and {basedata.shape[1]} columns\n')
+baseprice.to_parquet(f'../data/base_price{flow}_{year}.parquet')
+print(f'\nNOTE: Parquet file ../data/base_price{flow}_{year}.parquet written with {basedata.shape[0]} rows and {basedata.shape[1]} columns\n')
 
 

@@ -70,31 +70,31 @@ display(pd.crosstab(basedata['flow'], columns='Frequency', margins=True))
 # ### price_cv
 
 basedata = basedata.loc[(basedata['price_cv'] < price_cv)]
-print(f'Number of commodities after selection of at those with price co-variance less than {price_cv}')
+print(f'Number of commodities after selection of those with price co-variance less than {price_cv}')
 display(pd.crosstab(basedata['flow'], columns='Frequency', margins=True))
 
 # ### max by min
 
 basedata = basedata.loc[(basedata['max_by_min'] < max_by_min)]
-print(f'Number of commodities after selection of at those with maximum by minimum less than {max_by_min}')
+print(f'Number of commodities after selection of those with maximum by minimum less than {max_by_min}')
 display(pd.crosstab(basedata['flow'], columns='Frequency', margins=True))
 
 # ### max by median
 
 basedata = basedata.loc[(basedata['max_by_median'] < max_by_median)]
-print(f'Number of commodities after selection of at those with maximum by median less than {max_by_median}')
+print(f'Number of commodities after selection of those with maximum by median less than {max_by_median}')
 display(pd.crosstab(basedata['flow'], columns='Frequency', margins=True))
 
 # ### median by min
 
 basedata = basedata.loc[(basedata['median_by_min'] < median_by_min)]
-print(f'Number of commodities after selection of at those with median by minimum less than {median_by_min}')
+print(f'Number of commodities after selection of those with median by minimum less than {median_by_min}')
 display(pd.crosstab(basedata['flow'], columns='Frequency', margins=True))
 
 # ### share small
 
 basedata = basedata.loc[(basedata['share_small'] > share_small)]
-print(f'Number of commodities after selection of at those with share of small {share_small} or more')
+print(f'Number of commodities after selection of those with share of small {share_small} or more')
 display(pd.crosstab(basedata['flow'], columns='Frequency', margins=True))
 
 # ## Import labels from json file
@@ -168,13 +168,13 @@ def calculate_weights(df:pd.DataFrame, level, aggcol, mult1, mult2, weight) -> p
 
 # ## Calculate weights for section
 
-# section_weights = calculate_weights(basedata, 
-#                                     level='section', 
-#                                     aggcol='Tsample_sum', 
-#                                     mult1='T_sum', 
-#                                     mult2='S_sum',
-#                                     weight='Weight_S'
-#                                    )
+section_weights = calculate_weights(basedata, 
+                                    level='section', 
+                                    aggcol='Tsample_sum', 
+                                    mult1='T_sum', 
+                                    mult2='S_sum',
+                                    weight='Weight_S'
+                                   )
 
 # ## Add section weights to weight data
 

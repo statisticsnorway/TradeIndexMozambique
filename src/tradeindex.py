@@ -71,12 +71,27 @@ year = 2018
 # ## Calculate the base prices
 
 exec(open("A30M Base_price.py").read())
-trade_without_outliers_r
+baseprice
 
 # ## Read tradedata 2019 quarter 1
 
 year = 2019
 quarter  = 1
+exec(open("T010 Read trade quarter.py").read())
+
+# ## Price control quarter
+# Check the data for extreme prices
+
+year_1 = year - 1
+price_limit_low = 0.3
+price_limit_high = 2.5
+exec(open("T40M Price_control.py").read())
+
+pd.crosstab(tradedata_no_outlier['outlier'], columns='Frequency')
+
+base_price
+
+# ## aggregate with lambda function and when calculations are done
 
 # +
 np.random.seed(44291)
@@ -129,7 +144,36 @@ display(tradedata)
 pd.crosstab(tradedata['outl2'], columns=tradedata['outlier_price'])
 
 # -
+sitccat.loc[sitccat['comno'] == '27160000']
+
+commlist = pd.read_parquet('../data/commodity_sitc.parquet')
+commlist.loc[commlist['comno'] == '27160000']
 
 
+t_section.loc[t_section['comno'] == '27160000']
+
+t_sitc = pd.merge(tradedata, sitccat, on='comno', how='left', indicator=True)
+print(f'Result of merge with sitc catalog for {flow}, for {year}q{quarter}:')
+display(pd.crosstab(t_sitc['_merge'], columns='Frequency', margins=True))
+print(f'List of commodity numbers that do not have sitc code for {flow}, for {year}q{quarter}:')
+display(pd.crosstab(t_sitc.loc[t_sitc['_merge'] == 'left_only', 'comno'], columns='Frequency', margins=True))
+
+
+pd.crosstab(t_sitc.loc[t_sitc['comno'] == '27160000', 'comno'], columns=t_sitc['_merge'], margins=True)
+
+pd.crosstab(t_sitc.loc[t_sitc['_merge'] == 'left_only', 'comno'], columns='_merge', margins=True)
+
+# +
+ if len(t_sitc.loc[t_sitc['_merge'] == 'left_only']) > 0:
+    print(f'List of commodity numbers that do not have sitc code for {flow}, for {year}q{quarter}:')
+    display(pd.crosstab(t_sitc.loc[t_sitc['_merge'] == 'left_only', 'comno'], columns='Frequency', margins=True))
+
+    
+        
+# -
+
+data = pd.DataFrame({'bruk2': ['123', 'abc', 'a2d', 'dd3']})
+data['nummer'] = data['bruk2'].str[1].str.isdigit()
+data
 
 
