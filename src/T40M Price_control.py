@@ -1,6 +1,8 @@
 # # Price control
 # Checking for extreme values
 
+year_1 = year - 1
+
 # ## Read parquet files
 # Parquet file for current quarter
 

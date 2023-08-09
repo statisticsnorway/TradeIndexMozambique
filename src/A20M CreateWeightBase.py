@@ -203,4 +203,4 @@ basedata['Weight_HS'] = basedata['Weight_C'] * basedata['HS_sum'] / basedata['Cs
 # ## Save as parquet file
 
 basedata.to_parquet(f'../data/weight_base_{flow}_{year}.parquet')
-print(f'\nNOTE: Parquet file ../data/weight_base_data/{flow}_{year}.parquet written with {basedata.shape[0]} rows and {basedata.shape[1]} columns\n')
+print(f'\nNOTE: Parquet file ../data/weight_base_data_{flow}_{year}.parquet written with {basedata.shape[0]} rows and {basedata.shape[1]} columns\n')

@@ -12,8 +12,9 @@ tradedata['price'] = tradedata['value'] / tradedata['weight']
 
 # ## List rows where price is set to Infinity
 
-print(f'This list shows rows where price could not be calculated. It should be empty.\n')
-display(tradedata.loc[np.isinf(tradedata['price'])])
+if len(tradedata.loc[np.isinf(tradedata['price'])]) > 0:
+    print(f'Rows where price could not be calculated.\n')
+    display(tradedata.loc[np.isinf(tradedata['price'])])
 
 # ## Add std and mean at commodity level
 # We actually don't need these to, except for control

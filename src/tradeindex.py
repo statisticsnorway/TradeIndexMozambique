@@ -40,8 +40,6 @@ exec(open("T010 Read trade quarter.py").read())
 quarter = 4
 exec(open("T010 Read trade quarter.py").read())
 
-t_section
-
 # ## Create weight base data and delete outliers
 
 outlier_limit = 2.0
@@ -82,14 +80,17 @@ exec(open("T010 Read trade quarter.py").read())
 # ## Price control quarter
 # Check the data for extreme prices
 
-year_1 = year - 1
 price_limit_low = 0.3
 price_limit_high = 2.5
 exec(open("T40M Price_control.py").read())
 
+quarter = 1
+exec(open("T50M Impute_prices.py").read())
+prices
+
 pd.crosstab(tradedata_no_outlier['outlier'], columns='Frequency')
 
-base_price
+prices['price_1'].describe()
 
 # ## aggregate with lambda function and when calculations are done
 
@@ -175,5 +176,9 @@ pd.crosstab(t_sitc.loc[t_sitc['_merge'] == 'left_only', 'comno'], columns='_merg
 data = pd.DataFrame({'bruk2': ['123', 'abc', 'a2d', 'dd3']})
 data['nummer'] = data['bruk2'].str[1].str.isdigit()
 data
+
+tradedata.loc[np.isinf(tradedata['price'])]
+
+len(tradedata.loc[np.isinf(tradedata['price'])]) > 0
 
 
