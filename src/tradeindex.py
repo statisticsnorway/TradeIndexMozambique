@@ -71,26 +71,99 @@ year = 2018
 exec(open("A30M Base_price.py").read())
 baseprice
 
-# ## Read tradedata 2019 quarter 1
+# ## Tradedata 2019 quarter 1
 
 year = 2019
 quarter  = 1
 exec(open("T010 Read trade quarter.py").read())
 
-# ## Price control quarter
+# ### Price control quarter
 # Check the data for extreme prices
 
 price_limit_low = 0.3
 price_limit_high = 2.5
 exec(open("T40M Price_control.py").read())
 
-quarter = 1
+# ### Impute prices quarter
+
 exec(open("T50M Impute_prices.py").read())
 prices
 
-pd.crosstab(tradedata_no_outlier['outlier'], columns='Frequency')
+# ### Calculate unchained index quarter
 
-prices['price_1'].describe()
+exec(open("T60M Index_unchained.py").read())
+
+# ## Calculate chained index for the first year
+
+# ## Tradedata 2019 quarter 2
+
+quarter  = 2
+exec(open("T010 Read trade quarter.py").read())
+
+# ### Price control quarter
+# Check the data for extreme prices
+
+price_limit_low = 0.3
+price_limit_high = 2.5
+exec(open("T40M Price_control.py").read())
+
+# ### Impute prices quarter
+
+exec(open("T50M Impute_prices.py").read())
+prices
+
+# ### Calculate unchained index quarter
+
+exec(open("T60M Index_unchained.py").read())
+
+# ## Tradedata 2019 quarter 3
+
+quarter  = 3
+exec(open("T010 Read trade quarter.py").read())
+
+# ### Price control quarter
+# Check the data for extreme prices
+
+price_limit_low = 0.3
+price_limit_high = 2.5
+exec(open("T40M Price_control.py").read())
+
+# ### Impute prices quarter
+
+exec(open("T50M Impute_prices.py").read())
+
+# ### Calculate unchained index quarter
+
+exec(open("T60M Index_unchained.py").read())
+
+# ## Tradedata 2019 quarter 4
+
+quarter  = 4
+exec(open("T010 Read trade quarter.py").read())
+
+# ### Price control quarter
+# Check the data for extreme prices
+
+price_limit_low = 0.3
+price_limit_high = 2.5
+exec(open("T40M Price_control.py").read())
+
+# ### Impute prices quarter
+
+exec(open("T50M Impute_prices.py").read())
+
+# ### Calculate unchained index quarter
+
+exec(open("T60M Index_unchained.py").read())
+
+
+
+# ## Calculate chained index for the first year
+
+year = 2019
+exec(open("T71M Chain_first_year.py").read())
+
+index_chained
 
 # ## aggregate with lambda function and when calculations are done
 
@@ -180,5 +253,14 @@ data
 tradedata.loc[np.isinf(tradedata['price'])]
 
 len(tradedata.loc[np.isinf(tradedata['price'])]) > 0
+
+trade_quarter.loc[trade_quarter['comno'] > '87000000']
+
+if len(trade_without_outliers_r.loc[trade_without_outliers_r['base_price'].isna()]) > 0:
+    display(pd.crosstab(trade_without_outliers_r.loc[trade_without_outliers_r['base_price'].isna(), 'base_price'], columns='Frequency'))
+
+trade_without_outliers_r
+
+trade_without_outliers_r
 
 

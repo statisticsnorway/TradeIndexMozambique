@@ -79,7 +79,7 @@ trade_without_outliers_r['prod_sum_2'] = trade_without_outliers_r.groupby(['year
 
 # ## Create weights by section for those who have value for product_1
 
-trade_without_outliers_r['weight_section'] = trade_without_outliers_r['Weight_HS'] * ~trade_without_outliers_r['product_1'].isna()
+trade_without_outliers_r['weight_section'] = trade_without_outliers_r['Weight_HS'] * trade_without_outliers_r['product_1'].notna()
 trade_without_outliers_r['weight_section'] = trade_without_outliers_r.groupby(['year', 'flow', 'section'])['weight_section'].transform('sum')
 
 # ## Impute prices for those who are missing
@@ -104,12 +104,12 @@ display(pd.crosstab(trade_without_outliers_r['impute_base'], columns='Frequency'
 
 # ## Compute products aggregated flow
 
-trade_without_outliers_r['prod_sum_1'] = trade_without_outliers_r.groupby(['year', 'flow'])['prod_sum_1'].transform('sum')
-trade_without_outliers_r['prod_sum_2'] = trade_without_outliers_r.groupby(['year', 'flow'])['prod_sum_2'].transform('sum')
+trade_without_outliers_r['prod_sum_1'] = trade_without_outliers_r.groupby(['year', 'flow'])['product_1'].transform('sum')
+trade_without_outliers_r['prod_sum_2'] = trade_without_outliers_r.groupby(['year', 'flow'])['product_2'].transform('sum')
 
 # ## Create weights by flow for those who have value for product_1
 
-trade_without_outliers_r['weight_flow'] = trade_without_outliers_r['Weight_HS'] * ~trade_without_outliers_r['product_1'].isna()
+trade_without_outliers_r['weight_flow'] = trade_without_outliers_r['Weight_HS'] * trade_without_outliers_r['product_1'].notna()
 trade_without_outliers_r['weight_flow'] = trade_without_outliers_r.groupby(['year', 'flow'])['weight_flow'].transform('sum')
 
 # ## Impute prices for those who are still missing
@@ -118,7 +118,7 @@ trade_without_outliers_r['weight_flow'] = trade_without_outliers_r.groupby(['yea
 trade_without_outliers_r['impute_base'] = np.where(trade_without_outliers_r['impute_base'] == 1,
                                                   trade_without_outliers_r['price_4.0'].isna().astype('int') + 1,
                                                   trade_without_outliers_r['impute_base'])
-trade_without_outliers_r['price_4.0'] = np.where((~trade_without_outliers_r['price_3.0'].isna()) &
+trade_without_outliers_r['price_4.0'] = np.where((trade_without_outliers_r['price_3.0'].notna()) &
                                                   (trade_without_outliers_r['impute_base'] == 2),
                                                   trade_without_outliers_r['price_3.0']*
                                                   trade_without_outliers_r['prod_sum_1']/
@@ -133,9 +133,11 @@ trade_without_outliers_r['price_4.0'] = np.where((trade_without_outliers_r['pric
                                                   trade_without_outliers_r['price_4.0']
                                                  )
 display(pd.crosstab(trade_without_outliers_r['impute_base'], columns='Frequency', margins=True))
-# Check if all have got prices
-pd.crosstab(~trade_without_outliers_r['price_4.0'].isna(),columns='Frequency', margins=True)
 trade_without_outliers_r.rename(columns = {'price_4.0': 'base_price'}, inplace = True)
+# Check if all have got prices
+if len(trade_without_outliers_r.loc[trade_without_outliers_r['base_price'].isna()]) > 0:
+    display(pd.crosstab(trade_without_outliers_r.loc[trade_without_outliers_r['base_price'].isna(), 'base_price'], columns='Frequency'))
+
 
 # ## Save as parquet file
 
