@@ -16,7 +16,7 @@ index_unchained['index_mean'] = index_unchained.groupby(['year', 'flow', 'series
 index_chained = index_unchained.copy()
 index_chained['index_chained'] = index_chained['index_unchained'] * 100 / index_chained['index_mean']
 #index_chained['period'] = index_chained['year'].astype(str) + 'Q' + index_chained['quarter'].astype(str)
-index_chained.drop(columns='index_mean')
+index_chained.drop(columns='index_mean', inplace=True)
 display(pd.crosstab([index_chained['level'], index_chained['series']], 
                     columns=[index_chained['year'], index_chained['quarter']], 
                     values=index_chained['index_chained'], 
@@ -24,6 +24,6 @@ display(pd.crosstab([index_chained['level'], index_chained['series']],
 
 # ## Save result as parquet file
 
-# indexfile = f'../data/index_chained.parquet'
-# index_chained.to_parquet(indexfile)
-# print(f'\nNOTE: Parquet file {indexfile} written with {index_chained.shape[0]} rows and {index_chained.shape[1]} columns\n')
+indexfile = f'../data/index_chained.parquet'
+index_chained.to_parquet(indexfile)
+print(f'\nNOTE: Parquet file {indexfile} written with {index_chained.shape[0]} rows and {index_chained.shape[1]} columns\n')

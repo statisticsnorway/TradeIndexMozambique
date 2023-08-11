@@ -13,7 +13,7 @@ print(f'{trade.shape[0]} rows read from parquet files for {year}\n')
 # ## Open the weight base for previous year and aggregate to section
 
 weight_base = pd.read_parquet(f'../data/weight_base_{flow}_{year}.parquet')
-print(f'{basedata.shape[0]} rows read from parquet file ../data/weight_base_{flow}_{year}.parquet\n')
+print(f'{weight_base.shape[0]} rows read from parquet file ../data/weight_base_{flow}_{year}.parquet\n')
 
 # ## Extract weight at commodity level
 
@@ -143,6 +143,6 @@ if len(trade_without_outliers_r.loc[trade_without_outliers_r['base_price'].isna(
 
 baseprice = trade_without_outliers_r[['year', 'flow', 'comno', 'base_price', 'impute_base']]
 baseprice.to_parquet(f'../data/base_price{flow}_{year}.parquet')
-print(f'\nNOTE: Parquet file ../data/base_price{flow}_{year}.parquet written with {basedata.shape[0]} rows and {basedata.shape[1]} columns\n')
+print(f'\nNOTE: Parquet file ../data/base_price{flow}_{year}.parquet written with {baseprice.shape[0]} rows and {baseprice.shape[1]} columns\n')
 
 

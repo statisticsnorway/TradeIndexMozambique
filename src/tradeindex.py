@@ -40,12 +40,13 @@ exec(open("T010 Read trade quarter.py").read())
 quarter = 4
 exec(open("T010 Read trade quarter.py").read())
 
-# ## Create weight base data and delete outliers
+# ## Create weight base data and delete outliers for 2018
 
+year = 2018
 outlier_limit = 2.0
 exec(open("A10M CreateWeightBasePopulation.py").read())
 
-# ## Create weight base population
+# ## Create weight base population 2018
 # This syntax will select the commodities to use for the index for the next year. It will be the base for that index. We set the parameters for selecting the commodities here
 
 share_total=0.05
@@ -60,13 +61,7 @@ share_small=0.0001
 exec(open("A20M CreateWeightBase.py").read())
 basedata
 
-# ## Base prices 2018
-
-# Parameters
-
-year = 2018
-
-# ## Calculate the base prices
+# ## Calculate the base prices 2018
 
 exec(open("A30M Base_price.py").read())
 baseprice
@@ -92,8 +87,6 @@ prices
 # ### Calculate unchained index quarter
 
 exec(open("T60M Index_unchained.py").read())
-
-# ## Calculate chained index for the first year
 
 # ## Tradedata 2019 quarter 2
 
@@ -156,14 +149,145 @@ exec(open("T50M Impute_prices.py").read())
 
 exec(open("T60M Index_unchained.py").read())
 
-
-
 # ## Calculate chained index for the first year
 
 year = 2019
 exec(open("T71M Chain_first_year.py").read())
 
-index_chained
+# ## Create weight base data and delete outliers for 2019
+
+year = 2019
+outlier_limit = 2.0
+exec(open("A10M CreateWeightBasePopulation.py").read())
+
+# ## Create weight base population 2019
+# This syntax will select the commodities to use for the index for the next year. It will be the base for that index. We set the parameters for selecting the commodities here
+
+share_total=0.05
+no_of_months=5
+no_of_months_seasons=3
+section_seasons='II'
+price_cv=0.5
+max_by_min=10
+max_by_median=5
+median_by_min=5
+share_small=0.0001
+exec(open("A20M CreateWeightBase.py").read())
+basedata
+
+# ## Calculate the base prices 2019
+
+exec(open("A30M Base_price.py").read())
+baseprice
+
+# ## Tradedata 2020 quarter 1
+
+year = 2020
+quarter  = 1
+exec(open("T010 Read trade quarter.py").read())
+
+# ### Price control quarter
+# Check the data for extreme prices
+
+price_limit_low = 0.3
+price_limit_high = 2.5
+exec(open("T40M Price_control.py").read())
+
+# ### Impute prices quarter
+
+exec(open("T50M Impute_prices.py").read())
+prices
+
+# ### Calculate unchained index quarter
+
+exec(open("T60M Index_unchained.py").read())
+
+# ### Chained index
+
+exec(open("T72M Chain_next_years.py").read())
+
+# ## Tradedata 2020 quarter 2
+
+year = 2020
+quarter  = 2
+exec(open("T010 Read trade quarter.py").read())
+
+# ### Price control quarter
+# Check the data for extreme prices
+
+price_limit_low = 0.3
+price_limit_high = 2.5
+exec(open("T40M Price_control.py").read())
+
+# ### Impute prices quarter
+
+exec(open("T50M Impute_prices.py").read())
+
+# ### Calculate unchained index quarter
+
+exec(open("T60M Index_unchained.py").read())
+
+# ### Chained index
+
+exec(open("T72M Chain_next_years.py").read())
+
+# ## Tradedata 2020 quarter 3
+
+year = 2020
+quarter  = 3
+exec(open("T010 Read trade quarter.py").read())
+
+# ### Price control quarter
+# Check the data for extreme prices
+
+price_limit_low = 0.3
+price_limit_high = 2.5
+exec(open("T40M Price_control.py").read())
+
+# ### Impute prices quarter
+
+exec(open("T50M Impute_prices.py").read())
+prices
+
+# ### Calculate unchained index quarter
+
+exec(open("T60M Index_unchained.py").read())
+
+# ### Chained index
+
+exec(open("T72M Chain_next_years.py").read())
+
+# ## Tradedata 2020 quarter 4
+
+year = 2020
+quarter  = 4
+exec(open("T010 Read trade quarter.py").read())
+
+# ### Price control quarter
+# Check the data for extreme prices
+
+price_limit_low = 0.3
+price_limit_high = 2.5
+exec(open("T40M Price_control.py").read())
+
+# ### Impute prices quarter
+
+exec(open("T50M Impute_prices.py").read())
+prices
+
+# ### Calculate unchained index quarter
+
+exec(open("T60M Index_unchained.py").read())
+
+# ## Chained index
+
+year = 2020
+exec(open("T72M Chain_next_years.py").read())
+index_chained_detailed
+
+# ### Chained index
+
+exec(open("T72M Chain_next_years.py").read())
 
 # ## aggregate with lambda function and when calculations are done
 
