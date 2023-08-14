@@ -41,7 +41,7 @@ index_chained_quarter = pd.merge(index_chained_detailed, index_chained_total, on
 # If base index is missing, we will use the index for the total
 
 # +
-index_chained_quarter['index_chained_base'] = np.where(index_chained_quarter['index_chained_base'].isna,
+index_chained_quarter['index_chained_base'] = np.where(index_chained_quarter['index_chained_base'].isna(),
                                                        index_chained_quarter['index_chained_total'],
                                                        index_chained_quarter['index_chained_base']
 )

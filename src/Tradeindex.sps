@@ -73,7 +73,7 @@ create_weight_base year_1=2019
                    max_by_min=10
                    max_by_median=5
                    median_by_min=5
-                   share_small=0.001
+                   share_small=0.0001
                    .
 base_prices year=2020 year_1 = 2019.
 
@@ -114,7 +114,7 @@ create_weight_base year_1=2020
                    max_by_min=10
                    max_by_median=5
                    median_by_min=5
-                   share_small=0.001
+                   share_small=0.0001
                    .
 base_prices year=2021 year_1 = 2020.
 

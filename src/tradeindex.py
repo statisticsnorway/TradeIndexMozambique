@@ -285,9 +285,140 @@ year = 2020
 exec(open("T72M Chain_next_years.py").read())
 index_chained_detailed
 
+# ## Create weight base data and delete outliers for 2020
+
+year = 2020
+outlier_limit = 2.0
+exec(open("A10M CreateWeightBasePopulation.py").read())
+
+# ## Create weight base population 2020
+# This syntax will select the commodities to use for the index for the next year. It will be the base for that index. We set the parameters for selecting the commodities here
+
+share_total=0.05
+no_of_months=5
+no_of_months_seasons=3
+section_seasons='II'
+price_cv=0.5
+max_by_min=10
+max_by_median=5
+median_by_min=5
+share_small=0.0001
+exec(open("A20M CreateWeightBase.py").read())
+basedata
+
+# ## Calculate the base prices 2020
+
+exec(open("A30M Base_price.py").read())
+baseprice
+
+# ## Tradedata 2021 quarter 1
+
+year = 2021
+quarter  = 1
+exec(open("T010 Read trade quarter.py").read())
+
+# ### Price control quarter
+# Check the data for extreme prices
+
+price_limit_low = 0.3
+price_limit_high = 2.5
+exec(open("T40M Price_control.py").read())
+
+# ### Impute prices quarter
+
+exec(open("T50M Impute_prices.py").read())
+prices
+
+# ### Calculate unchained index quarter
+
+exec(open("T60M Index_unchained.py").read())
+
 # ### Chained index
 
 exec(open("T72M Chain_next_years.py").read())
+
+# ## Tradedata 2021 quarter 2
+
+year = 2021
+quarter  = 2
+exec(open("T010 Read trade quarter.py").read())
+
+# ### Price control quarter
+# Check the data for extreme prices
+
+price_limit_low = 0.3
+price_limit_high = 2.5
+exec(open("T40M Price_control.py").read())
+
+# ### Impute prices quarter
+
+exec(open("T50M Impute_prices.py").read())
+
+# ### Calculate unchained index quarter
+
+exec(open("T60M Index_unchained.py").read())
+
+# ### Chained index
+
+exec(open("T72M Chain_next_years.py").read())
+
+# ## Tradedata 2021 quarter 3
+
+year = 2021
+quarter  = 3
+exec(open("T010 Read trade quarter.py").read())
+
+# ### Price control quarter
+# Check the data for extreme prices
+
+price_limit_low = 0.3
+price_limit_high = 2.5
+exec(open("T40M Price_control.py").read())
+
+# ### Impute prices quarter
+
+exec(open("T50M Impute_prices.py").read())
+prices
+
+# ### Calculate unchained index quarter
+
+exec(open("T60M Index_unchained.py").read())
+
+# ### Chained index
+
+exec(open("T72M Chain_next_years.py").read())
+
+# ## Tradedata 2021 quarter 4
+
+year = 2021
+quarter  = 4
+exec(open("T010 Read trade quarter.py").read())
+
+# ### Price control quarter
+# Check the data for extreme prices
+
+price_limit_low = 0.3
+price_limit_high = 2.5
+exec(open("T40M Price_control.py").read())
+
+# ### Impute prices quarter
+
+exec(open("T50M Impute_prices.py").read())
+prices
+
+# ### Calculate unchained index quarter
+
+exec(open("T60M Index_unchained.py").read())
+
+# ## Chained index
+
+year = 2021
+exec(open("T72M Chain_next_years.py").read())
+index_chained_detailed
+
+#
+
+
 
 # ## aggregate with lambda function and when calculations are done
 
@@ -386,5 +517,78 @@ if len(trade_without_outliers_r.loc[trade_without_outliers_r['base_price'].isna(
 trade_without_outliers_r
 
 trade_without_outliers_r
+
+
+
+year_base = year - 1
+
+# ## Read parquet files
+
+# +
+indexchainedfile = f'../data/index_chained.parquet'
+index_chained = pd.read_parquet(indexchainedfile)
+print(f'{index_chained.shape[0]} rows read from parquet file {indexchainedfile}\n')
+
+indexunchainedfile = f'../data/index_unchained_{year}.parquet'
+index_unchained = pd.read_parquet(indexunchainedfile)
+print(f'{index_unchained.shape[0]} rows read from parquet file {indexunchainedfile}\n')
+# -
+
+# ## Select last quarter previous year
+
+index_chained_q4 = index_chained.loc[(index_chained['year'] == year_base) & (index_chained['quarter'] == 4)]
+varlist = ['flow', 'level', 'series', 'index_chained']
+index_chained_q4 = index_chained_q4[varlist]
+index_chained_q4.rename(columns={'index_chained': 'index_chained_base'}, inplace=True)
+index_chained_q4
+
+# ## Match last quarter chained with index current year
+
+index_chained_detailed = pd.merge(index_unchained, index_chained_q4, on=['flow', 'level', 'series'], how='left', indicator=True)
+index_chained_detailed
+
+# ## Select total level for the first quarter
+
+index_chained_total = index_chained_detailed.loc[(index_chained_detailed['level'] == 'Total') & (index_chained_detailed['quarter'] == 1)]
+index_chained_total.rename(columns={'index_chained_base': 'index_chained_total'}, inplace=True)
+index_chained_total = index_chained_total[['flow', 'index_chained_total']]
+index_chained_total
+
+# ## Match chained base to every row
+
+index_chained_quarter = pd.merge(index_chained_detailed, index_chained_total, on=['flow'], how='left')
+index_chained_quarter
+
+# ## Compute chain factor and chained index
+# If base index is missing, we will use the index for the total
+
+# +
+index_chained_quarter['index_chained_base'] = np.where(index_chained_quarter['index_chained_base'].isna(),
+                                                       index_chained_quarter['index_chained_total'],
+                                                       index_chained_quarter['index_chained_base']
+)
+
+
+#index_chained_quarter['chain_factor'] = index_chained_quarter['index_chained_base'] / 100
+#index_chained_quarter['index_chained'] = index_chained_quarter['chain_factor'] * index_chained_quarter['index_unchained']
+#index_chained_quarter.drop(columns=['index_chained_total', 'index_chained_base', 'chain_factor'], inplace=True)
+index_chained_quarter
+# -
+
+index_chained_quarter['index_chained_base'].loc[index_chained_quarter['index_chained_base'].isna()]
+
+# ## Add chained index this quarter to chained index file
+
+index_chained = pd.concat([index_chained, index_chained_quarter])
+groupvars = ['flow', 'level', 'series', 'year', 'quarter']
+index_chained = index_chained[index_chained.duplicated(groupvars, keep='last') == False].sort_values(groupvars)
+
+# ## Table for last 4 years
+
+last4 = index_chained.loc[index_chained['year'] >= year - 3]
+display(pd.crosstab([last4['level'], last4['series']], 
+                    columns=[last4['year'], last4['quarter']], 
+                    values=last4['index_chained'], 
+                    aggfunc='mean'))
 
 

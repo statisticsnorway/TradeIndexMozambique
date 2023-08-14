@@ -67,6 +67,9 @@ EXECUTE.
 * When the weight is 0 we set it to 1 as suggested by INE.
 IF (weight = 0) weight = 1.
 
+* When the value is 0, we delete the whole case.
+SELECT IF NOT(value = 0). 
+
 SAVE OUTFILE=!quote(!concat("data/",!flow,"_",!year,"Q",!quarter,".sav"))
 
 !ENDDEFINE.
