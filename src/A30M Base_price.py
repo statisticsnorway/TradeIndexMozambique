@@ -116,7 +116,7 @@ trade_without_outliers_r['weight_flow'] = trade_without_outliers_r.groupby(['yea
 # All rows should have prices after these operations. It is checked with a table.
 
 trade_without_outliers_r['impute_base'] = np.where(trade_without_outliers_r['impute_base'] == 1,
-                                                  trade_without_outliers_r['price_4.0'].isna().astype('int') + 1,
+                                                  trade_without_outliers_r['price_4.0'].isin([np.nan, np.inf]).astype('int') + 1,
                                                   trade_without_outliers_r['impute_base'])
 trade_without_outliers_r['price_4.0'] = np.where((trade_without_outliers_r['price_3.0'].notna()) &
                                                   (trade_without_outliers_r['impute_base'] == 2),
@@ -135,8 +135,8 @@ trade_without_outliers_r['price_4.0'] = np.where((trade_without_outliers_r['pric
 display(pd.crosstab(trade_without_outliers_r['impute_base'], columns='Frequency', margins=True))
 trade_without_outliers_r.rename(columns = {'price_4.0': 'base_price'}, inplace = True)
 # Check if all have got prices
-if len(trade_without_outliers_r.loc[trade_without_outliers_r['base_price'].isna()]) > 0:
-    display(pd.crosstab(trade_without_outliers_r.loc[trade_without_outliers_r['base_price'].isna(), 'base_price'], columns='Frequency'))
+if len(trade_without_outliers_r.loc[trade_without_outliers_r['base_price'].isin([np.nan, np.inf])]) > 0:
+    display(pd.crosstab(trade_without_outliers_r.loc[trade_without_outliers_r['base_price'].isin([np.nan, np.inf]), 'base_price'], columns='Frequency'))
 
 
 # ## Save as parquet file
