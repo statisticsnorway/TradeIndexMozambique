@@ -21,6 +21,12 @@ if len(tradedata.loc[np.isinf(tradedata['price'])]) > 0:
 
 tradedata['sd_comno'] = tradedata.groupby(['flow', 'comno'])['price'].transform('std')
 tradedata['mean_comno'] = tradedata.groupby(['flow', 'comno'])['price'].transform('mean')
+tradedata['T_sum'] = tradedata.groupby(['flow'])['value'].transform('sum')
+tradedata['HS_sum'] = tradedata.groupby(['flow', 'comno'])['value'].transform('sum')
+tradedata['S_sum'] = tradedata.groupby(['flow', 'section'])['value'].transform('sum')
+tradedata['C_sum'] = tradedata.groupby(['flow', 'chapter'])['value'].transform('sum')
+tradedata['S1_sum'] = tradedata.groupby(['flow', 'sitc1'])['value'].transform('sum')
+tradedata['S2_sum'] = tradedata.groupby(['flow', 'sitc2'])['value'].transform('sum')
 
 # ## Delete outliers
 # The limit is set before we run this syntax. We use axis=0 to avoid a lot of messages
@@ -63,12 +69,6 @@ tradedata['price_median'] = tradedata.groupby(['flow', 'comno'])['price'].transf
 tradedata['price_mean'] = tradedata.groupby(['flow', 'comno'])['price'].transform('mean')
 tradedata['price_sd'] = tradedata.groupby(['flow', 'comno'])['price'].transform('std')
 tradedata['price_cv'] = tradedata['price_sd'] / tradedata['price_mean']
-tradedata['T_sum'] = tradedata.groupby(['flow'])['value'].transform('sum')
-tradedata['HS_sum'] = tradedata.groupby(['flow', 'comno'])['value'].transform('sum')
-tradedata['S_sum'] = tradedata.groupby(['flow', 'section'])['value'].transform('sum')
-tradedata['C_sum'] = tradedata.groupby(['flow', 'chapter'])['value'].transform('sum')
-tradedata['S1_sum'] = tradedata.groupby(['flow', 'sitc1'])['value'].transform('sum')
-tradedata['S2_sum'] = tradedata.groupby(['flow', 'sitc2'])['value'].transform('sum')
 
 # ## Save as parquet file
 

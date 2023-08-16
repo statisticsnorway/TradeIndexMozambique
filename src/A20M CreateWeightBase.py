@@ -55,7 +55,7 @@ basedata['max_by_median'] = basedata['price_max'] / basedata['price_median']
 basedata['median_by_min'] = basedata['price_median'] / basedata['price_min']
 
 # ## Select the sample for the index
-# We start with an overview of the original number of comodities
+# We start with an overview of the original number of commodities
 
 print(f'Number of commodities before selection')
 display(pd.crosstab(basedata['flow'], columns='Frequency', margins=True))

@@ -2,6 +2,7 @@
 DEFINE read_quarter(flow=!tokens(1)
                    /year=!tokens(1)
                    /quarter=!tokens(1)
+                   /outlier_limit=!tokens(1)
                    )
 PRESERVE.
 SET DECIMAL DOT.
@@ -67,8 +68,36 @@ EXECUTE.
 * When the weight is 0 we set it to 1 as suggested by INE.
 IF (weight = 0) weight = 1.
 
+* For commodity 27160000 we use quantity as weight.
+IF (comno = '27160000') weight = quantity. 
+
 * When the value is 0, we delete the whole case.
 SELECT IF NOT(value = 0). 
+
+COMPUTE price = value / weight.
+execute.
+
+AGGREGATE
+  /OUTFILE=* MODE=ADDVARIABLES
+  /BREAK=flow comno month 
+  /sd_comno=SD(price)
+  /mean_comno=MEAN(price)
+.
+
+* Delete outliers.
+compute ul = mean_comno + (!outlier_limit * sd_comno).
+compute ll = mean_comno - (!outlier_limit * sd_comno).
+EXECUTE.
+COMPUTE outlier = 0.
+if (price < ll or price > ul) outlier=1.
+EXECUTE.
+
+FREQUENCIES outlier.
+MEANS TABLES=valusd BY outlier
+  /CELLS=MEAN COUNT STDDEV SUM.
+
+*DELETE VARIABLES ul ll sd_comno mean_comno.
+EXECUTE.
 
 SAVE OUTFILE=!quote(!concat("data/",!flow,"_",!year,"Q",!quarter,".sav"))
 
