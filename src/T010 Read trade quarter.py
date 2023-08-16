@@ -71,6 +71,12 @@ t_section['quarter'] = (np.trunc(t_section['quarter']) + (t_section['quarter'] >
 
 t_section['weight'] = np.where(t_section['weight'] == 0, 1, t_section['weight'])
 
+# ## Choose whether to use weight or quantity for the amount
+# For 27160000 we choose quantity
+
+quant_vars = ['27160000']
+t_section['weight'] = np.where(t_section['comno'].isin(quant_vars), t_section['quantity'], t_section['weight'])
+
 # ## Save as parquet
 # The quarter file is save as a parquet file
 

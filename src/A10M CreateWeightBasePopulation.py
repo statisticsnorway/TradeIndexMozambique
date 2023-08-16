@@ -17,7 +17,7 @@ if len(tradedata.loc[np.isinf(tradedata['price'])]) > 0:
     display(tradedata.loc[np.isinf(tradedata['price'])])
 
 # ## Add std and mean at commodity level
-# We actually don't need these to, except for control
+# We also add sums at some aggregated levels
 
 tradedata['sd_comno'] = tradedata.groupby(['flow', 'comno'])['price'].transform('std')
 tradedata['mean_comno'] = tradedata.groupby(['flow', 'comno'])['price'].transform('mean')
@@ -59,18 +59,28 @@ display(tradedata.loc[tradedata['outlier_price'] == 1])
 tradedata = tradedata.loc[tradedata['outlier_price'] == 0]
 #tradedata.drop(columns=['outlier_price', 'sd_comno', 'mean_comno'], inplace=True)
 
+# ## Aggregate to months as there are often more rows for the same commodity within the same month
+
+aggvars = ['year', 'flow', 'comno', 'quarter', 'month', 'section', 'chapter', 
+           'sitc1', 'sitc2', 'T_sum', 'S_sum', 'C_sum', 'S1_sum', 'S2_sum', 'HS_sum']
+tradedata_month = tradedata.groupby(aggvars, as_index=False).agg(
+    weight=('weight', 'sum'),
+    value=('value', 'sum')
+)
+tradedata_month['price'] = tradedata_month['value'] / tradedata_month['weight']
+
 # ## Add columns for to check for homogenity in the data
 # These columns will be checked against the edge values that we choose
 
-tradedata['no_of_months'] = tradedata.groupby(['flow', 'comno'])['month'].transform('count')
-tradedata['price_max'] = tradedata.groupby(['flow', 'comno'])['price'].transform('max')
-tradedata['price_min'] = tradedata.groupby(['flow', 'comno'])['price'].transform('min')
-tradedata['price_median'] = tradedata.groupby(['flow', 'comno'])['price'].transform('median')
-tradedata['price_mean'] = tradedata.groupby(['flow', 'comno'])['price'].transform('mean')
-tradedata['price_sd'] = tradedata.groupby(['flow', 'comno'])['price'].transform('std')
-tradedata['price_cv'] = tradedata['price_sd'] / tradedata['price_mean']
+tradedata_month['no_of_months'] = tradedata_month.groupby(['flow', 'comno'])['month'].transform('count')
+tradedata_month['price_max'] = tradedata_month.groupby(['flow', 'comno'])['price'].transform('max')
+tradedata_month['price_min'] = tradedata_month.groupby(['flow', 'comno'])['price'].transform('min')
+tradedata_month['price_median'] = tradedata_month.groupby(['flow', 'comno'])['price'].transform('median')
+tradedata_month['price_mean'] = tradedata_month.groupby(['flow', 'comno'])['price'].transform('mean')
+tradedata_month['price_sd'] = tradedata_month.groupby(['flow', 'comno'])['price'].transform('std')
+tradedata_month['price_cv'] = tradedata_month['price_sd'] / tradedata_month['price_mean']
 
 # ## Save as parquet file
 
-tradedata.to_parquet(f'../data/{flow}_{year}.parquet')
-print(f'\nNOTE: Parquet file ../data/{flow}_{year}.parquet written with {tradedata.shape[0]} rows and {tradedata.shape[1]} columns\n')
+tradedata_month.to_parquet(f'../data/{flow}_{year}.parquet')
+print(f'\nNOTE: Parquet file ../data/{flow}_{year}.parquet written with {tradedata_month.shape[0]} rows and {tradedata_month.shape[1]} columns\n')
