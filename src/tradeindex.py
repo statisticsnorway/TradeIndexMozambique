@@ -426,7 +426,7 @@ index_chained_detailed
 np.random.seed(44291)
 
 n = 10
-outliser_limit = 2.0
+outlier_limit = 2.0
 flow = ['E', 'I'] 
 comno = ['44190000', '44201000', '44209000'] 
 value = abs(np.random.normal(100,1000, size=n))
@@ -439,9 +439,11 @@ data = {'flow': np.random.choice(flow, n),
         'weight': weight}
 tradedata = pd.DataFrame(data)
 tradedata['price'] = tradedata['value'] / tradedata['weight']
+
 tradedata['sd_comno'] = tradedata.groupby(['flow', 'comno'])['price'].transform('std')
 tradedata['sd_comno2'] = tradedata.groupby(['flow', 'comno'])['price'].transform('std')*2
 tradedata['price2'] = tradedata['price'] * 2
+tradedata['sd_comnop2'] = tradedata.groupby(['flow', 'comno'])['price2'].transform('std')
 
 tradedata['sd_comno_lambda2'] = tradedata.groupby(['flow', 'comno'], as_index=False)['price'].transform(lambda x: (outlier_limit * (np.std(x))))
 tradedata['sd_comno_lambda2p2'] = tradedata.groupby(['flow', 'comno'], as_index=False)['price2'].transform(lambda x: np.std(x))

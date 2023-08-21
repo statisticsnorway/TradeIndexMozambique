@@ -17,10 +17,10 @@ INSERT file='src\T72M Chain_next_years.sps'.
 
 
 * Quarterly first year.
-read_quarter flow=Export year=2018 quarter=1 outlier_limit=2.0.
-read_quarter flow=Export year=2018 quarter=2 outlier_limit=2.0.
-read_quarter flow=Export year=2018 quarter=3 outlier_limit=2.0.
-read_quarter flow=Export year=2018 quarter=4 outlier_limit=2.0.
+read_quarter flow=Export year=2018 quarter=1 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+read_quarter flow=Export year=2018 quarter=2 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+read_quarter flow=Export year=2018 quarter=3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+read_quarter flow=Export year=2018 quarter=4 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
 
 * Yearly (first year 2019, base year 2018).
 create_weight_base_population year_1=2018 .
@@ -38,23 +38,23 @@ create_weight_base year_1=2018
 base_prices year=2019 year_1 = 2018.
 
 * Quarterly (2019).
-read_quarter flow=Export year=2019 quarter=1 outlier_limit=2.0.
-price_control year_base=2018 year=2019 quarter=1.
+read_quarter flow=Export year=2019 quarter=1 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control year_base=2018 year=2019 quarter=1 outlier_limit_upper=2.5 outlier_limit_lower=0.3.
 impute_price year_base=2018 quarter_1=4 year=2019 quarter=1.
 indices_unchained year_base=2018 year=2019 quarter=1.
 
-read_quarter flow=Export year=2019 quarter=2 outlier_limit=2.0.
-price_control year_base=2018 year=2019 quarter=2.
+read_quarter flow=Export year=2019 quarter=2 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control year_base=2018 year=2019 quarter=2 outlier_limit_upper=2.5 outlier_limit_lower=0.3.
 impute_price year_base=2018 quarter_1=1 year=2019 quarter=2.
 indices_unchained year_base=2018 year=2019 quarter=2.
 
-read_quarter flow=Export year=2019 quarter=3 outlier_limit=2.0.
-price_control year_base=2018 year=2019 quarter=3.
+read_quarter flow=Export year=2019 quarter=3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control year_base=2018 year=2019 quarter=3 outlier_limit_upper=2.5 outlier_limit_lower=0.3.
 impute_price year_base=2018 quarter_1=2 year=2019 quarter=3.
 indices_unchained year_base=2018 year=2019 quarter=3.
 
-read_quarter flow=Export year=2019 quarter=4 outlier_limit=2.0.
-price_control year_base=2018 year=2019 quarter=4.
+read_quarter flow=Export year=2019 quarter=4 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control year_base=2018 year=2019 quarter=4 outlier_limit_upper=2.5 outlier_limit_lower=0.3.
 impute_price year_base=2018 quarter_1=3 year=2019 quarter=4.
 indices_unchained year_base=2018 year=2019 quarter=4.
 
@@ -77,26 +77,26 @@ create_weight_base year_1=2019
 base_prices year=2020 year_1 = 2019.
 
 * Quarterly (2020).
-read_quarter flow=Export year=2020 quarter=1 outlier_limit=2.0.
-price_control year_base=2019 year=2020 quarter=1.
+read_quarter flow=Export year=2020 quarter=1 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control year_base=2019 year=2020 quarter=1 outlier_limit_upper=2.5 outlier_limit_lower=0.3.
 impute_price year_base=2019 quarter_1=4 year=2020 quarter=1.
 indices_unchained year_base=2019 year=2020 quarter=1.
 chain_year year_base=2019 year=2020 .
 
-read_quarter flow=Export year=2020 quarter=2 outlier_limit=2.0.
-price_control year_base=2019 year=2020 quarter=2.
+read_quarter flow=Export year=2020 quarter=2 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control year_base=2019 year=2020 quarter=2 outlier_limit_upper=2.5 outlier_limit_lower=0.3.
 impute_price year_base=2019 quarter_1=1 year=2020 quarter=2.
 indices_unchained year_base=2019 year=2020 quarter=2.
 chain_year year_base=2019 year=2020 .
 
-read_quarter flow=Export year=2020 quarter=3 outlier_limit=2.0.
-price_control year_base=2019 year=2020 quarter=3.
+read_quarter flow=Export year=2020 quarter=3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control year_base=2019 year=2020 quarter=3 outlier_limit_upper=2.5 outlier_limit_lower=0.3.
 impute_price year_base=2019 quarter_1=2 year=2020 quarter=3.
 indices_unchained year_base=2019 year=2020 quarter=3.
 chain_year year_base=2019 year=2020 .
 
-read_quarter flow=Export year=2020 quarter=4 outlier_limit=2.0.
-price_control year_base=2019 year=2020 quarter=4.
+read_quarter flow=Export year=2020 quarter=4 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control year_base=2019 year=2020 quarter=4 outlier_limit_upper=2.5 outlier_limit_lower=0.3.
 impute_price year_base=2019 quarter_1=3 year=2020 quarter=4.
 indices_unchained year_base=2019 year=2020 quarter=4.
 chain_year year_base=2019 year=2020 .
@@ -118,29 +118,31 @@ create_weight_base year_1=2020
 base_prices year=2021 year_1 = 2020.
 
 * Quarterly (2021).
-read_quarter flow=Export year=2021 quarter=1 outlier_limit=2.0.
-price_control year_base=2020 year=2021 quarter=1.
+read_quarter flow=Export year=2021 quarter=1 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control year_base=2020 year=2021 quarter=1 outlier_limit_upper=2.5 outlier_limit_lower=0.3.
 impute_price year_base=2020 quarter_1=4 year=2021 quarter=1.
 indices_unchained year_base=2020 year=2021 quarter=1.
 chain_year year_base=2020 year=2021 .
 
-read_quarter flow=Export year=2021 quarter=2 outlier_limit=2.0.
-price_control year_base=2020 year=2021 quarter=2.
+read_quarter flow=Export year=2021 quarter=2 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control year_base=2020 year=2021 quarter=2 outlier_limit_upper=2.5 outlier_limit_lower=0.3.
 impute_price year_base=2020 quarter_1=1 year=2021 quarter=2.
 indices_unchained year_base=2020 year=2021 quarter=2.
 chain_year year_base=2020 year=2021 .
 
-read_quarter flow=Export year=2021 quarter=3 outlier_limit=2.0.
-price_control year_base=2020 year=2021 quarter=3.
+read_quarter flow=Export year=2021 quarter=3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control year_base=2020 year=2021 quarter=3 outlier_limit_upper=2.5 outlier_limit_lower=0.3.
 impute_price year_base=2020 quarter_1=2 year=2021 quarter=3.
 indices_unchained year_base=2020 year=2021 quarter=3.
 chain_year year_base=2020 year=2021 .
 
-read_quarter flow=Export year=2021 quarter=4 outlier_limit=2.0.
-price_control year_base=2020 year=2021 quarter=4.
+read_quarter flow=Export year=2021 quarter=4 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control year_base=2020 year=2021 quarter=4 outlier_limit_upper=2.5 outlier_limit_lower=0.3.
 impute_price year_base=2020 quarter_1=3 year=2021 quarter=4.
 indices_unchained year_base=2020 year=2021 quarter=4.
 chain_year year_base=2020 year=2021 .
+
+
 
 
 

@@ -2,7 +2,8 @@
 DEFINE read_quarter(flow=!tokens(1)
                    /year=!tokens(1)
                    /quarter=!tokens(1)
-                   /outlier_limit=!tokens(1)
+                   /outlier_limit_upper=!tokens(1)
+                   /outlier_limit_lower=!tokens(1)
                    )
 PRESERVE.
 SET DECIMAL DOT.
@@ -79,14 +80,14 @@ execute.
 
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
-  /BREAK=flow comno month 
+  /BREAK=flow comno quarter 
   /sd_comno=SD(price)
   /mean_comno=MEAN(price)
 .
 
-* Delete outliers.
-compute ul = mean_comno + (!outlier_limit * sd_comno).
-compute ll = mean_comno - (!outlier_limit * sd_comno).
+* Mark outliers.
+compute ul = mean_comno + (!outlier_limit_upper * sd_comno).
+compute ll = mean_comno - (!outlier_limit_lower * sd_comno).
 EXECUTE.
 COMPUTE outlier = 0.
 if (price < ll or price > ul) outlier=1.

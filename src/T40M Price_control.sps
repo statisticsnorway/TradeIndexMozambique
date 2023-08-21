@@ -2,6 +2,8 @@
 DEFINE price_control(year_base=!tokens(1)
                      /year=!tokens(1)
                      /quarter=!tokens(1)
+                     /outlier_limit_upper=!tokens(1)
+                     /outlier_limit_lower=!tokens(1)
                      )
 
 DATASET CLOSE all.
@@ -30,9 +32,9 @@ COMPUTE price = value / weight.
 COMPUTE price_chg = price / base_price.
 FORMATS price_chg (f5.2).
 EXECUTE.
-DO IF (price / base_price < 0.3).
+DO IF (price / base_price < !outlier_limit_lower).
  COMPUTE outlier = 1.
-ELSE IF (price / base_price > 2.5).
+ELSE IF (price / base_price > !outlier_limit_upper).
  COMPUTE outlier = 2.
 ELSE.
   COMPUTE outlier = 0.
@@ -49,6 +51,12 @@ SELECT IF (outlier = 0).
 EXECUTE.
 DELETE VARIABLES price_chg.
 EXECUTE.
+
+AGGREGATE
+  /OUTFILE=* MODE=ADDVARIABLES
+  /BREAK=flow comno quarter 
+  /no_trans=N()
+.
 
 save OUTFILE=!quote(!concat('data/tradedata_no_outlier_',!year,'Q',!quarter,'.sav')).
 

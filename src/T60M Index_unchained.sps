@@ -89,10 +89,29 @@ EXECUTE.
 
 SAVE OUTFILE='data/index_sitc1.sav'. 
 
-* Export without gold.
 DATASET CLOSE all.
 GET FILE='data/index_commodity.sav'.
-SELECT IF (flow = 'E' and char.substr(comno,1,4) NE '7108').
+
+AGGREGATE /OUTFILE=*
+          /BREAK=flow sitc2 Year quarter
+          /weight_hs = SUM(Weight_HS)
+          /index_weight = SUM(index_weight)
+          .
+EXECUTE.
+
+COMPUTE index_unchained = index_weight / weight_hs .
+
+STRING level (A30) series (a25).
+COMPUTE level = 'Sitc 2'.
+COMPUTE series = sitc2.
+EXECUTE.
+
+SAVE OUTFILE='data/index_sitc2.sav'. 
+
+* Export without gas.
+DATASET CLOSE all.
+GET FILE='data/index_commodity.sav'.
+SELECT IF (flow = 'E' and char.substr(comno,1,4) NE '2716').
 EXECUTE.
 
 AGGREGATE /OUTFILE=*
@@ -105,17 +124,18 @@ EXECUTE.
 COMPUTE index_unchained = index_weight / weight_hs .
 
 STRING level (A30) series (a25).
-COMPUTE level = 'Total export without Gold'.
-COMPUTE series = 'Total export without Gold'.
+COMPUTE level = 'Total export without Gas'.
+COMPUTE series = 'Total export without Gas'.
 EXECUTE.
 
-SAVE OUTFILE='data/index_total_no_gold.sav'. 
+SAVE OUTFILE='data/index_total_no_gas.sav'. 
 
 ADD FILES file=*
          /file='data/index_total.sav'
          /file='data/index_commodity.sav'
          /file='data/index_section.sav'
          /file='data/index_sitc1.sav'
+         /file='data/index_sitc2.sav'
          .
 EXECUTE.
 string time (a6) .
