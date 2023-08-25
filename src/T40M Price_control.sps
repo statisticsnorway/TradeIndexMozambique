@@ -14,7 +14,8 @@ COMPUTE qrt = 0.
 EXECUTE.
 
 * Delete outliers.  
-SELECT outlier = 0.
+SELECT IF (outlier = 0).
+EXECUTE.
 
 MATCH FILES file=*
            /table=!quote(!concat('Data/base_price_',!year_base,'.sav'))
