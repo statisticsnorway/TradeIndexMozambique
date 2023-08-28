@@ -2,6 +2,8 @@
 
 DEFINE base_prices(year_1=!tokens(1)
                   /year=!tokens(1)
+                  /outlier_median_limit_upper=!tokens(1)
+                  /outlier_median_limit_lower=!tokens(1)
                   )
 
 DATASET CLOSE all.
@@ -48,9 +50,9 @@ AGGREGATE
   /price_median=MEDIAN(price)
   .
 
-DO IF (price / price_median < 0.3).
+DO IF (price / price_median < !outlier_median_limit_lower).
  COMPUTE outlier_median = 1.
-ELSE IF (price / price_median > 2.5).
+ELSE IF (price / price_median > !outlier_median_limit_upper).
  COMPUTE outlier_median = 2.
 ELSE.
   COMPUTE outlier_median = 0.

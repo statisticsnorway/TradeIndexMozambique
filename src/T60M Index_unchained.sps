@@ -190,6 +190,7 @@ CTABLES
   /TITLES
     TITLE='Unchained index.'.
 
-SAVE outfile=!quote(!concat('Data/index_unchained_',!year,'.sav')).
+SAVE outfile=!quote(!concat('Data/index_unchained_',!year,'.sav'))
+ /KEEP= year quarter time flow level series index_unchained.
 !ENDDEFINE.
 

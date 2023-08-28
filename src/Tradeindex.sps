@@ -35,7 +35,7 @@ create_weight_base year_1=2018
                    median_by_min=5
                    share_small=0.0001
                    .
-base_prices year=2019 year_1 = 2018.
+base_prices year=2019 year_1 = 2018 outlier_median_limit_upper=2.5 outlier_median_limit_lower=0.3.
 
 * Quarterly (2019).
 read_quarter flow=Export year=2019 quarter=1 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
@@ -74,7 +74,7 @@ create_weight_base year_1=2019
                    median_by_min=5
                    share_small=0.0001
                    .
-base_prices year=2020 year_1 = 2019.
+base_prices year=2020 year_1 = 2019 outlier_median_limit_upper=2.5 outlier_median_limit_lower=0.3.
 
 * Quarterly (2020).
 read_quarter flow=Export year=2020 quarter=1 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
@@ -115,7 +115,7 @@ create_weight_base year_1=2020
                    median_by_min=5
                    share_small=0.0001
                    .
-base_prices year=2021 year_1 = 2020.
+base_prices year=2021 year_1 = 2020 outlier_median_limit_upper=2.5 outlier_median_limit_lower=0.3.
 
 * Quarterly (2021).
 read_quarter flow=Export year=2021 quarter=1 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
