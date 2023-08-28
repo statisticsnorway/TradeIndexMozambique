@@ -27,11 +27,17 @@ MATCH FILES FILE=!quote(!concat('data/tradedata_',!year_1,'.sav'))
            /in =From_base
            /by flow comno
            .
+FREQUENCIES outlier.
+
+SELECT IF (outlier = 0).
+EXECUTE.
+
 FREQUENCIES from_base.
 
 * Previous year.
 SELECT IF (from_base = 1 and year = !year_1).
 EXECUTE.
+
 
 COMPUTE price = value / weight.
 execute.
@@ -43,20 +49,20 @@ AGGREGATE
   .
 
 DO IF (price / price_median < 0.3).
- COMPUTE outlier = 1.
+ COMPUTE outlier_median = 1.
 ELSE IF (price / price_median > 2.5).
- COMPUTE outlier = 2.
+ COMPUTE outlier_median = 2.
 ELSE.
-  COMPUTE outlier = 0.
+  COMPUTE outlier_median = 0.
 end if.
 
-FREQUENCIES outlier.
+FREQUENCIES outlier_median.
 
 TEMPORARY.
-SELECT IF (any(outlier,1,2)).
-list  flow comno month quarter value weight price price_median outlier.
+SELECT IF (any(outlier_median,1,2)).
+list  flow comno month quarter value weight price price_median outlier_median.
 
-SELECT IF (outlier = 0).
+SELECT IF (outlier_median = 0).
 EXECUTE.
 
 AGGREGATE /OUTFILE=*
