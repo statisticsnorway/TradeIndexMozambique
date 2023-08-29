@@ -12,12 +12,10 @@ DATASET CLOSE ALL.
 
 GET DATA  /TYPE=TXT
   /FILE=!quote(!concat("data/",!flow," - ",!year,"_XPMI_Q",!quarter,".csv"))
-  /ENCODING='UTF8'
   /DELCASE=LINE
   /DELIMITERS=","
   /ARRANGEMENT=DELIMITED
   /FIRSTCASE=2
-  /LEADINGSPACES IGNORE=YES
   /VARIABLES=
   flow A1
   year F4
@@ -27,13 +25,13 @@ GET DATA  /TYPE=TXT
   comno A8
   country A2
   unit A8
-  weight AUTO
-  quantity AUTO
-  value AUTO
-  valUSD AUTO
-  itemno AUTO
+  weight F17
+  quantity F17
+  value F17
+  valUSD F17
+  itemno F17
   exporterNUIT A9
-  /MAP.
+  .
 RESTORE.
 
 FORMATS weight quantity (F12.0) value valusd (F17.0).
@@ -94,7 +92,7 @@ if (price < ll or price > ul) outlier=1.
 EXECUTE.
 
 FREQUENCIES outlier.
-MEANS TABLES=valusd BY outlier
+MEANS TABLES=value BY outlier
   /CELLS=MEAN COUNT STDDEV SUM.
 
 *DELETE VARIABLES ul ll sd_comno mean_comno.

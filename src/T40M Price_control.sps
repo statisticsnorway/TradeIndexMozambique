@@ -44,7 +44,7 @@ COMPUTE price_chg = price / base_price.
 FORMATS price_chg (f5.2).
 EXECUTE.
 DO IF (price / base_price < !outlier_time_limit_lower).
- COMPUTE outlier = 1.
+ COMPUTE outlier_time = 1.
 ELSE IF (price / base_price > !outlier_time_limit_upper).
  COMPUTE outlier_time = 2.
 ELSE.

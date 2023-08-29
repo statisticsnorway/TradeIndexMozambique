@@ -143,6 +143,48 @@ indices_unchained year_base=2020 year=2021 quarter=4.
 chain_year year_base=2020 year=2021 .
 
 
+* Yearly (2022, base 2021).
+create_weight_base_population year_1=2021 .
+create_weight_base year_1=2021 
+                   share_total=0.05
+                   no_of_months=5
+                   no_of_months_seasons=3
+                   section_seasons='II'
+                   price_cv=0.5
+                   max_by_min=10
+                   max_by_median=5
+                   median_by_min=5
+                   share_small=0.0001
+                   .
+base_prices year=2022 year_1 = 2021 outlier_median_limit_upper=2.5 outlier_median_limit_lower=0.3.
+
+* Quarterly (2022).
+read_quarter flow=Export year=2022 quarter=1 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control year_base=2021 year=2022 quarter=1 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3.
+impute_price year_base=2021 quarter_1=4 year=2022 quarter=1.
+indices_unchained year_base=2021 year=2022 quarter=1.
+chain_year year_base=2021 year=2022 .
+
+read_quarter flow=Export year=2022 quarter=2 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control year_base=2021 year=2022 quarter=2 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3.
+impute_price year_base=2021 quarter_1=1 year=2022 quarter=2.
+indices_unchained year_base=2021 year=2022 quarter=2.
+chain_year year_base=2021 year=2022 .
+
+read_quarter flow=Export year=2022 quarter=3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control year_base=2021 year=2022 quarter=3 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3.
+impute_price year_base=2021 quarter_1=2 year=2022 quarter=3.
+indices_unchained year_base=2021 year=2022 quarter=3.
+chain_year year_base=2021 year=2022 .
+
+read_quarter flow=Export year=2022 quarter=4 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control year_base=2021 year=2022 quarter=4 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3.
+impute_price year_base=2021 quarter_1=3 year=2022 quarter=4.
+indices_unchained year_base=2021 year=2022 quarter=4.
+chain_year year_base=2021 year=2022 .
+
+
+
 
 
 

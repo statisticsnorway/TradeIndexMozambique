@@ -73,7 +73,7 @@ CTABLES
   /TABLE section [COUNT F40.0] BY no_of_months [C]
   /CATEGORIES VARIABLES=section ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=AFTER
   /CATEGORIES VARIABLES=no_of_months ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=AFTER
-  /CRITERIA CILEVEL=95.
+.
 
 SELECT IF (price_cv < !price_cv).
 TITLE !CONCAT('After selection of price co-variance less than ',!price_cv).

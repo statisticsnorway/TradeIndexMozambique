@@ -124,8 +124,8 @@ EXECUTE.
 COMPUTE index_unchained = index_weight / weight_hs .
 
 STRING level (A30) series (a25).
-COMPUTE level = 'Total export without Gas'.
-COMPUTE series = 'Total export without Gas'.
+COMPUTE level = 'Total export without Electricity'.
+COMPUTE series = 'Total export without Electricity'.
 EXECUTE.
 
 SAVE OUTFILE='data/index_total_no_gas.sav'. 
@@ -186,7 +186,6 @@ CTABLES
   /TABLE flow > level > series BY time > index_unchained [MEAN]
   /SLABELS VISIBLE=NO
   /CATEGORIES VARIABLES=flow level series time ORDER=A KEY=VALUE EMPTY=EXCLUDE
-  /CRITERIA CILEVEL=95
   /TITLES
     TITLE='Unchained index.'.
 

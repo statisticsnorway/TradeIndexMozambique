@@ -70,7 +70,6 @@ CTABLES
   /TABLE flow > level > series BY time > index_chained [MEAN]
   /SLABELS VISIBLE=NO
   /CATEGORIES VARIABLES=flow level series time ORDER=A KEY=VALUE EMPTY=EXCLUDE
-  /CRITERIA CILEVEL=95
   /TITLES
     TITLE='Chained index.'.
 
