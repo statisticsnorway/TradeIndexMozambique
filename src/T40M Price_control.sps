@@ -2,13 +2,14 @@
 DEFINE price_control(year_base=!tokens(1)
                      /year=!tokens(1)
                      /quarter=!tokens(1)
+                     /flow=!tokens(1)
                      /outlier_time_limit_upper=!tokens(1)
                      /outlier_time_limit_lower=!tokens(1)
                      )
 
 DATASET CLOSE all.
 
-GET FILE=!quote(!concat('data/export_',!year,'Q',!quarter,'.sav')).
+GET FILE=!quote(!concat('data/',!flow,'_',!year,'Q',!quarter,'.sav')).
 
 COMPUTE qrt = 0.
 EXECUTE.
@@ -18,7 +19,7 @@ SELECT IF (outlier = 0).
 EXECUTE.
 
 MATCH FILES file=*
-           /table=!quote(!concat('Data/base_price_',!year_base,'.sav'))
+           /table=!quote(!concat('Data/base_price_',!flow,'_',!year_base,'.sav'))
            /in=from_wgt
            /by flow comno
            /drop impute_base
@@ -63,6 +64,6 @@ EXECUTE.
 DELETE VARIABLES price_chg.
 EXECUTE.
 
-save OUTFILE=!quote(!concat('data/tradedata_no_outlier_',!year,'Q',!quarter,'.sav')).
+save OUTFILE=!quote(!concat('data/tradedata_no_outlier_',!flow,'_',!year,'Q',!quarter,'.sav')).
 
 !ENDDEFINE.

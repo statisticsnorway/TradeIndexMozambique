@@ -2,6 +2,7 @@
 
 
 DEFINE create_weight_base(year_1=!tokens(1)
+                         /flow=!tokens(1)
                          /share_total=!tokens(1)
                          /no_of_months=!tokens(1)
                          /no_of_months_seasons=!tokens(1)
@@ -15,7 +16,7 @@ DEFINE create_weight_base(year_1=!tokens(1)
 
 DATASET CLOSE all.
 * Read data for previous year.
-GET FILE=!quote(!concat('Data/weight_base_population_',!year_1,'.sav')).
+GET FILE=!quote(!concat('Data/weight_base_population_',!flow,'_',!year_1,'.sav')).
 
 * Will exclude values which are more than x% of export or import for check againt total.
 * If a commodity has x% or more- of the import or export it shall not be included in the sum we check against.
@@ -25,7 +26,26 @@ EXECUTE.
 formats share_total (f8.4) T_sum (f18.0) HS_sum (f18.0).
 TEMPORARY.
 SELECT IF (share_total) >= !share_total.
-list comno flow month value T_sum HS_sum share_total.
+
+* Make a table for large commodities.
+AGGREGATE
+  /OUTFILE=* MODE=ADDVARIABLES
+  /BREAK=flow comno 
+  /max_month=MAX(month)
+  .
+TEMPORARY.
+SELECT IF (share_total >= !share_total and month = max_month).
+CTABLES
+  /FORMAT EMPTY=ZERO MISSING='.' MINCOLWIDTH=36 MAXCOLWIDTH=132 UNI3TS=POINTS
+  /VLABELS VARIABLES=flow comno DISPLAY=NONE
+  /VLABELS VARIABLES=T_sum HS_sum share_total DISPLAY=LABEL
+  /TABLE flow > comno BY hs_sum [SUM, COLPCT.SUM PCT40.1] + share_total [SUM F40.2]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=comno ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /TITLES
+    TITLE='Commodities with high share of total.'
+.
+DELETE VARIABLES max_month.
 
 * Create total for flow for 'small' commodities and add them to the dataset.
 SELECT IF (share_total <= !share_total).
@@ -37,7 +57,7 @@ AGGREGATE
 .
 
 * Data for previous year.
-MATCH FILES file=!quote(!concat('data/weight_base_population_',!year_1,'.sav'))
+MATCH FILES file=!quote(!concat('data/weight_base_population_',!flow,'_',!year_1,'.sav'))
                       /TABLE='valsum_ex_big'
                       /by flow.
 EXECUTE.
@@ -336,7 +356,7 @@ compute weight_year = year.
 EXECUTE.
 * Save for previous year.
 
-SAVE OUTFILE=!quote(!concat('data/weight_base_',!year_1,'.sav')).
+SAVE OUTFILE=!quote(!concat('data/weight_base_',!flow,'_',!year_1,'.sav')).
  
 !ENDDEFINE.
 

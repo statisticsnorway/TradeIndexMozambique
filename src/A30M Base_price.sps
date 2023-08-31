@@ -2,29 +2,30 @@
 
 DEFINE base_prices(year_1=!tokens(1)
                   /year=!tokens(1)
+                  /flow=!tokens(1)
                   /outlier_median_limit_upper=!tokens(1)
                   /outlier_median_limit_lower=!tokens(1)
                   )
 
 DATASET CLOSE all.
 
-GET FILE=!quote(!concat('data/export_',!year_1,'Q1.sav')).
+GET FILE=!quote(!concat('data/',!flow,'_',!year_1,'Q1.sav')).
 ADD FILES FILE=*
-         /FILE=!quote(!concat('data/export_',!year_1,'Q2.sav'))
-         /FILE=!quote(!concat('data/export_',!year_1,'Q3.sav'))
-         /FILE=!quote(!concat('data/export_',!year_1,'Q4.sav'))
+         /FILE=!quote(!concat('data/',!flow,'_',!year_1,'Q2.sav'))
+         /FILE=!quote(!concat('data/',!flow,'_',!year_1,'Q3.sav'))
+         /FILE=!quote(!concat('data/',!flow,'_',!year_1,'Q4.sav'))
                      .
 SORT CASES BY flow comno.                   
-SAVE OUTFILE=!quote(!concat('data/tradedata_',!year_1,'.sav')).
+SAVE OUTFILE=!quote(!concat('data/tradedata_',!flow,'_',!year_1,'.sav')).
 * Previous year.
-GET FILE=!quote(!concat('Data/weight_base_',!year_1,'.sav')).
+GET FILE=!quote(!concat('Data/weight_base_',!flow,'_',!year_1,'.sav')).
 AGGREGATE outfile=*
          /BREAK =flow comno section Weight_HS
          /num=N(flow).
 DELETE VARIABLES num.
 EXECUTE.
 
-MATCH FILES FILE=!quote(!concat('data/tradedata_',!year_1,'.sav'))
+MATCH FILES FILE=!quote(!concat('data/tradedata_',!flow,'_',!year_1,'.sav'))
            /TABLE=*
            /in =From_base
            /by flow comno
@@ -146,12 +147,12 @@ RENAME VARIABLES (price_4 = base_price) .
 
 
 * Save for previous year.
-SAVE OUTFILE=!quote(!concat('Data/base_price_',!year_1,'.sav')) /KEEP flow comno base_price impute_base.
+SAVE OUTFILE=!quote(!concat('Data/base_price_',!flow,'_',!year_1,'.sav')) /KEEP flow comno base_price impute_base.
 
 
 * Create an empty dataset for unchained indexes for actual year.
 SELECT IF(flow = '7').
 EXECUTE.
-SAVE OUTFILE=!quote(!concat('Data/index_unchained_',!year,'.sav')) /KEEP=flow.
+SAVE OUTFILE=!quote(!concat('Data/index_unchained_',!flow,'_',!year,'.sav')) /KEEP=flow.
 
 !ENDDEFINE.

@@ -3,17 +3,18 @@
 DEFINE indices_unchained(year_base=!tokens(1)
                         /year=!tokens(1)
                         /quarter=!tokens(1)
+                        /flow=!tokens(1)
                         )
 
 
 DATASET CLOSE all.
 * Actual year and quarter.
-GET FILE=!quote(!concat('Data/price_impute_',!year,'Q',!quarter,'.sav')).
+GET FILE=!quote(!concat('Data/price_impute_',!flow,'_',!year,'Q',!quarter,'.sav')).
 
 * base prices from previous year.
 MATCH FILES FILE=*
            /IN=from_impute
-           /FILE=!quote(!concat('Data/base_price_',!year_base,'.sav'))
+           /FILE=!quote(!concat('Data/base_price_',!flow,'_',!year_base,'.sav'))
            /BY flow comno 
            .
 EXECUTE.
@@ -27,7 +28,7 @@ EXECUTE.
 COMPUTE index_unchained = price / base_price * 100.
 COMPUTE index_weight = index_unchained * Weight_HS.
 
-STRING level (A30) series (a25).
+STRING level (A60) series (A60).
 COMPUTE level = 'Commodity'.
 COMPUTE series = comno.
 EXECUTE.
@@ -43,7 +44,7 @@ AGGREGATE /OUTFILE=*
 EXECUTE.
 
 COMPUTE index_unchained = index_weight / weight_hs .
-STRING level (A30) series (a25).
+STRING level (A60) series (A60).
 COMPUTE series = section.
 COMPUTE level = 'Section'.
 EXECUTE.
@@ -63,7 +64,7 @@ EXECUTE.
 
 COMPUTE index_unchained = index_weight / weight_hs .
 
-STRING level (A30) series (a25).
+STRING level (A60) series (A60).
 COMPUTE series = flow.
 COMPUTE level = 'Total'.
 EXECUTE.
@@ -82,7 +83,7 @@ EXECUTE.
 
 COMPUTE index_unchained = index_weight / weight_hs .
 
-STRING level (A30) series (a25).
+STRING level (A60) series (A60).
 COMPUTE level = 'Sitc 1'.
 COMPUTE series = sitc1.
 EXECUTE.
@@ -101,17 +102,21 @@ EXECUTE.
 
 COMPUTE index_unchained = index_weight / weight_hs .
 
-STRING level (A30) series (a25).
+STRING level (A60) series (A60).
 COMPUTE level = 'Sitc 2'.
 COMPUTE series = sitc2.
 EXECUTE.
 
 SAVE OUTFILE='data/index_sitc2.sav'. 
 
-* Export without gas.
+* Export/import without the largest.
 DATASET CLOSE all.
 GET FILE='data/index_commodity.sav'.
-SELECT IF (flow = 'E' and char.substr(comno,1,4) NE '2716').
+!IF (!flow = 'Export') !THEN 
+ SELECT IF (flow = 'E' and char.substr(comno,1,4) NE '2716').
+!ELSE 
+ SELECT IF (flow = 'I' and comno NE '27101939').
+!IFEND
 EXECUTE.
 
 AGGREGATE /OUTFILE=*
@@ -123,12 +128,18 @@ EXECUTE.
 
 COMPUTE index_unchained = index_weight / weight_hs .
 
-STRING level (A30) series (a25).
-COMPUTE level = 'Total export without Electricity'.
-COMPUTE series = 'Total export without Electricity'.
+STRING level (A60) series (A60).
+
+!IF (!flow = 'Export') !THEN
+ COMPUTE level = 'Total export without Electricity'.
+ COMPUTE series = 'Total export without Electricity'.
+!ELSE 
+ COMPUTE level = 'Total import without Petroleum oils'.
+ COMPUTE series = 'Total import without Petroleum oils'.
+!IFEND
 EXECUTE.
 
-SAVE OUTFILE='data/index_total_no_gas.sav'. 
+SAVE OUTFILE='data/index_total_no_big.sav'. 
 
 ADD FILES file=*
          /file='data/index_total.sav'
@@ -163,7 +174,7 @@ base_price
 EXECUTE.
 
 * Choose actual year.
-ADD FILES FILE=!quote(!concat('Data/index_unchained_',!year,'.sav'))
+ADD FILES FILE=!quote(!concat('Data/index_unchained_',!flow,'_',!year,'.sav'))
          /FILE=*
          .
 EXECUTE.
@@ -189,7 +200,9 @@ CTABLES
   /TITLES
     TITLE='Unchained index.'.
 
-SAVE outfile=!quote(!concat('Data/index_unchained_',!year,'.sav'))
+SAVE outfile=!quote(!concat('Data/index_unchained_',!flow,'_',!year,'.sav'))
  /KEEP= year quarter time flow level series index_unchained.
 !ENDDEFINE.
+
+
 

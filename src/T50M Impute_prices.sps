@@ -4,24 +4,25 @@ DEFINE impute_price(year_base=!tokens(1)
                    /quarter_1=!tokens(1)
                    /year=!tokens(1)
                    /quarter=!tokens(1)
+                   /flow=!tokens(1)
                    )
 
 
 DATASET CLOSE all.
 * Choose previous year.
 !IF (!quarter = 1) !THEN 
- GET FILE=!quote(!concat('Data/base_price_',!year_base,'.sav')).
+ GET FILE=!quote(!concat('Data/base_price_',!flow,'_',!year_base,'.sav')).
  RENAME VARIABLES base_price = price.
  DELETE VARIABLES impute_base.
  EXECUTE.
 !ELSE 
- GET FILE=!quote(!concat('Data/price_impute_',!year,'Q',!quarter_1,'.sav')).
+ GET FILE=!quote(!concat('Data/price_impute_',!flow,'_',!year,'Q',!quarter_1,'.sav')).
 !IFEND
 COMPUTE qrt = 0.
 EXECUTE.
 SAVE OUTFILE='temp\price_imputed_t1.sav' .
 
-GET FILE=!quote(!concat('data\tradedata_no_outlier_',!year,'Q',!quarter,'.sav')).
+GET FILE=!quote(!concat('data\tradedata_no_outlier_',!flow,'_',!year,'Q',!quarter,'.sav')).
 
 COMPUTE qrt = 1.
 AGGREGATE /OUTFILE='temp\quarter.sav'
@@ -57,7 +58,7 @@ EXECUTE.
 
 * Previous year.
 MATCH FILES FILE=*
-           /TABLE=!quote(!concat('Data/weight_base_',!year_base,'.sav'))
+           /TABLE=!quote(!concat('Data/weight_base_',!flow,'_',!year_base,'.sav'))
            /IN=from_wgt
            /BY flow comno
            .
@@ -136,7 +137,7 @@ EXECUTE.
 DELETE VARIABLES qrt.
 EXECUTE.
 * actual quarter.
-save OUTFILE=!quote(!concat('Data/price_impute_',!year,'Q',!quarter,'.sav')).
+save OUTFILE=!quote(!concat('Data/price_impute_',!flow,'_',!year,'Q',!quarter,'.sav')).
 !ENDDEFINE.
 
 

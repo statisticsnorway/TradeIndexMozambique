@@ -1,12 +1,14 @@
 ﻿* Encoding: UTF-8.
 
-DEFINE chain_first_year(year=!tokens(1))
+DEFINE chain_first_year(year=!tokens(1)
+                       /flow=!tokens(1)
+                       )
 
 
 DATASET CLOSE all.
 
 * Choose first year.
-GET FILE=!quote(!concat('Data/index_unchained_',!year,'.sav')).
+GET FILE=!quote(!concat('Data/index_unchained_',!flow,'_',!year,'.sav')).
 
 AGGREGATE /OUTFILE=* MODE=ADDVARIABLES
           /BREAK=flow series level Year
@@ -28,7 +30,7 @@ CTABLES
   /TITLES
     TITLE='Chained index.'.
     
-SAVE OUTFILE='data\index_chained.sav'.
+SAVE OUTFILE=!quote(!concat('data\index_chained_',!flow,'.sav')).
 
 !ENDDEFINE.
 

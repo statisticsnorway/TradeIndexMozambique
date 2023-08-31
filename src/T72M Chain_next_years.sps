@@ -2,13 +2,14 @@
 
 DEFINE chain_year(year_base=!tokens(1)
                  /year=!tokens(1)
+                 /flow=!tokens(1)
                  )
 
 
 DATASET CLOSE all.
 
 * First, get the index from last quarter previous year.
-GET FILE='data\index_chained.sav' /KEEP=flow level series index_chained year quarter.
+GET FILE=!quote(!concat('data\index_chained_',!flow,'.sav')) /KEEP=flow level series index_chained year quarter.
 SELECT IF (year = !year_base and quarter = 4).
 EXECUTE.
 RENAME VARIABLES index_chained = index_chained_base.
@@ -16,7 +17,7 @@ RENAME VARIABLES index_chained = index_chained_base.
 DELETE VARIABLES Year quarter.
 
 * Match with actual year.
-MATCH FILES FILE=!quote(!concat('Data/index_unchained_',!year,'.sav'))
+MATCH FILES FILE=!quote(!concat('Data/index_unchained_',!flow,'_',!year,'.sav'))
            /TABLE=*
            /BY flow level series
            .
@@ -45,7 +46,7 @@ EXECUTE.
 DELETE VARIABLES index_total_base.
 EXECUTE.
 
-ADD FILES FILE='data\index_chained.sav'
+ADD FILES FILE=!quote(!concat('data\index_chained_',!flow,'.sav'))
          /FILE=*
          .
 EXECUTE.
@@ -73,7 +74,7 @@ CTABLES
   /TITLES
     TITLE='Chained index.'.
 
-SAVE OUTFILE='data\index_chained.sav'.
+SAVE OUTFILE=!quote(!concat('data\index_chained_',!flow,'.sav')).
 
 !ENDDEFINE.
 

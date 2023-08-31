@@ -56,6 +56,12 @@ MATCH FILES FILE=*
            /BY chapter
            .
 
+TITLE 'Check if section found for all read data'.
+FREQUENCIES found_section.
+
+TEMPORARY.
+SELECT IF (found_section = 1 and comno NE '').
+TITLE 'Check if section found for those who have comno'.
 FREQUENCIES found_section.
 
 DELETE VARIABLES found_section.

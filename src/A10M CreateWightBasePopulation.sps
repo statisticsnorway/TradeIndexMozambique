@@ -1,12 +1,13 @@
 ﻿* Encoding: UTF-8.
 
 DEFINE create_weight_base_population(year_1=!tokens(1) 
+                                    /flow=!tokens(1)
                                     )
 DATASET CLOSE all.
-GET FILE=!quote(!concat('data/Export_',!year_1,'Q1.sav')).
+GET FILE=!quote(!concat('data/',!flow,'_',!year_1,'Q1.sav')).
  !DO !q = 2 !TO 4
   ADD FILES file=*
-           /file=!quote(!concat('data/Export_',!year_1,'Q',!q,'.sav')).
+           /file=!quote(!concat('data/',!flow,'_',!year_1,'Q',!q,'.sav')).
  !DOEND 
 
 * Add totals for different levels for the value for all cases.
@@ -89,6 +90,6 @@ DELETE VARIABLES price_mean price_sd.
 
 SORT CASES by flow comno.
 * Save for previous year.
-SAVE OUTFILE=!quote(!concat('data/weight_base_population_',!year_1,'.sav')).
+SAVE OUTFILE=!quote(!concat('data/weight_base_population_',!flow,'_',!year_1,'.sav')).
  
 !ENDDEFINE.
