@@ -14,6 +14,7 @@ INSERT file='src\T50M Impute_prices.sps'.
 INSERT file='src\T60M Index_unchained.sps'.
 INSERT file='src\T71M Chain_first_year.sps'.
 INSERT file='src\T72M Chain_next_years.sps'.
+INSERT file='src\T80M Coverage.sps'.
 
 
 * Quarterly first year.
@@ -186,6 +187,10 @@ price_control flow=Import year_base=2021 year=2022 quarter=4 outlier_time_limit_
 impute_price flow=Import year_base=2021 quarter_1=3 year=2022 quarter=4.
 indices_unchained flow=Import year_base=2021 year=2022 quarter=4.
 chain_year flow=Import year_base=2021 year=2022 .
+coverage flow=Import first_year=2018 last_year=2021 level=sitc1. 
+coverage flow=Import first_year=2018 last_year=2021 level=sitc2. 
+coverage flow=Import first_year=2018 last_year=2021 level=section. 
+
 
 
 

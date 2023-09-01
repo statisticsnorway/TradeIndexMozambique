@@ -142,7 +142,7 @@ EXECUTE.
     
 
 list all.
-SAVE OUTFILE=!quote(!concat('data/coverage_section_',!year_1,'.sav')).
+SAVE OUTFILE=!quote(!concat('data/coverage_section_',!flow,'_',!year_1,'.sav')).
 
 
 * Check the coverage by sitc1 and total.
@@ -170,7 +170,7 @@ compute Tcoverage = Tsample_sum * 100 / Tpop_sum.
 EXECUTE.
     
 list all.
-SAVE OUTFILE=!quote(!concat('data/coverage_sitc1_',!year_1,'.sav')).
+SAVE OUTFILE=!quote(!concat('data/coverage_sitc1_',!flow,'_',!year_1,'.sav')).
 
 * Check the coverage by sitc2 and total.
 DATASET CLOSE all.
@@ -197,7 +197,7 @@ compute Tcoverage = Tsample_sum * 100 / Tpop_sum.
 EXECUTE.
     
 list all.
-SAVE OUTFILE=!quote(!concat('data/coverage_sitc2_',!year_1,'.sav')).
+SAVE OUTFILE=!quote(!concat('data/coverage_sitc2_',!flow,'_',!year_1,'.sav')).
 
 
 * Select only the data for year by section (by selecting the first section line for each section).

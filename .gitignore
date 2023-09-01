@@ -24,6 +24,7 @@
 *.bak
 *.rar
 *.json
+*.spv
 
 # Blaise
 *.bdix

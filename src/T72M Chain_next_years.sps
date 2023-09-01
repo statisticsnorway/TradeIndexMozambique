@@ -65,14 +65,25 @@ DELETE VARIABLES last_idx.
 
 * Table created only for the last 4 years.
 TEMPORARY.
-SELECT IF (year >= !year-3).
+SELECT IF (year >= !year-3 and level = 'Commodity').
 CTABLES
   /VLABELS VARIABLES=flow level series time index_chained DISPLAY=NONE
   /TABLE flow > level > series BY time > index_chained [MEAN]
   /SLABELS VISIBLE=NO
   /CATEGORIES VARIABLES=flow level series time ORDER=A KEY=VALUE EMPTY=EXCLUDE
   /TITLES
-    TITLE='Chained index.'.
+    TITLE='Chained index detailed.'.
+
+* Table created only for the last 4 years.
+TEMPORARY.
+SELECT IF (year >= !year-3 and level NE 'Commodity').
+CTABLES
+  /VLABELS VARIABLES=flow level series time index_chained DISPLAY=NONE
+  /TABLE flow > level > series BY time > index_chained [MEAN]
+  /SLABELS VISIBLE=NO
+  /CATEGORIES VARIABLES=flow level series time ORDER=A KEY=VALUE EMPTY=EXCLUDE
+  /TITLES
+    TITLE='Chained index aggregated.'.
 
 SAVE OUTFILE=!quote(!concat('data\index_chained_',!flow,'.sav')).
 

@@ -143,6 +143,11 @@ end if.
 
 FREQUENCIES impute_base.
 
+TITLE 'List of imputed commodities'.
+TEMPORARY.
+SELECT IF (any(impute_base,1,2)).
+LIST ALL.
+
 RENAME VARIABLES (price_4 = base_price) .
 
 
