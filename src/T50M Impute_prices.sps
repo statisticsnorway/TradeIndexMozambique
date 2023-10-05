@@ -30,6 +30,8 @@ AGGREGATE /OUTFILE='temp\quarter.sav'
           /qrt = MEAN(qrt)
           .
 
+*AGGREGATE FROM TRANSACTION- TO HS-LEVEL
+
 AGGREGATE /OUTFILE=*
           /BREAK=flow comno qrt
           /value = SUM(value)
@@ -65,6 +67,7 @@ MATCH FILES FILE=*
 FREQUENCIES from_wgt.
 
 * Select only those who are in the weight file.
+
 SELECT IF (from_wgt = 1).
 EXECUTE.
 DELETE VARIABLES from_wgt Year quarter.
@@ -73,9 +76,12 @@ EXECUTE.
 * Compute price relative.
 COMPUTE  price_rel = price_1 / price_0.
 
+RECODE price_rel (1.5 THRU HI = SYSMIS).
+
 COMPUTE product = price_rel * Weight_HS.
 EXECUTE.
 
+save OUTFILE=!quote(!concat('Data/price_impute_TEST',!flow,'_',!year,'Q',!quarter,'.sav')).
 
 AGGREGATE /OUTFILE=* MODE=ADDVARIABLES overwrite=yes
           /BREAK=flow section

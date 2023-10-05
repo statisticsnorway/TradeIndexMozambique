@@ -5,6 +5,8 @@ DEFINE base_prices(year_1=!tokens(1)
                   /flow=!tokens(1)
                   /outlier_median_limit_upper=!tokens(1)
                   /outlier_median_limit_lower=!tokens(1)
+                  /outlier_limit_upper=!tokens(1)
+                  /outlier_limit_lower=!tokens(1)
                   )
 
 DATASET CLOSE all.
@@ -30,10 +32,6 @@ MATCH FILES FILE=!quote(!concat('data/tradedata_',!flow,'_',!year_1,'.sav'))
            /in =From_base
            /by flow comno
            .
-FREQUENCIES outlier.
-
-SELECT IF (outlier = 0).
-EXECUTE.
 
 FREQUENCIES from_base.
 
@@ -41,9 +39,21 @@ FREQUENCIES from_base.
 SELECT IF (from_base = 1 and year = !year_1).
 EXECUTE.
 
+FREQUENCIES few_transaction.
 
 COMPUTE price = value / weight.
 execute.
+
+*REMOVE OUTLIERS TRANSACTION LEVEL WITHIN GROUP AND QUARTER - MAD
+
+FREQUENCIES Outlier_mad.
+
+SELECT IF (Outlier_mad = 0).
+EXECUTE.
+
+*REMOVE VARIABLES
+
+*DETECT EXTREME PRICE CHANGE FOR TRANSACTIONS WITHIN BASEYEAR (DEVIATION FROM MEDIAN YEAR)
 
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
@@ -61,12 +71,49 @@ end if.
 
 FREQUENCIES outlier_median.
 
+
 TEMPORARY.
 SELECT IF (any(outlier_median,1,2)).
-list  flow comno month quarter value weight price price_median outlier_median.
+list  flow comno outlier_median N_price_after_rm2.
 
 SELECT IF (outlier_median = 0).
 EXECUTE.
+
+*CALCULATE STANDARD DEVIATION FROM THE MEAN (YEAR Or QUARTER?)
+
+AGGREGATE
+  /OUTFILE=* MODE=ADDVARIABLES
+  /BREAK=flow comno quarter 
+  /sd_comno_base=SD(price)
+  /mean_comno_base=MEAN(price).
+
+* Mark outliers.
+COMPUTE ul_base = mean_comno_base + (!outlier_limit_upper * sd_comno_base).
+COMPUTE ll_base = mean_comno_base - (!outlier_limit_lower * sd_comno_base).
+COMPUTE outlier_base = 0.
+IF (price < ll_base OR price > ul_base) outlier_base = 1.
+
+
+FREQUENCIES outlier_base.
+MEANS TABLES=value BY outlier_base
+  /CELLS=MEAN COUNT STDDEV SUM.
+
+SELECT IF (outlier_base = 0).
+EXECUTE.
+
+FREQUENCIES few_transaction.
+
+*SELECT IF (few_transaction = 0).
+EXECUTE.
+
+* Add no of transactions after removal.
+AGGREGATE
+  /OUTFILE=* MODE=ADDVARIABLES
+  /BREAK=flow comno quarter 
+  /no_trans_after_rm=N()
+.
+
+*AGGREGATE VALUE AND WEIGHT AND CALCULATE PRICE FOR COMNO-LEVEL
 
 AGGREGATE /OUTFILE=*
           /BREAK=flow comno section Weight_HS Year quarter
