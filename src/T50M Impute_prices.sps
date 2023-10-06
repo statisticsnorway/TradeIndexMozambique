@@ -73,6 +73,10 @@ EXECUTE.
 * Compute price relative.
 COMPUTE  price_rel = price_1 / price_0.
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 COMPUTE product = price_rel * Weight_HS.
 EXECUTE.
 

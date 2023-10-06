@@ -70,8 +70,13 @@ COMPUTE quarter = number(month,f2) / 3.
 COMPUTE quarter = TRUNC(quarter) + (quarter > TRUNC(quarter)).
 EXECUTE.
 
+
+*CLEAN DATA - REMOVE OBVIOUS ERRORS
+
 * When the weight is 0 we set it to 1 as suggested by INE.
-IF (weight = 0) weight = 1.
+IF (weight = 0) weight = quantity.
+*DELETE CASES WHERE (weight = 0).
+*execute. 
 
 * For commodity 27160000 we use quantity as weight.
 IF (comno = '27160000') weight = quantity. 
@@ -79,15 +84,71 @@ IF (comno = '27160000') weight = quantity.
 * When the value is 0, we delete the whole case.
 SELECT IF NOT(value = 0). 
 
+*WHEN A TRANSACTION HAS NO REF?
+
+
+
+*COMPUTE PRICE PER TRANSACTION
+
 COMPUTE price = value / weight.
 execute.
+
+
+* COUNT NUMBER OF TRANSACTIONS PER COMNO
+
+AGGREGATE
+  /OUTFILE=* MODE=ADDVARIABLES
+  /BREAK=flow comno quarter
+  /N_price=N.
+
+EXECUTE.
+
+COMPUTE transactionHS_under_5 = (N_price < 5).
+EXECUTE.
+
+FREQUENCIES transactionHS_under_5.
+
+*OUTLIER DETECTION - MAD (ABSOLUTE DEVIATION FROM MEDIAN) - STANDARD DEVIATION FROM THE MEAN 
+
+*MAD (ABSOLUTE DEVIATION FROM MEDIAN) 
+
+* Calculate the Median (M) and Median Absolute Deviation (MAD).
+
+AGGREGATE
+  /OUTFILE=* MODE=ADDVARIABLES
+  /BREAK=flow comno 
+  /price_median_quarter=MEDIAN(price)
+  .
+
+COMPUTE deviation_median = ABS(price - price_median_quarter).
+EXECUTE.
+
+AGGREGATE 
+  /OUTFILE=* MODE=ADDVARIABLES
+  /BREAK=flow comno quarter 
+  /MAD = MEDIAN(deviation_median).
+EXECUTE.
+
+COMPUTE modified_Z = 0.6745 * deviation_median / MAD
+
+DO IF (MAD = 0.0).
+  COMPUTE Outlier_mad = 2.
+ELSE IF (ABS(modified_Z) > 3.5).
+  COMPUTE Outlier_mad = 1.
+ELSE.
+  COMPUTE Outlier_mad = 0.
+END IF.
+
+
+FREQUENCIES Outlier_mad.
+
+*STANDARD DEVIATION FROM THE MEAN
 
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
   /BREAK=flow comno quarter 
   /sd_comno=SD(price)
-  /mean_comno=MEAN(price)
-.
+  /mean_comno=MEAN(price).
 
 * Mark outliers.
 compute ul = mean_comno + (!outlier_limit_upper * sd_comno).
@@ -98,10 +159,10 @@ if (price < ll or price > ul) outlier=1.
 EXECUTE.
 
 FREQUENCIES outlier.
-MEANS TABLES=value BY outlier
+
+MEANS TABLES=value BY Outlier_mad outlier 
   /CELLS=MEAN COUNT STDDEV SUM.
 
-*DELETE VARIABLES ul ll sd_comno mean_comno.
 EXECUTE.
 
 SAVE OUTFILE=!quote(!concat("data/",!flow,"_",!year,"Q",!quarter,".sav"))

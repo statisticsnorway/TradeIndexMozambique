@@ -161,29 +161,49 @@ create_weight_base flow=Import
                    median_by_min=5
                    share_small=0.0001
                    .
+<<<<<<< Updated upstream
 base_prices flow=Import year=2022 year_1 = 2021 outlier_median_limit_upper=2.5 outlier_median_limit_lower=0.3.
 
 * Quarterly (2022).
 read_quarter flow=Import year=2022 quarter=1 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
 price_control flow=Import year_base=2021 year=2022 quarter=1 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3.
+=======
+base_prices flow=Import year=2022 year_1 = 2021 outlier_median_limit_upper=1.9 outlier_median_limit_lower=0.5 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+
+* Quarterly (2022).
+read_quarter flow=Import year=2022 quarter=1 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+price_control flow=Import year_base=2021 year=2022 quarter=1 outlier_time_limit_upper=1.9 outlier_time_limit_lower=0.5 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+>>>>>>> Stashed changes
 impute_price flow=Import year_base=2021 quarter_1=4 year=2022 quarter=1.
 indices_unchained flow=Import year_base=2021 year=2022 quarter=1.
 chain_year flow=Import year_base=2021 year=2022 .
 
 read_quarter flow=Import year=2022 quarter=2 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+<<<<<<< Updated upstream
 price_control flow=Import year_base=2021 year=2022 quarter=2 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3.
+=======
+price_control flow=Import year_base=2021 year=2022 quarter=2 outlier_time_limit_upper=1.9 outlier_time_limit_lower=0.5 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+>>>>>>> Stashed changes
 impute_price flow=Import year_base=2021 quarter_1=1 year=2022 quarter=2.
 indices_unchained flow=Import year_base=2021 year=2022 quarter=2.
 chain_year flow=Import year_base=2021 year=2022 .
 
 read_quarter flow=Import year=2022 quarter=3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+<<<<<<< Updated upstream
 price_control flow=Import year_base=2021 year=2022 quarter=3 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3.
+=======
+price_control flow=Import year_base=2021 year=2022 quarter=3 outlier_time_limit_upper=1.9 outlier_time_limit_lower=0.5 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+>>>>>>> Stashed changes
 impute_price flow=Import year_base=2021 quarter_1=2 year=2022 quarter=3.
 indices_unchained flow=Import year_base=2021 year=2022 quarter=3.
 chain_year flow=Import year_base=2021 year=2022 .
 
 read_quarter flow=Import year=2022 quarter=4 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+<<<<<<< Updated upstream
 price_control flow=Import year_base=2021 year=2022 quarter=4 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3.
+=======
+price_control flow=Import year_base=2021 year=2022 quarter=4 outlier_time_limit_upper=1.9 outlier_time_limit_lower=0.5 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+>>>>>>> Stashed changes
 impute_price flow=Import year_base=2021 quarter_1=3 year=2022 quarter=4.
 indices_unchained flow=Import year_base=2021 year=2022 quarter=4.
 chain_year flow=Import year_base=2021 year=2022 .
