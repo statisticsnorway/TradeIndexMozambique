@@ -51,7 +51,7 @@ EXECUTE.
 
 *DETECT EXTREME PRICE CHANGE FOR TRANSACTIONS WITHIN QUARTER (DEVIATION FROM BASEPRICE)
 
-COMPUTE price = value / weight.
+COMPUTE price = value / uv_weight.
 COMPUTE price_chg = price / base_price.
 FORMATS price_chg (f5.2).
 EXECUTE.

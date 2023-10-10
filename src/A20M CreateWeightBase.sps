@@ -70,7 +70,7 @@ MATCH FILES file=*
 EXECUTE.
 SELECT IF (f = 1).
 EXECUTE.
-DELETE VARIABLES f month value weight price.
+DELETE VARIABLES f month value uv_weight price.
 
 compute share_small = HS_sum / T_sum_small .
 formats share_small (f8.5).
@@ -174,15 +174,32 @@ SAVE OUTFILE=!quote(!concat('data/coverage_sitc1_',!flow,'_',!year_1,'.sav')).
 
 * Check the coverage by sitc2 and total.
 DATASET CLOSE all.
+
+* We fetch the population total by sitc2 from the weight base instead of the sample file
+  because for some sitc2 codes will not be included in the sample.
+GET FILE=!quote(!concat('Data/weight_base_population_',!flow,'_',!year_1,'.sav')).
+AGGREGATE
+  /OUTFILE=* 
+  /BREAK=year flow sitc2  
+  /Spop_sum=MEAN(S2_sum)
+  .
+
+SAVE OUTFILE='temp/sitc2_popsum.sav'.
+
+DATASET CLOSE all.
 GET file='temp\sample.sav'.
 
 AGGREGATE
   /OUTFILE=* 
   /BREAK=year flow sitc2  
   /Ssample_sum=SUM(HS_sum)
-  /Spop_sum=MEAN(S2_sum)
   /Sno_of_comm = N
   .
+
+MATCH FILES file='temp/sitc2_popsum.sav'
+           /TABLE=*
+           /by year flow sitc2 .
+EXECUTE.
 
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES 

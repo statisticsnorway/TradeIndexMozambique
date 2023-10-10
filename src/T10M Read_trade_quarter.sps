@@ -8,6 +8,19 @@ DEFINE read_quarter(flow=!tokens(1)
 PRESERVE.
 SET DECIMAL DOT.
 
+* Read commodities that shall use quantity instead of weight as denominator.
+DATASET CLOSE ALL.
+GET DATA
+  /TYPE=XLSX
+  /FILE='data\Commodities_use_quantity.xlsx'
+  /SHEET=name 'Commodities'
+  /CELLRANGE=FULL
+  /READNAMES=ON
+  .
+EXECUTE.
+
+SAVE OUTFILE='data\Commodities_use_quantity.sav'.
+
 DATASET CLOSE ALL.
 
 GET DATA  /TYPE=TXT
@@ -72,13 +85,30 @@ EXECUTE.
 
 *CLEAN DATA - REMOVE OBVIOUS ERRORS
 
-* When the weight is 0 we set it to 1 as suggested by INE.
+* When the weight is 0 we set it to quantity.
 IF (weight = 0) weight = quantity.
 *DELETE CASES WHERE (weight = 0).
 *execute. 
 
-* For commodity 27160000 we use quantity as weight.
-IF (comno = '27160000') weight = quantity. 
+
+* Match with commodities that will use quantity as unit value.
+MATCH FILES file=*
+           /TABLE='data\Commodities_use_quantity.sav'
+           /IN=use_quantity
+           /BY comno
+           .
+EXECUTE.
+
+FREQUENCIES use_quantity.
+
+DO IF (use_quantity = 1).
+ COMPUTE uv_weight = quantity. 
+ELSE. 
+ COMPUTE uv_weight = weight. 
+END IF. 
+
+EXECUTE.
+DELETE VARIABLES use_quantity.
 
 * When the value is 0, we delete the whole case.
 SELECT IF NOT(value = 0). 
@@ -87,7 +117,7 @@ SELECT IF NOT(value = 0).
 
 *COMPUTE PRICE PER TRANSACTION
 
-COMPUTE price = value / weight.
+COMPUTE price = value / uv_weight.
 execute.
 
 
@@ -164,6 +194,9 @@ EXECUTE.
 SAVE OUTFILE=!quote(!concat("data/",!flow,"_",!year,"Q",!quarter,".sav"))
 
 !ENDDEFINE.
+
+
+
 
 
 

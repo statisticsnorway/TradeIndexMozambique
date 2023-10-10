@@ -79,11 +79,11 @@ AGGREGATE
   /BREAK=year flow comno quarter month 
          section chapter sitc1 sitc2
          T_sum S_sum C_sum S1_sum S2_sum HS_sum
-  /weight=SUM(weight)
+  /uv_weight=SUM(uv_weight)
   /value=SUM(value)
 .
 
-compute price = value / weight.
+compute price = value / uv_weight.
 
 *CALCULATION OF VARIABLES, AGGREGATES FOR YEAR, USED IN SELECTION PROCESS
 
@@ -108,5 +108,7 @@ DELETE VARIABLES price_mean price_sd.
 SORT CASES by flow comno.
 * Save for previous year.
 SAVE OUTFILE=!quote(!concat('data/weight_base_population_',!flow,'_',!year_1,'.sav')).
+
+TITLE 'Create weight base population finished'. 
  
 !ENDDEFINE.

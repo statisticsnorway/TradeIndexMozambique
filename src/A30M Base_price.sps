@@ -41,7 +41,7 @@ EXECUTE.
 
 FREQUENCIES transactionHS_under_5.
 
-COMPUTE price = value / weight.
+COMPUTE price = value / uv_weight.
 execute.
 
 *REMOVE OUTLIERS TRANSACTION LEVEL WITHIN GROUP AND QUARTER - MAD
@@ -118,7 +118,7 @@ AGGREGATE
 AGGREGATE /OUTFILE=*
           /BREAK=flow comno section Weight_HS Year quarter
           /value_quarter = SUM(value)
-          /weight_quarter = SUM(weight)
+          /weight_quarter = SUM(uv_weight)
           .
 
 COMPUTE price = value_quarter / weight_quarter.
