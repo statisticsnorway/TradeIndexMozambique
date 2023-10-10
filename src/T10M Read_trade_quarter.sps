@@ -74,6 +74,7 @@ EXECUTE.
 *CLEAN DATA - REMOVE OBVIOUS ERRORS
 
 * When the weight is 0 we set it to 1 as suggested by INE.
+
 *IF (weight = 0) weight = 1.
 DELETE CASES WHERE (weight = 0).
 
@@ -82,7 +83,6 @@ IF (comno = '27160000') weight = quantity.
 
 * When the value is 0, we delete the whole case.
 SELECT IF NOT(value = 0). 
-
 
 *COMPUTE PRICE PER TRANSACTION
 
@@ -98,6 +98,7 @@ AGGREGATE
   /N_price=N.
 
 EXECUTE.
+
 
 COMPUTE few_transaction = (N_price < 5).
 EXECUTE.
@@ -126,6 +127,7 @@ AGGREGATE
 EXECUTE.
 
 COMPUTE modified_Z = 0.6745 * deviation_median / MAD
+
 
 DO IF (ABS(modified_Z) > 3.5).
  COMPUTE Outlier_mad = 1.

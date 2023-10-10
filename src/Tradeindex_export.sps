@@ -14,7 +14,7 @@ INSERT file='src\T50M Impute_prices.sps'.
 INSERT file='src\T60M Index_unchained.sps'.
 INSERT file='src\T71M Chain_first_year.sps'.
 INSERT file='src\T72M Chain_next_years.sps'.
-
+INSERT file='src\T80M Coverage.sps'.
 
 * Quarterly first year.
 read_quarter flow=Export year=2018 quarter=1 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
