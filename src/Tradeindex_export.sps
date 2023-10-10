@@ -14,94 +14,13 @@ INSERT file='src\T50M Impute_prices.sps'.
 INSERT file='src\T60M Index_unchained.sps'.
 INSERT file='src\T71M Chain_first_year.sps'.
 INSERT file='src\T72M Chain_next_years.sps'.
-INSERT file='src\T80M Coverage.sps'.
+
 
 * Quarterly first year.
-read_quarter flow=Export year=2018 quarter=1 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-read_quarter flow=Export year=2018 quarter=2 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-read_quarter flow=Export year=2018 quarter=3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-read_quarter flow=Export year=2018 quarter=4 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-
-* Yearly (first year 2019, base year 2018).
-create_weight_base_population flow=Export year_1=2018 .
-create_weight_base flow=Export
-                   year_1=2018 
-                   share_total=0.05
-                   no_of_months=5
-                   no_of_months_seasons=3
-                   section_seasons='II'
-                   price_cv=0.5
-                   max_by_min=10
-                   max_by_median=5
-                   median_by_min=5
-                   share_small=0.0001
-                   .
-base_prices flow=Export year=2019 year_1 = 2018 outlier_median_limit_upper=2.5 outlier_median_limit_lower=0.3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-
-* Quarterly (2019).
-read_quarter flow=Export year=2019 quarter=1 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-price_control flow=Export year_base=2018 year=2019 quarter=1 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-impute_price flow=Export year_base=2018 quarter_1=4 year=2019 quarter=1.
-indices_unchained flow=Export year_base=2018 year=2019 quarter=1.
-
-read_quarter flow=Export year=2019 quarter=2 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-price_control flow=Export year_base=2018 year=2019 quarter=2 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-impute_price flow=Export year_base=2018 quarter_1=1 year=2019 quarter=2.
-indices_unchained flow=Export year_base=2018 year=2019 quarter=2.
-
-read_quarter flow=Export year=2019 quarter=3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-price_control flow=Export year_base=2018 year=2019 quarter=3 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-impute_price flow=Export year_base=2018 quarter_1=2 year=2019 quarter=3.
-indices_unchained flow=Export year_base=2018 year=2019 quarter=3.
-
-read_quarter flow=Export year=2019 quarter=4 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-price_control flow=Export year_base=2018 year=2019 quarter=4 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-impute_price flow=Export year_base=2018 quarter_1=3 year=2019 quarter=4.
-indices_unchained flow=Export year_base=2018 year=2019 quarter=4.
-
-* After the first year (2019).
-chain_first_year flow=Export year=2019.
-
-* Yearly (2020, base 2019).
-create_weight_base_population flow=Export year_1=2019  .
-create_weight_base flow=Export
-                   year_1=2019 
-                   share_total=0.05
-                   no_of_months=5
-                   no_of_months_seasons=3
-                   section_seasons='II'
-                   price_cv=0.5
-                   max_by_min=10
-                   max_by_median=5
-                   median_by_min=5
-                   share_small=0.0001
-                   .
-base_prices flow=Export year=2020 year_1 = 2019 outlier_median_limit_upper=2.5 outlier_median_limit_lower=0.3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-
-* Quarterly (2020).
 read_quarter flow=Export year=2020 quarter=1 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-price_control flow=Export year_base=2019 year=2020 quarter=1 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-impute_price flow=Export year_base=2019 quarter_1=4 year=2020 quarter=1.
-indices_unchained flow=Export year_base=2019 year=2020 quarter=1.
-chain_year flow=Export year_base=2019 year=2020 .
-
 read_quarter flow=Export year=2020 quarter=2 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-price_control flow=Export year_base=2019 year=2020 quarter=2 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-impute_price flow=Export year_base=2019 quarter_1=1 year=2020 quarter=2.
-indices_unchained flow=Export year_base=2019 year=2020 quarter=2.
-chain_year flow=Export year_base=2019 year=2020 .
-
 read_quarter flow=Export year=2020 quarter=3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-price_control flow=Export year_base=2019 year=2020 quarter=3 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-impute_price flow=Export year_base=2019 quarter_1=2 year=2020 quarter=3.
-indices_unchained flow=Export year_base=2019 year=2020 quarter=3.
-chain_year flow=Export year_base=2019 year=2020 .
-
 read_quarter flow=Export year=2020 quarter=4 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-price_control flow=Export year_base=2019 year=2020 quarter=4 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
-impute_price flow=Export year_base=2019 quarter_1=3 year=2020 quarter=4.
-indices_unchained flow=Export year_base=2019 year=2020 quarter=4.
-chain_year flow=Export year_base=2019 year=2020 .
 
 
 * Yearly (2021, base 2020).
@@ -125,26 +44,25 @@ read_quarter flow=Export flow=Export year=2021 quarter=1 outlier_limit_upper=2.0
 price_control flow=Export year_base=2020 year=2021 quarter=1 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
 impute_price flow=Export year_base=2020 quarter_1=4 year=2021 quarter=1.
 indices_unchained flow=Export year_base=2020 year=2021 quarter=1.
-chain_year flow=Export year_base=2020 year=2021 .
 
 read_quarter flow=Export year=2021 quarter=2 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
 price_control flow=Export year_base=2020 year=2021 quarter=2 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
 impute_price flow=Export year_base=2020 quarter_1=1 year=2021 quarter=2.
 indices_unchained flow=Export year_base=2020 year=2021 quarter=2.
-chain_year flow=Export year_base=2020 year=2021 .
 
 read_quarter flow=Export year=2021 quarter=3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
 price_control flow=Export year_base=2020 year=2021 quarter=3 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
 impute_price flow=Export year_base=2020 quarter_1=2 year=2021 quarter=3.
 indices_unchained flow=Export year_base=2020 year=2021 quarter=3.
-chain_year flow=Export year_base=2020 year=2021 .
 
 read_quarter flow=Export year=2021 quarter=4 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
 price_control flow=Export year_base=2020 year=2021 quarter=4 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
 impute_price flow=Export year_base=2020 quarter_1=3 year=2021 quarter=4.
 indices_unchained flow=Export year_base=2020 year=2021 quarter=4.
-chain_year flow=Export year_base=2020 year=2021 .
 
+
+* After the first year (2021).
+chain_first_year flow=Export year=2021.
 
 * Yearly (2022, base 2021).
 create_weight_base_population flow=Export year_1=2021 .
@@ -187,6 +105,24 @@ impute_price flow=Export year_base=2021 quarter_1=3 year=2022 quarter=4.
 indices_unchained flow=Export year_base=2021 year=2022 quarter=4.
 chain_year flow=Export year_base=2021 year=2022 .
 
-coverage flow=Export first_year=2019 last_year=2021 level=sitc1. 
-coverage flow=Export first_year=2019 last_year=2021 level=sitc2. 
-coverage flow=Export first_year=2019 last_year=2021 level=section.
+* Yearly (2023, base 2022).
+create_weight_base_population flow=Export year_1=2022 .
+create_weight_base flow=Export
+                   year_1=2022 
+                   share_total=0.05
+                   no_of_months=5
+                   no_of_months_seasons=3
+                   section_seasons='II'
+                   price_cv=0.5
+                   max_by_min=10
+                   max_by_median=5
+                   median_by_min=5
+                   share_small=0.0001
+                   
+base_prices flow=Export year=2023 year_1 = 2022 outlier_median_limit_upper=2.5 outlier_median_limit_lower=0.3 outlier_limit_upper=2.0 outlier_limit_lower=2.0.
+
+coverage flow=Export first_year=2020 last_year=2022 level=sitc1. 
+coverage flow=Export first_year=2020 last_year=2022 level=sitc2. 
+coverage flow=Export first_year=2020 last_year=2022 level=section.
+
+
