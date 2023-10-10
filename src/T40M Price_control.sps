@@ -32,20 +32,20 @@ EXECUTE.
 DELETE VARIABLES from_wgt.
 EXECUTE.
 
-
 FREQUENCIES transactionHS_under_5.
 
 SELECT IF (transactionHS_under_5 = 0).
 EXECUTE.
-FREQUENCIES few_transaction.
 
 *REMOVE OUTLIERS TRANSACTION LEVEL WITHIN GROUP AND QUARTER - MAD
 *WE DO NOT REMOVE VARIATION STD FROM MEAN DUE TO BE ABLE TO DETECT CHANGE IN COMPOSITON IN COMNO. 
 
 FREQUENCIES Outlier_mad.
 
-SELECT IF (Outlier_mad = 0).
+SELECT IF (Outlier_mad = 0 OR Outlier_mad = 2).
 EXECUTE.
+
+
 
 *REMOVE VARIABLES
 
@@ -92,13 +92,16 @@ IF (price < ll_filter OR price > ul_filter) outlier_filter = 1.
 *STD FROM MEAN IN READ QUARTER - CHECK AGAINST OUTLIER_MAD --> SHOULD NOT BE MANY CASES LEFT
 FREQUENCIES outlier.
 
-
 * SECOND REMOVAL OF OUTLIERS USING STANDARD DEVIATION AFTER REMOVAL OF EXTREMES AND ERROR - BOUNDRIES SHOULD BE BETTER (INCLUDE?)
 FREQUENCIES outlier_filter.
 *MEANS TABLES=value BY outlier_filter
  * /CELLS=MEAN COUNT STDDEV SUM.
 
-FREQUENCIES few_transaction.
+FREQUENCIES outlier_filter.
+
+*RUN TEST ON STANDARD DEVIATION AND REMOVE OUTLIERS
+SELECT IF (outlier_filter = 0).
+EXECUTE.
 
 
 * Add no of transactions after removal.
@@ -124,7 +127,7 @@ sitc1
 chapter
 section
 N_price
-few_transaction
+transactionHS_under_5
 price_median_quarter
 deviation_median
 MAD
