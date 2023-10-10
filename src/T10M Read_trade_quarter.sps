@@ -70,19 +70,20 @@ COMPUTE quarter = number(month,f2) / 3.
 COMPUTE quarter = TRUNC(quarter) + (quarter > TRUNC(quarter)).
 EXECUTE.
 
-
 *CLEAN DATA - REMOVE OBVIOUS ERRORS
 
 * When the weight is 0 we set it to 1 as suggested by INE.
-
-*IF (weight = 0) weight = 1.
-DELETE CASES WHERE (weight = 0).
+IF (weight = 0) weight = quantity.
+*DELETE CASES WHERE (weight = 0).
+*execute. 
 
 * For commodity 27160000 we use quantity as weight.
 IF (comno = '27160000') weight = quantity. 
 
 * When the value is 0, we delete the whole case.
 SELECT IF NOT(value = 0). 
+
+*WHEN A TRANSACTION HAS NO REF?
 
 *COMPUTE PRICE PER TRANSACTION
 
@@ -99,11 +100,10 @@ AGGREGATE
 
 EXECUTE.
 
-
-COMPUTE few_transaction = (N_price < 5).
+COMPUTE transactionHS_under_5 = (N_price < 5).
 EXECUTE.
 
-FREQUENCIES few_transaction.
+FREQUENCIES transactionHS_under_5.
 
 *OUTLIER DETECTION - MAD (ABSOLUTE DEVIATION FROM MEDIAN) - STANDARD DEVIATION FROM THE MEAN 
 
@@ -128,12 +128,13 @@ EXECUTE.
 
 COMPUTE modified_Z = 0.6745 * deviation_median / MAD
 
-
-DO IF (ABS(modified_Z) > 3.5).
- COMPUTE Outlier_mad = 1.
+DO IF (MAD = 0.0).
+  COMPUTE Outlier_mad = 2.
+ELSE IF (ABS(modified_Z) > 3.5).
+  COMPUTE Outlier_mad = 1.
 ELSE.
   COMPUTE Outlier_mad = 0.
-end if.
+END IF.
 
 FREQUENCIES Outlier_mad.
 

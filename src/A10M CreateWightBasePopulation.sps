@@ -66,7 +66,7 @@ EXECUTE.
 
  *DEVIATION FROM MEDIAN?
 *FREQUENCIES Outlier_mad.
-*SELECT IF (Outlier_mad = 0).
+*SELECT IF (Outlier_mad = 0 OR Outlier_mad = 2).
 *EXECUTE.
 
 *REMOVE VARIABLES NOT IN USE

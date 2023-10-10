@@ -76,8 +76,7 @@ EXECUTE.
 * Compute price relative.
 COMPUTE  price_rel = price_1 / price_0.
 
-
-RECODE price_rel (1.5 THRU HI = SYSMIS).
+*RECODE price_rel (1.5 THRU HI = SYSMIS).
 
 COMPUTE product = price_rel * Weight_HS.
 EXECUTE.
