@@ -39,7 +39,8 @@ FREQUENCIES from_base.
 SELECT IF (from_base = 1 and year = !year_1).
 EXECUTE.
 
-FREQUENCIES transactionHS_under_5.
+
+FREQUENCIES few_transaction.
 
 COMPUTE price = value / weight.
 execute.
@@ -48,7 +49,7 @@ execute.
 
 FREQUENCIES Outlier_mad.
 
-SELECT IF (Outlier_mad = 0 OR Outlier_mad = 2).
+SELECT IF (Outlier_mad = 0).
 EXECUTE.
 
 *REMOVE VARIABLES
@@ -74,7 +75,8 @@ FREQUENCIES outlier_median.
 
 TEMPORARY.
 SELECT IF (any(outlier_median,1,2)).
-list  flow comno outlier_median.
+
+list  flow comno outlier_median N_price_after_rm2.
 
 SELECT IF (outlier_median = 0).
 EXECUTE.
@@ -101,9 +103,10 @@ MEANS TABLES=value BY outlier_base
 SELECT IF (outlier_base = 0).
 EXECUTE.
 
-FREQUENCIES transactionHS_under_5.
 
-SELECT IF (transactionHS_under_5 = 0).
+FREQUENCIES few_transaction.
+
+*SELECT IF (few_transaction = 0).
 EXECUTE.
 
 * Add no of transactions after removal.

@@ -190,4 +190,3 @@ chain_year flow=Export year_base=2021 year=2022 .
 coverage flow=Export first_year=2019 last_year=2021 level=sitc1. 
 coverage flow=Export first_year=2019 last_year=2021 level=sitc2. 
 coverage flow=Export first_year=2019 last_year=2021 level=section.
-
