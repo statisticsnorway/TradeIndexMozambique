@@ -3,6 +3,7 @@
 DEFINE create_weight_base_population(year_1=!tokens(1) 
                                     /flow=!tokens(1)
                                     )
+                                    
 DATASET CLOSE all.
 GET FILE=!quote(!concat('data/',!flow,'_',!year_1,'Q1.sav')).
  !DO !q = 2 !TO 4
@@ -54,10 +55,24 @@ VARIABLE LABELS
 /HS_sum 'Total commodity sum'
 /T_sum 'Total sum'
 .
-FREQUENCIES outlier.
 
+*REMOVE OBVIOUS ERRORS BEFORE CALCULATION OF PARAMETERS USED IN VALIDATION PROCESS OF COMNOS USED IN INDEX CALCULATION
+ 
+ *DEVIATION FROM MEAN?
+FREQUENCIES outlier.
 SELECT IF (outlier = 0).
 EXECUTE.
+
+
+ *DEVIATION FROM MEDIAN?
+*FREQUENCIES Outlier_mad.
+*SELECT IF (Outlier_mad = 0).
+*EXECUTE.
+
+*REMOVE VARIABLES NOT IN USE
+
+
+*CALCULATION PRICE per month:
 
 AGGREGATE
   /OUTFILE=* 
@@ -69,6 +84,8 @@ AGGREGATE
 .
 
 compute price = value / weight.
+
+*CALCULATION OF VARIABLES, AGGREGATES FOR YEAR, USED IN SELECTION PROCESS
 
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES

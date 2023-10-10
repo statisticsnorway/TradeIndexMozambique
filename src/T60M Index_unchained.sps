@@ -200,6 +200,8 @@ CTABLES
   /TITLES
     TITLE='Unchained index.'.
 
+*ADD LIST OF INDEXSERIES WITH INDEXCHANGE LARGER THAN X PER CENT
+
 SAVE outfile=!quote(!concat('Data/index_unchained_',!flow,'_',!year,'.sav'))
  /KEEP= year quarter time flow level series index_unchained.
 !ENDDEFINE.
