@@ -35,12 +35,12 @@ AGGREGATE /OUTFILE='temp\quarter.sav'
 AGGREGATE /OUTFILE=*
           /BREAK=flow comno qrt
           /value = SUM(value)
-          /weight = SUM(weight)
+          /uv_weight = SUM(uv_weight)
           .
 
-COMPUTE price = value /weight.
+COMPUTE price = value /uv_weight.
 EXECUTE.
-DELETE VARIABLES value weight.
+DELETE VARIABLES value uv_weight.
 
 ADD FILES FILE='temp\price_imputed_t1.sav'
          /FILE=*.
