@@ -2,8 +2,10 @@
 DEFINE read_quarter(flow=!tokens(1)
                    /year=!tokens(1)
                    /quarter=!tokens(1)
-                   /outlier_limit_upper=!tokens(1)
-                   /outlier_limit_lower=!tokens(1)
+                   /outlier_sd_limit_upper=!tokens(1)
+                   /outlier_sd_limit_lower=!tokens(1)
+                   /N_transaction_limit=!tokens(1)
+                   /outlier_dev_median_quarter_limit=!tokens(1)
                    )
 PRESERVE.
 SET DECIMAL DOT.
@@ -130,10 +132,10 @@ AGGREGATE
 
 EXECUTE.
 
-COMPUTE transactionHS_under_5 = (N_price < 5).
+COMPUTE transactionHS_under_limit = (N_price < !N_transaction_limit).
 EXECUTE.
 
-FREQUENCIES transactionHS_under_5.
+FREQUENCIES transactionHS_under_limit.
 
 *OUTLIER DETECTION - MAD (ABSOLUTE DEVIATION FROM MEDIAN) - STANDARD DEVIATION FROM THE MEAN 
 
@@ -147,26 +149,26 @@ AGGREGATE
   /price_median_quarter=MEDIAN(price)
   .
 
-COMPUTE deviation_median = ABS(price - price_median_quarter).
+COMPUTE deviation_from_median = ABS(price - price_median_quarter).
 EXECUTE.
 
 AGGREGATE 
   /OUTFILE=* MODE=ADDVARIABLES
   /BREAK=flow comno quarter 
-  /MAD = MEDIAN(deviation_median).
+  /MAD = MEDIAN(deviation_from_median).
 EXECUTE.
 
-COMPUTE modified_Z = 0.6745 * deviation_median / MAD
+COMPUTE modified_Z = 0.6745 * deviation_from_median / MAD
 
 DO IF (MAD = 0.0).
-  COMPUTE Outlier_mad = 2.
-ELSE IF (ABS(modified_Z) > 3.5).
-  COMPUTE Outlier_mad = 1.
+  COMPUTE outlier_dev_median_q = 2.
+ELSE IF (ABS(modified_Z) > !outlier_dev_median_quarter_limit).
+  COMPUTE outlier_dev_median_q = 1.
 ELSE.
-  COMPUTE Outlier_mad = 0.
+  COMPUTE outlier_dev_median_q = 0.
 END IF.
 
-FREQUENCIES Outlier_mad.
+FREQUENCIES outlier_dev_median_q.
 
 *STANDARD DEVIATION FROM THE MEAN
 
@@ -176,17 +178,17 @@ AGGREGATE
   /sd_comno=SD(price)
   /mean_comno=MEAN(price).
 
-* Mark outliers.
-compute ul = mean_comno + (!outlier_limit_upper * sd_comno).
-compute ll = mean_comno - (!outlier_limit_lower * sd_comno).
+* Mark outlier_sd.
+compute ul = mean_comno + (!outlier_sd_limit_upper * sd_comno).
+compute ll = mean_comno - (!outlier_sd_limit_upper * sd_comno).
 EXECUTE.
-COMPUTE outlier = 0.
-if (price < ll or price > ul) outlier=1.
+COMPUTE outlier_sd = 0.
+if (price < ll or price > ul) outlier_sd=1.
 EXECUTE.
 
-FREQUENCIES outlier.
+FREQUENCIES outlier_sd.
 
-MEANS TABLES=value BY Outlier_mad outlier 
+MEANS TABLES=value BY outlier_dev_median_q outlier_sd 
   /CELLS=MEAN COUNT STDDEV SUM.
 
 EXECUTE.

@@ -5,8 +5,8 @@ DEFINE price_control(year_base=!tokens(1)
                      /flow=!tokens(1)
                      /outlier_time_limit_upper=!tokens(1)
                      /outlier_time_limit_lower=!tokens(1)
-                     /outlier_limit_upper=!tokens(1)
-                     /outlier_limit_lower=!tokens(1)
+                     /outlier_sd_limit_upper=!tokens(1)
+                     /outlier_sd_limit_lower=!tokens(1)
                      )
 
 DATASET CLOSE all.
@@ -32,17 +32,17 @@ EXECUTE.
 DELETE VARIABLES from_wgt.
 EXECUTE.
 
-FREQUENCIES transactionHS_under_5.
+FREQUENCIES transactionHS_under_limit.
 
-SELECT IF (transactionHS_under_5 = 0).
+SELECT IF (transactionHS_under_limit = 0).
 EXECUTE.
 
 *REMOVE OUTLIERS TRANSACTION LEVEL WITHIN GROUP AND QUARTER - MAD
 *WE DO NOT REMOVE VARIATION STD FROM MEAN DUE TO BE ABLE TO DETECT CHANGE IN COMPOSITON IN COMNO. 
 
-FREQUENCIES Outlier_mad.
+FREQUENCIES outlier_dev_median_q.
 
-SELECT IF (Outlier_mad = 0 OR Outlier_mad = 2).
+SELECT IF (outlier_dev_median_q = 0 OR outlier_dev_median_q = 2).
 EXECUTE.
 
 
@@ -65,9 +65,6 @@ end if.
 
 FREQUENCIES outlier_time.
 
-*TEMPORARY.
-*SELECT IF (any(outlier_time,1,2)).
-*list all. 
 
 SELECT IF (outlier_time = 0).
 EXECUTE.
@@ -79,28 +76,21 @@ EXECUTE.
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
   /BREAK=flow comno quarter 
-  /sd_comno_filter=SD(price)
-  /mean_comno_filter=MEAN(price).
+  /sd_comno_q=SD(price)
+  /mean_comno_q=MEAN(price).
 
-* Mark outliers.
-COMPUTE ul_filter = mean_comno_filter + (!outlier_limit_upper * sd_comno_filter).
-COMPUTE ll_filter = mean_comno_filter - (!outlier_limit_lower * sd_comno_filter).
-COMPUTE outlier_filter = 0.
-IF (price < ll_filter OR price > ul_filter) outlier_filter = 1.
+* Mark outlier_sd_q.
+COMPUTE ul_sd = mean_comno_q + (!outlier_sd_limit_upper * sd_comno_q).
+COMPUTE ll_sd = mean_comno_q - (!outlier_sd_limit_lower * sd_comno_q).
+COMPUTE outlier_sd_q = 0.
+IF (price < ll_sd OR price > ul_sd) outlier_sd_q = 1.
+EXECUTE.
 
+FREQUENCIES outlier_sd_q.
 
-*STD FROM MEAN IN READ QUARTER - CHECK AGAINST OUTLIER_MAD --> SHOULD NOT BE MANY CASES LEFT
-FREQUENCIES outlier.
+*REMOVE OUTLIERS based on STANDARD DEVIATION
 
-* SECOND REMOVAL OF OUTLIERS USING STANDARD DEVIATION AFTER REMOVAL OF EXTREMES AND ERROR - BOUNDRIES SHOULD BE BETTER (INCLUDE?)
-FREQUENCIES outlier_filter.
-*MEANS TABLES=value BY outlier_filter
- * /CELLS=MEAN COUNT STDDEV SUM.
-
-FREQUENCIES outlier_filter.
-
-*RUN TEST ON STANDARD DEVIATION AND REMOVE OUTLIERS
-SELECT IF (outlier_filter = 0).
+SELECT IF (outlier_sd_q = 0).
 EXECUTE.
 
 
@@ -110,6 +100,8 @@ AGGREGATE
   /BREAK=flow comno quarter 
   /no_trans_after_rm=N()
 .
+
+FREQUENCIES flow.
 
 
 save OUTFILE=!quote(!concat('data/tradedata_no_outlier_',!flow,'_',!year,'Q',!quarter,'.sav')).
@@ -127,24 +119,24 @@ sitc1
 chapter
 section
 N_price
-transactionHS_under_5
+transactionHS_under_limit
 price_median_quarter
-deviation_median
+deviation_from_median
 MAD
 modified_Z
-Outlier_mad
+outlier_dev_median_q
 sd_comno
 mean_comno
 ul
 ll
-outlier
+outlier_sd
 qrt
 outlier_time
-sd_comno_filter
-mean_comno_filter
-ul_filter
-ll_filter
-outlier_filter
+sd_comno_q
+mean_comno_q
+ul_sd
+ll_sd
+outlier_sd_q
 no_trans_after_rm
 .
 EXECUTE.

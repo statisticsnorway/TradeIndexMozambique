@@ -3,10 +3,10 @@
 DEFINE base_prices(year_1=!tokens(1)
                   /year=!tokens(1)
                   /flow=!tokens(1)
-                  /outlier_median_limit_upper=!tokens(1)
-                  /outlier_median_limit_lower=!tokens(1)
-                  /outlier_limit_upper=!tokens(1)
-                  /outlier_limit_lower=!tokens(1)
+                  /outlier_median_year_limit_upper=!tokens(1)
+                  /outlier_median_year_limit_lower=!tokens(1)
+                  /outlier_sd_limit_upper=!tokens(1)
+                  /outlier_sd_limit_lower=!tokens(1)
                   )
 
 DATASET CLOSE all.
@@ -39,16 +39,16 @@ FREQUENCIES from_base.
 SELECT IF (from_base = 1 and year = !year_1).
 EXECUTE.
 
-FREQUENCIES transactionHS_under_5.
+FREQUENCIES transactionHS_under_limit.
 
 COMPUTE price = value / uv_weight.
 execute.
 
 *REMOVE OUTLIERS TRANSACTION LEVEL WITHIN GROUP AND QUARTER - MAD
 
-FREQUENCIES Outlier_mad.
+FREQUENCIES outlier_dev_median_q.
 
-SELECT IF (Outlier_mad = 0 OR Outlier_mad = 2).
+SELECT IF (outlier_dev_median_q = 0 OR outlier_dev_median_q = 2).
 EXECUTE.
 
 *REMOVE VARIABLES
@@ -58,25 +58,25 @@ EXECUTE.
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
   /BREAK=flow comno 
-  /price_median=MEDIAN(price)
+  /price_median_year=MEDIAN(price)
   .
 
-DO IF (price / price_median < !outlier_median_limit_lower).
- COMPUTE outlier_median = 1.
-ELSE IF (price / price_median > !outlier_median_limit_upper).
- COMPUTE outlier_median = 2.
+DO IF (price / price_median_year < !outlier_median_year_limit_lower).
+ COMPUTE outlier_median_baseyear = 1.
+ELSE IF (price / price_median_year > !outlier_median_year_limit_upper).
+ COMPUTE outlier_median_baseyear = 2.
 ELSE.
-  COMPUTE outlier_median = 0.
+  COMPUTE outlier_median_baseyear = 0.
 end if.
 
-FREQUENCIES outlier_median.
+FREQUENCIES outlier_median_baseyear.
 
 
 *TEMPORARY.
-*SELECT IF (any(outlier_median,1,2)).
-*list flow comno outlier_median.
+*SELECT IF (any(outlier_median_baseyear,1,2)).
+*list flow comno outlier_median_baseyear.
 
-SELECT IF (outlier_median = 0).
+SELECT IF (outlier_median_baseyear = 0).
 EXECUTE.
 
 *CALCULATE STANDARD DEVIATION FROM THE MEAN (YEAR Or QUARTER?)
@@ -88,22 +88,22 @@ AGGREGATE
   /mean_comno_base=MEAN(price).
 
 * Mark outliers.
-COMPUTE ul_base = mean_comno_base + (!outlier_limit_upper * sd_comno_base).
-COMPUTE ll_base = mean_comno_base - (!outlier_limit_lower * sd_comno_base).
-COMPUTE outlier_base = 0.
-IF (price < ll_base OR price > ul_base) outlier_base = 1.
+COMPUTE ul_base = mean_comno_base + (!outlier_sd_limit_upper * sd_comno_base).
+COMPUTE ll_base = mean_comno_base - (!outlier_sd_limit_lower * sd_comno_base).
+COMPUTE outlier_sd_base = 0.
+IF (price < ll_base OR price > ul_base) outlier_sd_base = 1.
 
 
-FREQUENCIES outlier_base.
-MEANS TABLES=value BY outlier_base
+FREQUENCIES outlier_sd_base.
+MEANS TABLES=value BY outlier_sd_base
   /CELLS=MEAN COUNT STDDEV SUM.
 
-SELECT IF (outlier_base = 0).
+SELECT IF (outlier_sd_base = 0).
 EXECUTE.
 
-FREQUENCIES transactionHS_under_5.
+FREQUENCIES transactionHS_under_limit.
 
-SELECT IF (transactionHS_under_5 = 0).
+SELECT IF (transactionHS_under_limit = 0).
 EXECUTE.
 
 * Add no of transactions after removal.
