@@ -5,8 +5,8 @@ INSERT file='src\005 Import_chapter_catalog.sps'.
 INSERT file='src\007 Import_commodities_catalog.sps'.
 
 * Execute every time we run the index.
-INSERT file='src\T10M Read_trade_quarter.sps'.
-INSERT file='src\A10M CreateWightBasePopulation.sps'.
+INSERT file='src\T3.5M Read_trade_quarter.sps'.
+INSERT file='src\A3.5M CreateWightBasePopulation.sps'.
 INSERT file='src\A20M CreateWeightBase.sps'.
 INSERT file='src\A30M Base_price.sps'.
 INSERT file='src\T40M Price_control.sps'.
@@ -18,8 +18,18 @@ INSERT file='src\T80M Coverage.sps'.
 
 
 * Quarterly first year.
-read_quarter flow=Import year=2020 quarter=1 N_transaction_limit = 5 outlier_dev_median_quarter_limit=3.5 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
-read_quarter flow=Import year=2020 quarter=2 N_transaction_limit = 5 outlier_dev_median_quarter_limit=3.5 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
+read_quarter flow=Import year=2020 quarter=1 
+                    N_transaction_limit = 5 
+                    outlier_dev_median_quarter_limit=3.5
+                    outlier_sd_limit_upper=2.0 
+                    outlier_sd_limit_lower=2.0.
+
+read_quarter flow=Import year=2020 quarter=2 
+                    N_transaction_limit = 5
+                    outlier_dev_median_quarter_limit=3.5
+                    outlier_sd_limit_upper=2.0 
+                    outlier_sd_limit_lower=2.0.
+
 read_quarter flow=Import year=2020 quarter=3 N_transaction_limit = 5 outlier_dev_median_quarter_limit=3.5 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
 read_quarter flow=Import year=2020 quarter=4 N_transaction_limit = 5 outlier_dev_median_quarter_limit=3.5 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
 
@@ -46,19 +56,19 @@ impute_price flow=Import year_base=2020 quarter_1=4 year=2021 quarter=1.
 indices_unchained flow=Import year_base=2020 year=2021 quarter=1.
 
 
-read_quarter flow=Import year=2021 N_transaction_limit = 5 outlier_dev_median_quarter_limit=3.5 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
+read_quarter flow=Import year=2021 quarter=2 N_transaction_limit = 5 outlier_dev_median_quarter_limit=3.5 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
 price_control flow=Import year_base=2020 year=2021 quarter=2 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
 impute_price flow=Import year_base=2020 quarter_1=1 year=2021 quarter=2.
 indices_unchained flow=Import year_base=2020 year=2021 quarter=2.
 
 
-read_quarter flow=Import year=2021 N_transaction_limit = 5 outlier_dev_median_quarter_limit=3.5 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
+read_quarter flow=Import year=2021 quarter=3 N_transaction_limit = 5 outlier_dev_median_quarter_limit=3.5 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
 price_control flow=Import year_base=2020 year=2021 quarter=3 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
 impute_price flow=Import year_base=2020 quarter_1=2 year=2021 quarter=3.
 indices_unchained flow=Import year_base=2020 year=2021 quarter=3.
 
 
-read_quarter flow=Import year=2021 N_transaction_limit = 5 outlier_dev_median_quarter_limit=3.5 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
+read_quarter flow=Import year=2021 quarter=4 N_transaction_limit = 5 outlier_dev_median_quarter_limit=3.5 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
 price_control flow=Import year_base=2020 year=2021 quarter=4 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
 impute_price flow=Import year_base=2020 quarter_1=3 year=2021 quarter=4.
 indices_unchained flow=Import year_base=2020 year=2021 quarter=4.
