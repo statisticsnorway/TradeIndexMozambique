@@ -4,7 +4,6 @@ DEFINE read_quarter(flow=!tokens(1)
                    /quarter=!tokens(1)
                    /outlier_sd_limit_upper=!tokens(1)
                    /outlier_sd_limit_lower=!tokens(1)
-                   /N_transaction_limit=!tokens(1)
                    /outlier_dev_median_quarter_limit=!tokens(1)
                    )
 PRESERVE.
@@ -85,13 +84,7 @@ COMPUTE quarter = number(month,f2) / 3.
 COMPUTE quarter = TRUNC(quarter) + (quarter > TRUNC(quarter)).
 EXECUTE.
 
-*CLEAN DATA - REMOVE OBVIOUS ERRORS
-
-* When the weight is 0 we set it to quantity.
-IF (weight = 0) weight = quantity.
-*DELETE CASES WHERE (weight = 0).
-*execute. 
-
+*CLEAN DATA - REMOVE OBVIOUS ERRORS.
 
 * Match with commodities that will use quantity as unit value.
 MATCH FILES file=*
@@ -112,40 +105,34 @@ END IF.
 EXECUTE.
 DELETE VARIABLES use_quantity.
 
+* When the weight is 0 we delete the whole case.
+SELECT IF NOT(uv_weight = 0).
+execute. 
+
 * When the value is 0, we delete the whole case.
 SELECT IF NOT(value = 0). 
 
-*WHEN A TRANSACTION HAS NO REF?
-
-*COMPUTE PRICE PER TRANSACTION
-
+*COMPUTE PRICE PER TRANSACTION.
 COMPUTE price = value / uv_weight.
 execute.
 
 
-* COUNT NUMBER OF TRANSACTIONS PER COMNO
+* COUNT NUMBER OF TRANSACTIONS PER COMNO.
 
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
   /BREAK=flow comno quarter
-  /N_price=N.
+  /N_transactions=N.
 
 EXECUTE.
 
-COMPUTE transactionHS_under_limit = (N_price < !N_transaction_limit).
-EXECUTE.
-
-FREQUENCIES transactionHS_under_limit.
-
-*OUTLIER DETECTION - MAD (ABSOLUTE DEVIATION FROM MEDIAN) - STANDARD DEVIATION FROM THE MEAN 
-
-*MAD (ABSOLUTE DEVIATION FROM MEDIAN) 
-
+*OUTLIER DETECTION - MAD (ABSOLUTE DEVIATION FROM MEDIAN) - STANDARD DEVIATION FROM THE MEAN .
+*MAD (ABSOLUTE DEVIATION FROM MEDIAN) .
 * Calculate the Median (M) and Median Absolute Deviation (MAD).
 
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
-  /BREAK=flow comno 
+  /BREAK=flow comno quarter 
   /price_median_quarter=MEDIAN(price)
   .
 
@@ -170,7 +157,7 @@ END IF.
 
 FREQUENCIES outlier_dev_median_q.
 
-*STANDARD DEVIATION FROM THE MEAN
+*STANDARD DEVIATION FROM THE MEAN.
 
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
@@ -180,7 +167,7 @@ AGGREGATE
 
 * Mark outlier_sd.
 compute ul = mean_comno + (!outlier_sd_limit_upper * sd_comno).
-compute ll = mean_comno - (!outlier_sd_limit_upper * sd_comno).
+compute ll = mean_comno - (!outlier_sd_limit_lower * sd_comno).
 EXECUTE.
 COMPUTE outlier_sd = 0.
 if (price < ll or price > ul) outlier_sd=1.

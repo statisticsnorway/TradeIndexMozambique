@@ -39,21 +39,22 @@ FREQUENCIES from_base.
 SELECT IF (from_base = 1 and year = !year_1).
 EXECUTE.
 
-FREQUENCIES transactionHS_under_limit.
-
 COMPUTE price = value / uv_weight.
 execute.
 
-*REMOVE OUTLIERS TRANSACTION LEVEL WITHIN GROUP AND QUARTER - MAD
-
+*REMOVE OUTLIERS TRANSACTION LEVEL WITHIN GROUP AND QUARTER - MAD .
 FREQUENCIES outlier_dev_median_q.
+
 
 SELECT IF (outlier_dev_median_q = 0 OR outlier_dev_median_q = 2).
 EXECUTE.
 
-*REMOVE VARIABLES
+TITLE 'Number of cases after removal of outliers for median quarter'.
+FREQUENCIES flow.
 
-*DETECT EXTREME PRICE CHANGE FOR TRANSACTIONS WITHIN BASEYEAR (DEVIATION FROM MEDIAN YEAR)
+*REMOVE VARIABLES.
+
+*DETECT EXTREME PRICE CHANGE FOR TRANSACTIONS WITHIN BASEYEAR (DEVIATION FROM MEDIAN YEAR).
 
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
@@ -79,7 +80,11 @@ FREQUENCIES outlier_median_baseyear.
 SELECT IF (outlier_median_baseyear = 0).
 EXECUTE.
 
-*CALCULATE STANDARD DEVIATION FROM THE MEAN (YEAR Or QUARTER?)
+TITLE 'Number of cases after removal of outliers for median'.
+FREQUENCIES flow.
+
+
+*CALCULATE STANDARD DEVIATION FROM THE MEAN (QUARTER).
 
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
@@ -100,11 +105,8 @@ MEANS TABLES=value BY outlier_sd_base
 
 SELECT IF (outlier_sd_base = 0).
 EXECUTE.
-
-FREQUENCIES transactionHS_under_limit.
-
-SELECT IF (transactionHS_under_limit = 0).
-EXECUTE.
+TITLE 'Number of cases after removal of outliers for standard deviation'.
+FREQUENCIES flow.
 
 * Add no of transactions after removal.
 AGGREGATE
@@ -113,7 +115,7 @@ AGGREGATE
   /no_trans_after_rm=N()
 .
 
-*AGGREGATE VALUE AND WEIGHT AND CALCULATE PRICE FOR COMNO-LEVEL
+*AGGREGATE VALUE AND WEIGHT AND CALCULATE PRICE FOR COMNO-LEVEL.
 
 AGGREGATE /OUTFILE=*
           /BREAK=flow comno section Weight_HS Year quarter

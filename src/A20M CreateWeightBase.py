@@ -33,16 +33,8 @@ basedata = (basedata[basedata.duplicated(['flow', 'comno'], keep='first') == Fal
 
 basedata.drop(columns=['price', 
                        'month', 
-                       'ref', 
-                       'ItemID', 
-                       'country', 
-                       'unit', 
                        'weight', 
-                       'quantity',
-                       'value',
-                       'valUSD',
-                       'itemno',
-                       'exporterNUIT'
+                       'value'
                       ], inplace=True)
 # -
 

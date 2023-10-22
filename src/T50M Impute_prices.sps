@@ -30,7 +30,7 @@ AGGREGATE /OUTFILE='temp\quarter.sav'
           /qrt = MEAN(qrt)
           .
 
-*AGGREGATE FROM TRANSACTION- TO HS-LEVEL
+*AGGREGATE FROM TRANSACTION- TO HS-LEVEL.
 
 AGGREGATE /OUTFILE=*
           /BREAK=flow comno qrt
@@ -48,8 +48,6 @@ ADD FILES FILE='temp\price_imputed_t1.sav'
 SORT CASES BY flow comno .
 
 FREQUENCIES qrt.
-
-
 
 CASESTOVARS
   /ID=flow comno
@@ -75,13 +73,8 @@ EXECUTE.
 
 * Compute price relative.
 COMPUTE  price_rel = price_1 / price_0.
-
-*RECODE price_rel (1.5 THRU HI = SYSMIS).
-
 COMPUTE product = price_rel * Weight_HS.
 EXECUTE.
-
-save OUTFILE=!quote(!concat('Data/price_impute_TEST',!flow,'_',!year,'Q',!quarter,'.sav')).
 
 AGGREGATE /OUTFILE=* MODE=ADDVARIABLES overwrite=yes
           /BREAK=flow section
@@ -145,6 +138,7 @@ EXECUTE.
 * actual quarter.
 save OUTFILE=!quote(!concat('Data/price_impute_',!flow,'_',!year,'Q',!quarter,'.sav')).
 !ENDDEFINE.
+
 
 
 

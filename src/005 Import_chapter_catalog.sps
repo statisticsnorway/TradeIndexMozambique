@@ -15,5 +15,7 @@ EXECUTE.
 RENAME VARIABLES (v2=section) (v1=chapter).
 EXECUTE.
 
+ALTER TYPE chapter (A2).
+
 SAVE OUTFILE='Data\Chapter_Section.sav'.
 

@@ -32,32 +32,24 @@ EXECUTE.
 DELETE VARIABLES from_wgt.
 EXECUTE.
 
-FREQUENCIES transactionHS_under_limit.
-
-SELECT IF (transactionHS_under_limit = 0).
-EXECUTE.
-
-*REMOVE OUTLIERS TRANSACTION LEVEL WITHIN GROUP AND QUARTER - MAD
-*WE DO NOT REMOVE VARIATION STD FROM MEAN DUE TO BE ABLE TO DETECT CHANGE IN COMPOSITON IN COMNO. 
+*REMOVE OUTLIERS TRANSACTION LEVEL WITHIN GROUP AND QUARTER - MAD.
 
 FREQUENCIES outlier_dev_median_q.
 
 SELECT IF (outlier_dev_median_q = 0 OR outlier_dev_median_q = 2).
 EXECUTE.
+TITLE 'Number of cases after removal of outliers for median quarter'.
+FREQUENCIES flow.
 
-
-
-*REMOVE VARIABLES
-
-*DETECT EXTREME PRICE CHANGE FOR TRANSACTIONS WITHIN QUARTER (DEVIATION FROM BASEPRICE)
+*DETECT EXTREME PRICE CHANGE FOR TRANSACTIONS WITHIN QUARTER (DEVIATION FROM BASEPRICE).
 
 COMPUTE price = value / uv_weight.
 COMPUTE price_chg = price / base_price.
 FORMATS price_chg (f5.2).
 EXECUTE.
-DO IF (price / base_price < !outlier_time_limit_lower).
+DO IF (price_chg < !outlier_time_limit_lower).
  COMPUTE outlier_time = 1.
-ELSE IF (price / base_price > !outlier_time_limit_upper).
+ELSE IF (price_chg > !outlier_time_limit_upper).
  COMPUTE outlier_time = 2.
 ELSE.
   COMPUTE outlier_time = 0.
@@ -65,11 +57,10 @@ end if.
 
 FREQUENCIES outlier_time.
 
-
 SELECT IF (outlier_time = 0).
 EXECUTE.
-*DELETE VARIABLES price_chg.
-*EXECUTE.
+TITLE 'No of cases after outlier removal for price change from base price'.
+FREQUENCIES flow.
 
 
 * Perform the AGGREGATE operation for outlier_median_quarter = 0.
@@ -88,10 +79,12 @@ EXECUTE.
 
 FREQUENCIES outlier_sd_q.
 
-*REMOVE OUTLIERS based on STANDARD DEVIATION
+*REMOVE OUTLIERS based on STANDARD DEVIATION.
 
 SELECT IF (outlier_sd_q = 0).
 EXECUTE.
+TITLE 'Number of cases after removal of outliers for standard deviation'.
+FREQUENCIES flow.
 
 
 * Add no of transactions after removal.
@@ -118,8 +111,7 @@ sitc2
 sitc1
 chapter
 section
-N_price
-transactionHS_under_limit
+N_transactions
 price_median_quarter
 deviation_from_median
 MAD
@@ -144,3 +136,4 @@ EXECUTE.
 save OUTFILE=!quote(!concat('data/pricedata_no_outlier_',!flow,'_',!year,'Q',!quarter,'.sav')).
 
 !ENDDEFINE.
+
