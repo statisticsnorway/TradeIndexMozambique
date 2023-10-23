@@ -12,6 +12,7 @@ DEFINE create_weight_base(year_1=!tokens(1)
                          /max_by_median=!tokens(1)
                          /median_by_min=!tokens(1)
                          /share_small=!tokens(1)
+                         /no_of_transactions=!tokens(1)
                          )
 
 DATASET CLOSE all.
@@ -114,6 +115,11 @@ FREQUENCIES flow .
 SELECT IF (share_small > !share_small).
 TITLE !CONCAT('After selection of share of small more than ',!share_small).
 FREQUENCIES flow.
+
+SELECT IF (no_of_transactions > !no_of_transactions).
+TITLE !CONCAT('After selection of comno w. transactions more than ',!no_of_transactions).
+FREQUENCIES flow .
+
 
 SORT CASES by flow section.
 SAVE OUTFILE='temp\sample.sav'.

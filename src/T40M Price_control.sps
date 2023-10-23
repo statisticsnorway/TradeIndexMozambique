@@ -86,6 +86,10 @@ EXECUTE.
 TITLE 'Number of cases after removal of outliers for standard deviation'.
 FREQUENCIES flow.
 
+*Remove comnos with only one transaction for current quarter.
+SELECT IF (N_transactions > 1).
+EXECUTE.
+
 
 * Add no of transactions after removal.
 AGGREGATE

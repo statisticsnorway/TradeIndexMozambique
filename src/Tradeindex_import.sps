@@ -44,6 +44,7 @@ create_weight_base flow=Import
                    max_by_median=5
                    median_by_min=5
                    share_small=0.0001
+                   no_of_transactions=10
                    .
 base_prices flow=Import year=2021 year_1 = 2020 outlier_median_year_limit_upper=2.5 outlier_median_year_limit_lower=0.3 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
 
@@ -88,6 +89,7 @@ create_weight_base flow=Import
                    max_by_median=5
                    median_by_min=5
                    share_small=0.0001
+                   no_of_transactions=10
                    .
 base_prices flow=Import year=2022 year_1 = 2021 outlier_median_year_limit_upper=2.5 outlier_median_year_limit_lower=0.3 outlier_limit_sd_upper=2.0 outlier_sd_limit_lower=2.0.
 
@@ -129,6 +131,8 @@ create_weight_base flow=Import
                    max_by_median=5
                    median_by_min=5
                    share_small=0.0001
+                   no_of_transactions=10
+                   .
 
 
 coverage flow=Import first_year=2020 last_year=2022 level=sitc1. 

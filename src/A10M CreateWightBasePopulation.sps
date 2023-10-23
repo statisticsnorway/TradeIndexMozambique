@@ -66,6 +66,13 @@ EXECUTE.
 
 *REMOVE VARIABLES NOT IN USE.
 
+*COUNT NUMBER OF TRANSACTIONS IN BASE YEAR.
+
+AGGREGATE
+  /OUTFILE=* MODE=ADDVARIABLES
+  /BREAK=flow comno
+  /no_of_transactions=N
+  .
 
 *CALCULATION PRICE per month:.
 
@@ -73,7 +80,7 @@ AGGREGATE
   /OUTFILE=* 
   /BREAK=year flow comno quarter month 
          section chapter sitc1 sitc2
-         T_sum S_sum C_sum S1_sum S2_sum HS_sum
+         T_sum S_sum C_sum S1_sum S2_sum HS_sum no_of_transactions
   /uv_weight=SUM(uv_weight)
   /value=SUM(value)
 .
