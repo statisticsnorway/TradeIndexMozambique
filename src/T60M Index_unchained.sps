@@ -155,7 +155,6 @@ EXECUTE.
 
 
 DELETE VARIABLES 
-weight_hs
 index_weight
 comno
 price
@@ -192,18 +191,52 @@ EXECUTE.
 FREQUENCIES last_idx.
 DELETE VARIABLES last_idx.
 
+do if (lag(series) = series).
+ compute index_unchained_change = (index_unchained / lag(index_unchained) - 1) * 100.
+else. 
+ compute index_unchained_change = ((index_unchained / 100) -1) * 100.
+END IF.
+
+EXECUTE.
+format index_unchained_change (f8.2).
+COMPUTE weight_hs_total = weight_hs.
+
+TEMPORARY.
+SELECT IF (level = 'Total').
+SAVE OUTFILE='temp/index_unchained_total.sav' 
+    /keep=time weight_hs_total.
+
+DELETE VARIABLES weight_hs_total.
+EXECUTE.
+SORT CASES by time.
+MATCH FILES file=*
+           /table='temp/index_unchained_total.sav'
+           /by time
+           .
+
+COMPUTE share_of_total_base_value = weight_hs / weight_hs_total * 100.
+EXECUTE.
+format index_unchained_change share_of_total_base_value (f8.2).
+DELETE VARIABLES weight_hs_total.
+EXECUTE.
+SORT CASES BY flow level series year quarter.
+VARIABLE LABELS 
+    share_of_total_base_value 'Share of total base value'.
+
 CTABLES
   /VLABELS VARIABLES=flow level series time index_unchained DISPLAY=NONE
-  /TABLE flow > level > series BY time > index_unchained [MEAN]
+  /VLABELS VARIABLES=share_of_total_base_value DISPLAY=LABEL
+  /TABLE flow > level > series BY time > index_unchained [MEAN] + share_of_total_base_value [mean] 
   /SLABELS VISIBLE=NO
   /CATEGORIES VARIABLES=flow level series time ORDER=A KEY=VALUE EMPTY=EXCLUDE
   /TITLES
     TITLE='Unchained index.'.
 
+
 *ADD LIST OF INDEXSERIES WITH INDEXCHANGE LARGER THAN X PER CENT
 
 SAVE outfile=!quote(!concat('Data/index_unchained_',!flow,'_',!year,'.sav'))
- /KEEP= year quarter time flow level series index_unchained.
+ /KEEP= year quarter time flow level series index_unchained weight_hs.
 !ENDDEFINE.
 
 

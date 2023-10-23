@@ -19,6 +19,7 @@ GET DATA
   /READNAMES=ON
   .
 EXECUTE.
+SORT CASES BY comno.
 
 SAVE OUTFILE='data\Commodities_use_quantity.sav'.
 
