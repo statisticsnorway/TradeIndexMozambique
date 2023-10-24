@@ -5,8 +5,8 @@ INSERT file='src\005 Import_chapter_catalog.sps'.
 INSERT file='src\007 Import_commodities_catalog.sps'.
 
 * Execute every time we run the index.
-INSERT file='src\T3.5M Read_trade_quarter.sps'.
-INSERT file='src\A3.5M CreateWightBasePopulation.sps'.
+INSERT file='src\T10M Read_trade_quarter.sps'.
+INSERT file='src\A10M CreateWightBasePopulation.sps'.
 INSERT file='src\A20M CreateWeightBase.sps'.
 INSERT file='src\A30M Base_price.sps'.
 INSERT file='src\T40M Price_control.sps'.
