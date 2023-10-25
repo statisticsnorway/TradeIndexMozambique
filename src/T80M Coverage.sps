@@ -19,8 +19,8 @@ formats Ssample_sum (f14) Spop_sum (f14) Tsample_sum (f14) Tpop_sum (f14) .
 !IFEND
 
 VALUE LABELS flow
-    1 'Import'
-    2 'Export'
+    'I' 'Import'
+    'E' 'Export'
     .
 
 OMS 

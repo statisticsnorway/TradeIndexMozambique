@@ -145,7 +145,17 @@ AGGREGATE
 compute Scoverage = Ssample_sum * 100 / spop_sum.
 compute Tcoverage = Tsample_sum * 100 / Tpop_sum.
 EXECUTE.
-    
+
+VARIABLE LABELS
+ Ssample_sum 'Sample value sum by section'     
+ Tsample_sum 'Total sample value sum'     
+ Spop_sum 'Population value sum by section'     
+ Tpop_sum 'Total Population value sum'     
+ Tno_of_comm 'Total number of commodities in sample'     
+ Sno_of_comm 'Number of commodities in sample by section'     
+ Scoverage 'Coverage in sample by section'     
+ Tcoverage 'Total coverage of population'     
+.
 
 list all.
 SAVE OUTFILE=!quote(!concat('data/coverage_section_',!flow,'_',!year_1,'.sav')).
@@ -174,6 +184,17 @@ AGGREGATE
 compute Scoverage = Ssample_sum * 100 / spop_sum.
 compute Tcoverage = Tsample_sum * 100 / Tpop_sum.
 EXECUTE.
+
+VARIABLE LABELS
+ Ssample_sum 'Sample value sum by sitc1'     
+ Tsample_sum 'Total sample value sum'     
+ Spop_sum 'Population value sum by sitc1'     
+ Tpop_sum 'Total Population value sum'     
+ Tno_of_comm 'Total number of commodities in sample'     
+ Sno_of_comm 'Number of commodities in sample by sitc1'     
+ Scoverage 'Coverage in sample by sitc1'     
+ Tcoverage 'Total coverage of population'     
+.
     
 list all.
 SAVE OUTFILE=!quote(!concat('data/coverage_sitc1_',!flow,'_',!year_1,'.sav')).
@@ -219,6 +240,17 @@ compute Scoverage = Ssample_sum * 100 / spop_sum.
 compute Tcoverage = Tsample_sum * 100 / Tpop_sum.
 EXECUTE.
     
+VARIABLE LABELS
+ Ssample_sum 'Sample value sum by sitc2'     
+ Tsample_sum 'Total sample value sum'     
+ Spop_sum 'Population value sum by sitc2'     
+ Tpop_sum 'Total Population value sum'     
+ Tno_of_comm 'Total number of commodities in sample'     
+ Sno_of_comm 'Number of commodities in sample by sitc2'     
+ Scoverage 'Coverage in sample by sitc2'     
+ Tcoverage 'Total coverage of population'     
+.
+
 list all.
 SAVE OUTFILE=!quote(!concat('data/coverage_sitc2_',!flow,'_',!year_1,'.sav')).
 

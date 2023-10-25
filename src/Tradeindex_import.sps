@@ -91,7 +91,7 @@ create_weight_base flow=Import
                    share_small=0.0001
                    no_of_transactions=10
                    .
-base_prices flow=Import year=2022 year_1 = 2021 outlier_median_year_limit_upper=2.5 outlier_median_year_limit_lower=0.3 outlier_limit_sd_upper=2.0 outlier_sd_limit_lower=2.0.
+base_prices flow=Import year=2022 year_1 = 2021 outlier_median_year_limit_upper=2.5 outlier_median_year_limit_lower=0.3 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
 
 * Quarterly (2022).
 read_quarter flow=Import year=2022 quarter=1  outlier_dev_median_quarter_limit=5 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
@@ -133,8 +133,35 @@ create_weight_base flow=Import
                    share_small=0.0001
                    no_of_transactions=10
                    .
+base_prices flow=Import year=2023 year_1 = 2022 outlier_median_year_limit_upper=2.5 outlier_median_year_limit_lower=0.3 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
+
+* Quarterly (2023).
+read_quarter flow=Import year=2023 quarter=1  outlier_dev_median_quarter_limit=5 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
+price_control flow=Import year_base=2022 year=2023 quarter=1 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
+impute_price flow=Import year_base=2022 quarter_1=4 year=2023 quarter=1.
+indices_unchained flow=Import year_base=2022 year=2023 quarter=1.
+chain_year flow=Import year_base=2022 year=2023 .
+
+read_quarter flow=Import year=2023 quarter=2  outlier_dev_median_quarter_limit=5 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
+price_control flow=Import year_base=2022 year=2023 quarter=2 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
+impute_price flow=Import year_base=2022 quarter_1=1 year=2023 quarter=2.
+indices_unchained flow=Import year_base=2022 year=2023 quarter=2.
+chain_year flow=Import year_base=2022 year=2023 .
+
+read_quarter flow=Import year=2023 quarter=3  outlier_dev_median_quarter_limit=5 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
+price_control flow=Import year_base=2022 year=2023 quarter=3 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
+impute_price flow=Import year_base=2022 quarter_1=2 year=2023 quarter=3.
+indices_unchained flow=Import year_base=2022 year=2023 quarter=3.
+chain_year flow=Import year_base=2022 year=2023 .
+
+read_quarter flow=Import year=2023 quarter=4  outlier_dev_median_quarter_limit=5 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
+price_control flow=Import year_base=2022 year=2023 quarter=4 outlier_time_limit_upper=2.5 outlier_time_limit_lower=0.3 outlier_sd_limit_upper=2.0 outlier_sd_limit_lower=2.0.
+impute_price flow=Import year_base=2022 quarter_1=3 year=2023 quarter=4.
+indices_unchained flow=Import year_base=2022 year=2023 quarter=4.
+chain_year flow=Import year_base=2022 year=2023 .
 
 
-coverage flow=Import first_year=2020 last_year=2022 level=sitc1. 
-coverage flow=Import first_year=2020 last_year=2022 level=sitc2. 
-coverage flow=Import first_year=2020 last_year=2022 level=section. 
+coverage flow=Import first_year=2020 last_year=2023 level=sitc1. 
+coverage flow=Import first_year=2020 last_year=2023 level=sitc2. 
+coverage flow=Import first_year=2020 last_year=2023 level=section. 
+

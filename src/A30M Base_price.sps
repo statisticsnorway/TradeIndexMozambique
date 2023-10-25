@@ -45,6 +45,10 @@ execute.
 *REMOVE OUTLIERS TRANSACTION LEVEL WITHIN GROUP AND QUARTER - MAD .
 FREQUENCIES outlier_dev_median_q.
 
+* Change order of values to have the outliers as the highest value
+  It will then be last when we sort by the outlier variable.
+* That is last within its group is used in the program to determine
+  which is the 10 outliers with the highest values for the outliers.  
 recode outlier_dev_median_q
     (0 = 0)
     (1 = 2)
@@ -68,21 +72,21 @@ CTABLES
 * Find the sum of each comno.
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
-  /BREAK=flow comno outlier_dev_median_quarter 
+  /BREAK=flow year quarter comno outlier_dev_median_quarter 
   /comno_sum=SUM(value)
 .
 
-sort cases by comno outlier_dev_median_quarter  .
+sort cases by flow year quarter comno outlier_dev_median_quarter  .
 
 match files file=*
-    /by comno outlier_dev_median_quarter
+    /by flow year quarter comno outlier_dev_median_quarter
     /last = l_comno.
 .
 
-sort cases by outlier_dev_median_quarter(D) comno_sum (D) comno (A) l_comno (D).
+sort cases by  flow (A) year (A) quarter (A) outlier_dev_median_quarter(D) comno_sum (D) comno (A) l_comno (D).
 
 * number the comno by sum.
-DO IF ($casenum = 1).
+DO IF ($casenum = 1 or quarter NE lag(quarter)).
  COMPUTE  comno_counter=1.
 ELSE IF (l_comno = 1).
  COMPUTE  comno_counter=comno_counter+1.
@@ -90,16 +94,16 @@ END IF.
 LEAVE comno_counter.
 EXECUTE.
 
-sort cases by comno.
+sort cases by flow year quarter comno.
 
 TEMPORARY.
-SELECT IF (comno_counter < 11 and l_comno = 1).
-SAVE OUTFILE='temp/largest_outliers.sav' /KEEP comno.
+SELECT IF (comno_counter < 11 and l_comno = 1 and quarter = 4).
+SAVE OUTFILE='temp/largest_outliers.sav' /KEEP flow year quarter comno.
 
 MATCH FILES file=*
            /table='temp/largest_outliers.sav'
            /in=largest
-           /by comno
+           /by flow year quarter comno
            .
 
 * table of the 10 largest values for outliers.
