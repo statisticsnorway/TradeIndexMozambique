@@ -113,9 +113,9 @@ SAVE OUTFILE='data/index_sitc2.sav'.
 DATASET CLOSE all.
 GET FILE='data/index_commodity.sav'.
 !IF (!flow = 'Export') !THEN 
- SELECT IF (flow = 'E' and char.substr(comno,1,4) NE '2716').
+ SELECT IF (flow = 'E' and any(comno,'27160000') = 0).
 !ELSE 
- SELECT IF (flow = 'I' and comno NE '27101939').
+ SELECT IF (flow = 'I' and and any(comno,'27101939') = 0).
 !IFEND
 EXECUTE.
 
