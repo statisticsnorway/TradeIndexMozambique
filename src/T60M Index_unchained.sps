@@ -33,6 +33,14 @@ COMPUTE level = 'Commodity'.
 COMPUTE series = comno.
 EXECUTE.
 
+* add special series information.
+MATCH FILES FILE=*
+           /TABLE='Data/Special_series.sav'
+           /IN=special
+           /BY flow comno 
+           .
+EXECUTE.
+FREQUENCIES special group.
 
 SAVE OUTFILE='data/index_commodity.sav'.
           
@@ -109,14 +117,10 @@ EXECUTE.
 
 SAVE OUTFILE='data/index_sitc2.sav'. 
 
-* Export/import without the largest.
+* Export/import without the special series.
 DATASET CLOSE all.
 GET FILE='data/index_commodity.sav'.
-!IF (!flow = 'Export') !THEN 
- SELECT IF (flow = 'E' and any(comno,'27160000') = 0).
-!ELSE 
- SELECT IF (flow = 'I' and and any(comno,'27101939') = 0).
-!IFEND
+SELECT IF (special = 0).
 EXECUTE.
 
 AGGREGATE /OUTFILE=*
@@ -131,15 +135,40 @@ COMPUTE index_unchained = index_weight / weight_hs .
 STRING level (A60) series (A60).
 
 !IF (!flow = 'Export') !THEN
- COMPUTE level = 'Total export without Electricity'.
- COMPUTE series = 'Total export without Electricity'.
+ COMPUTE level = 'Total export without Electricity, mineral coal and aluminium'.
+ COMPUTE series = 'Total export without Electricity, mineral coal and aluminium'.
 !ELSE 
- COMPUTE level = 'Total import without Petroleum oils'.
- COMPUTE series = 'Total import without Petroleum oils'.
+ COMPUTE level = 'Total import without Fuel and electricity'.
+ COMPUTE series = 'Total import without Fuel and electricity'.
 !IFEND
 EXECUTE.
 
-SAVE OUTFILE='data/index_total_no_big.sav'. 
+SAVE OUTFILE='data/index_total_no_special.sav'. 
+
+DATASET CLOSE all.
+GET FILE='data/index_commodity.sav'.
+
+AGGREGATE /OUTFILE=*
+          /BREAK=flow group Year quarter
+          /weight_hs = SUM(Weight_HS)
+          /index_weight = SUM(index_weight)
+          .
+EXECUTE.
+
+COMPUTE index_unchained = index_weight / weight_hs .
+
+STRING level (A60) series (A60).
+COMPUTE level = 'Special commodities'.
+COMPUTE series = group.
+
+IF (group = '' & flow = 'E') series = 'Total export without Electricity, mineral coal and aluminium'.
+IF (group = '' & flow = 'I') series = 'Total import without Fuel and electricity'.
+
+EXECUTE.
+delete variables group.
+EXECUTE.
+
+SAVE OUTFILE='data/index_special.sav'. 
 
 ADD FILES file=*
          /file='data/index_total.sav'
@@ -238,6 +267,7 @@ CTABLES
 SAVE outfile=!quote(!concat('Data/index_unchained_',!flow,'_',!year,'.sav'))
  /KEEP= year quarter time flow level series index_unchained weight_hs.
 !ENDDEFINE.
+
 
 
 

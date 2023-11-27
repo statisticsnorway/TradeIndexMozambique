@@ -20,6 +20,8 @@ GET DATA
   .
 EXECUTE.
 SORT CASES BY comno.
+select if (comno NE '').
+alter type comno (a8).
 
 SAVE OUTFILE='data\Commodities_use_quantity.sav'.
 
@@ -180,6 +182,8 @@ MEANS TABLES=value BY outlier_dev_median_q outlier_sd
   /CELLS=MEAN COUNT STDDEV SUM.
 
 EXECUTE.
+
+SORT CASES BY flow comno.
 
 SAVE OUTFILE=!quote(!concat("data/",!flow,"_",!year,"Q",!quarter,".sav"))
 

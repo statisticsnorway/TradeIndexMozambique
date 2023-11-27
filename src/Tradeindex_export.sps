@@ -3,6 +3,7 @@
 INSERT file='src\002 ValueLabelFromDataset.sps'.
 INSERT file='src\005 Import_chapter_catalog.sps'.
 INSERT file='src\007 Import_commodities_catalog.sps'.
+INSERT file='src\008 Import_special_series_list.sps'.
 
 * Execute every time we run the index.
 INSERT file='src\T10M Read_trade_quarter.sps'.
