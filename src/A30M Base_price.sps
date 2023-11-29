@@ -67,7 +67,7 @@ CTABLES
   /TABLE outlier_dev_median_quarter BY value [COUNT F40.0, SUM, COLPCT.SUM PCT40.1] + price [MEAN, STDDEV]
   /CATEGORIES VARIABLES=outlier_dev_median_quarter ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
   /TITLES
-    TITLE='Outliers on standard deviation.'.
+    TITLE='Outliers on deviation from median.'.
 
 * Find the sum of each comno.
 AGGREGATE
