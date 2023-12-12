@@ -37,6 +37,7 @@ VALUE LABELS flow
 
 OMS 
     /SELECT TABLES
+    /EXCEPTIF SUBTYPES = ['Notes']
     /DESTINATION FORMAT=XLSX OUTFILE=!quote(!concat('temp/coverage_',!level,'_',!flow,'_',!first_year,'_',!last_year,'.xlsx')).
 CTABLES
   /FORMAT EMPTY=ZERO MISSING='.' MINCOLWIDTH=124 MAXCOLWIDTH=256 UNITS=POINTS
@@ -53,6 +54,3 @@ CTABLES
 OMSEND.
 
 !ENDDEFINE.
-
-
-
