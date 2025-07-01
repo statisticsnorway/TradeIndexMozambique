@@ -133,32 +133,36 @@ EXECUTE.
 *MAD (ABSOLUTE DEVIATION FROM MEDIAN) .
 * Calculate the Median (M) and Median Absolute Deviation (MAD).
 
-AGGREGATE
-  /OUTFILE=* MODE=ADDVARIABLES
-  /BREAK=flow comno quarter 
-  /price_median_quarter=MEDIAN(price)
-  .
 
-COMPUTE deviation_from_median = ABS(price - price_median_quarter).
-EXECUTE.
+*********************
+*AGGREGATE
+*  /OUTFILE=* MODE=ADDVARIABLES
+*  /BREAK=flow comno quarter 
+*  /price_median_quarter=MEDIAN(price)
+*  .
 
-AGGREGATE 
-  /OUTFILE=* MODE=ADDVARIABLES
-  /BREAK=flow comno quarter 
-  /MAD = MEDIAN(deviation_from_median).
-EXECUTE.
+*COMPUTE deviation_from_median = ABS(price - price_median_quarter).
+*EXECUTE.
 
-COMPUTE modified_Z = 0.6745 * deviation_from_median / MAD
+*AGGREGATE 
+*  /OUTFILE=* MODE=ADDVARIABLES
+*  /BREAK=flow comno quarter 
+*  /MAD = MEDIAN(deviation_from_median).
+*EXECUTE.
 
-DO IF (MAD = 0.0).
-  COMPUTE outlier_dev_median_q = 2.
-ELSE IF (ABS(modified_Z) > !outlier_dev_median_quarter_limit).
-  COMPUTE outlier_dev_median_q = 1.
-ELSE.
-  COMPUTE outlier_dev_median_q = 0.
-END IF.
+*COMPUTE modified_Z = 0.6745 * deviation_from_median / MAD
 
-FREQUENCIES outlier_dev_median_q.
+*DO IF (MAD = 0.0).
+*  COMPUTE outlier_dev_median_q = 2.
+*ELSE IF (ABS(modified_Z) > !outlier_dev_median_quarter_limit).
+*  COMPUTE outlier_dev_median_q = 1.
+*ELSE.
+*  COMPUTE outlier_dev_median_q = 0.
+*END IF.
+
+*FREQUENCIES outlier_dev_median_q.
+
+*************
 
 *STANDARD DEVIATION FROM THE MEAN.
 
@@ -178,7 +182,7 @@ EXECUTE.
 
 FREQUENCIES outlier_sd.
 
-MEANS TABLES=value BY outlier_dev_median_q outlier_sd 
+MEANS TABLES=value BY outlier_sd 
   /CELLS=MEAN COUNT STDDEV SUM.
 
 EXECUTE.

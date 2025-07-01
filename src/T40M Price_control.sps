@@ -32,6 +32,9 @@ EXECUTE.
 DELETE VARIABLES from_wgt.
 EXECUTE.
 
+
+******Endre til utliggere basert på standardavik fra gjennomsnitt*****
+
 recode outlier_dev_median_q
     (0 = 0)
     (1 = 2)
@@ -104,38 +107,20 @@ CTABLES
 
 DELETE VARIABLES comno_counter l_comno comno_sum outlier_dev_median_quarter. 
 
+******Endre til utliggere basert på standardavik fra gjennomsnitt*****
+
 
 *REMOVE OUTLIERS TRANSACTION LEVEL WITHIN GROUP AND QUARTER - MAD.
 
-FREQUENCIES outlier_dev_median_q.
+*FREQUENCIES outlier_dev_median_q.
 
-SELECT IF (outlier_dev_median_q = 0 OR outlier_dev_median_q = 2).
-EXECUTE.
-TITLE 'Number of cases after removal of outliers for median quarter'.
-FREQUENCIES flow.
-
-*DETECT EXTREME PRICE CHANGE FOR TRANSACTIONS WITHIN QUARTER (DEVIATION FROM BASEPRICE).
-
-COMPUTE price = value / uv_weight.
-COMPUTE price_chg = price / base_price.
-FORMATS price_chg (f5.2).
-EXECUTE.
-DO IF (price_chg < !outlier_time_limit_lower).
- COMPUTE outlier_time = 1.
-ELSE IF (price_chg > !outlier_time_limit_upper).
- COMPUTE outlier_time = 2.
-ELSE.
-  COMPUTE outlier_time = 0.
-end if.
-
-FREQUENCIES outlier_time.
-
-SELECT IF (outlier_time = 0).
-EXECUTE.
-TITLE 'No of cases after outlier removal for price change from base price'.
-FREQUENCIES flow.
+*SELECT IF (outlier_dev_median_q = 0 OR outlier_dev_median_q = 2).
+*EXECUTE.
+*TITLE 'Number of cases after removal of outliers for median quarter'.
+*FREQUENCIES flow.
 
 
+****Må vi gjøre beregningen på nytt?****
 * Perform the AGGREGATE operation for outlier_median_quarter = 0.
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
@@ -159,9 +144,11 @@ EXECUTE.
 TITLE 'Number of cases after removal of outliers for standard deviation'.
 FREQUENCIES flow.
 
+
+***** Kanskje inkludere etter sjekk at det blir likt med python***
 *Remove comnos with only one transaction for current quarter.
-SELECT IF (N_transactions > 1).
-EXECUTE.
+*SELECT IF (N_transactions > 1).
+*EXECUTE.
 
 
 * Add no of transactions after removal.
@@ -172,6 +159,38 @@ AGGREGATE
 .
 
 FREQUENCIES flow.
+
+*** AGGREGATE TO MONTHLY PRICES***
+
+
+AGGREGATE /OUTFILE=*
+          /BREAK=flow comno quarter month
+          /value_month = SUM(value)
+          /uv_weight_month = SUM(uv_weight)
+          .
+
+
+*DETECT EXTREME PRICE CHANGE FOR TRANSACTIONS WITHIN QUARTER (DEVIATION FROM BASEPRICE).
+
+COMPUTE price = value_month / uv_weight_month.
+COMPUTE price_chg = price / base_price.
+FORMATS price_chg (f5.2).
+EXECUTE.
+DO IF (price_chg < !outlier_time_limit_lower).
+ COMPUTE outlier_time = 1.
+ELSE IF (price_chg > !outlier_time_limit_upper).
+ COMPUTE outlier_time = 2.
+ELSE.
+  COMPUTE outlier_time = 0.
+end if.
+
+FREQUENCIES outlier_time.
+
+SELECT IF (outlier_time = 0).
+EXECUTE.
+TITLE 'No of cases after outlier removal for price change from base price'.
+FREQUENCIES flow.
+
 
 
 save OUTFILE=!quote(!concat('data/tradedata_no_outlier_',!flow,'_',!year,'Q',!quarter,'.sav')).
