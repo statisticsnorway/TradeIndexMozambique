@@ -173,14 +173,23 @@ AGGREGATE
   /mean_comno=MEAN(price).
 
 * Mark outlier_sd.
-compute ul = mean_comno + (!outlier_sd_limit_upper * sd_comno).
-compute ll = mean_comno - (!outlier_sd_limit_lower * sd_comno).
-EXECUTE.
+
+COMPUTE z_score = (price - mean_comno) / sd_comno.
 COMPUTE outlier_sd = 0.
-if (price < ll or price > ul) outlier_sd=1.
+if (z_score < !outlier_sd_limit_lower or z_score > !outlier_sd_limit_upper) outlier_sd=1.
 EXECUTE.
 
 FREQUENCIES outlier_sd.
+
+
+*compute ul = mean_comno + (!outlier_sd_limit_upper * sd_comno).
+*compute ll = mean_comno - (!outlier_sd_limit_lower * sd_comno).
+*EXECUTE.
+*COMPUTE outlier_sd = 0.
+*if (price < ll or price > ul) outlier_sd=1.
+*EXECUTE.
+
+*FREQUENCIES outlier_sd.
 
 MEANS TABLES=value BY outlier_sd 
   /CELLS=MEAN COUNT STDDEV SUM.
