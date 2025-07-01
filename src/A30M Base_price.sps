@@ -68,27 +68,27 @@ execute.
 
 CTABLES
   /FORMAT MAXCOLWIDTH=128
-  /VLABELS VARIABLES=outlier_dev_median_quarter value price DISPLAY=LABEL
-  /TABLE outlier_dev_median_quarter BY value [COUNT F40.0, SUM, COLPCT.SUM PCT40.1] + price [MEAN, STDDEV]
-  /CATEGORIES VARIABLES=outlier_dev_median_quarter ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /VLABELS VARIABLES=outlier_sd value price DISPLAY=LABEL
+  /TABLE outlier_sd BY value [COUNT F40.0, SUM, COLPCT.SUM PCT40.1] + price [MEAN, STDDEV]
+  /CATEGORIES VARIABLES=outlier_sd ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
   /TITLES
-    TITLE='Outliers on deviation from median.'.
+    TITLE='Outliers on standard deviation from mean.'.
 
 * Find the sum of each comno.
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
-  /BREAK=flow year quarter comno outlier_dev_median_quarter 
+  /BREAK=flow year quarter comno outlier_sd 
   /comno_sum=SUM(value)
 .
 
-sort cases by flow year quarter comno outlier_dev_median_quarter  .
+sort cases by flow year quarter comno outlier_sd  .
 
 match files file=*
-    /by flow year quarter comno outlier_dev_median_quarter
+    /by flow year quarter comno outlier_sd
     /last = l_comno.
 .
 
-sort cases by  flow (A) year (A) quarter (A) outlier_dev_median_quarter(D) comno_sum (D) comno (A) l_comno (D).
+sort cases by  flow (A) year (A) quarter (A) outlier_sd(D) comno_sum (D) comno (A) l_comno (D).
 
 * number the comno by sum.
 DO IF ($casenum = 1 or quarter NE lag(quarter)).
@@ -116,15 +116,15 @@ TEMPORARY .
 SELECT IF (largest = 1).
 CTABLES
   /FORMAT MAXCOLWIDTH=128
-  /VLABELS VARIABLES=comno outlier_dev_median_quarter value price DISPLAY=NONE
+  /VLABELS VARIABLES=comno outlier_sd value price DISPLAY=NONE
   /VLABELS VARIABLES=value price DISPLAY=LABEL
-  /TABLE comno > outlier_dev_median_quarter BY value [COUNT F40.0, SUM, COLPCT.SUM PCT40.1] + price [MEAN F40.1, STDDEV F40.1]
+  /TABLE comno > outlier_sd BY value [COUNT F40.0, SUM, COLPCT.SUM PCT40.1] + price [MEAN F40.1, STDDEV F40.1]
   /CATEGORIES VARIABLES=comno ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE LABEL='Grand total'
-  /CATEGORIES VARIABLES=outlier_dev_median_quarter ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /CATEGORIES VARIABLES=outlier_sd ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
   /TITLES
     TITLE='Outlier share for 10 largest commodities based on outlier values'.
 
-DELETE VARIABLES comno_counter l_comno comno_sum outlier_dev_median_quarter. 
+DELETE VARIABLES comno_counter l_comno comno_sum . 
 
 ******************************************************************************
 
@@ -138,26 +138,8 @@ DELETE VARIABLES comno_counter l_comno comno_sum outlier_dev_median_quarter.
 
 ***Her må jeg sjekke om denne er forksjellig fra sd-kontroll kjørt i read trade quarter. hvis ikke kan denne beregningen fjernes før vi filtererer ut utliggere.
 
-*CALCULATE STANDARD DEVIATION FROM THE MEAN (QUARTER).
 
-AGGREGATE
-  /OUTFILE=* MODE=ADDVARIABLES
-  /BREAK=flow comno quarter 
-  /sd_comno_base=SD(price)
-  /mean_comno_base=MEAN(price).
-
-* Mark outliers.
-COMPUTE ul_base = mean_comno_base + (!outlier_sd_limit_upper * sd_comno_base).
-COMPUTE ll_base = mean_comno_base - (!outlier_sd_limit_lower * sd_comno_base).
-COMPUTE outlier_sd_base = 0.
-IF (price < ll_base OR price > ul_base) outlier_sd_base = 1.
-
-
-FREQUENCIES outlier_sd_base.
-MEANS TABLES=value BY outlier_sd_base
-  /CELLS=MEAN COUNT STDDEV SUM.
-
-SELECT IF (outlier_sd_base = 0).
+SELECT IF (outlier_sd = 0).
 EXECUTE.
 TITLE 'Number of cases after removal of outliers for standard deviation'.
 FREQUENCIES flow.
@@ -176,10 +158,10 @@ AGGREGATE
 AGGREGATE /OUTFILE=*
           /BREAK=flow comno section Weight_HS Year quarter month
           /value_month = SUM(value)
-          /weight_month = SUM(uv_weight)
+          /uv_weight_month = SUM(uv_weight)
           .
 
-COMPUTE price = value_month / weight_month.
+COMPUTE price = value_month / uv_weight_month.
 EXECUTE.
 
 
@@ -222,8 +204,8 @@ FREQUENCIES flow.
 
 AGGREGATE /OUTFILE=*
           /BREAK=flow comno section Weight_HS Year quarter
-          /value_quarter = SUM(value)
-          /weight_quarter = SUM(uv_weight)
+          /value_quarter = SUM(value_month)
+          /weight_quarter = SUM(uv_weight_month)
           .
 
 COMPUTE price = value_quarter / weight_quarter.

@@ -176,7 +176,7 @@ AGGREGATE
 
 COMPUTE z_score = (price - mean_comno) / sd_comno.
 COMPUTE outlier_sd = 0.
-if (z_score < !outlier_sd_limit_lower or z_score > !outlier_sd_limit_upper) outlier_sd=1.
+if (abs(z_score) > !outlier_sd_limit_lower or abs(z_score) > !outlier_sd_limit_upper) outlier_sd=1.
 EXECUTE.
 
 FREQUENCIES outlier_sd.

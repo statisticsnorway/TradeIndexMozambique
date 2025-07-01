@@ -30,17 +30,17 @@ AGGREGATE /OUTFILE='temp\quarter.sav'
           /qrt = MEAN(qrt)
           .
 
-*AGGREGATE FROM TRANSACTION- TO HS-LEVEL.
+*AGGREGATE FROM MONTH TO QUARTER ON HS-LEVEL.
 
 AGGREGATE /OUTFILE=*
           /BREAK=flow comno qrt
-          /value = SUM(value)
-          /uv_weight = SUM(uv_weight)
+          /value_quarter = SUM(value_month)
+          /uv_weight_quarter = SUM(uv_weight_month)
           .
 
-COMPUTE price = value /uv_weight.
+COMPUTE price = value_quarter /uv_weight_quarter.
 EXECUTE.
-DELETE VARIABLES value uv_weight.
+DELETE VARIABLES value_quarter uv_weight_quarter.
 
 ADD FILES FILE='temp\price_imputed_t1.sav'
          /FILE=*.

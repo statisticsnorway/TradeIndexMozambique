@@ -35,13 +35,13 @@ EXECUTE.
 
 ******Endre til utliggere basert på standardavik fra gjennomsnitt*****
 
-recode outlier_dev_median_q
+*recode outlier_dev_median_q
     (0 = 0)
     (1 = 2)
     (2 = 1)
     into outlier_dev_median_quarter
     .
-VALUE LABELS outlier_dev_median_quarter
+*VALUE LABELS outlier_dev_median_quarter
  0 'No outlier'
  1 'Special case, kept'
  2 'Outlier'
@@ -49,27 +49,27 @@ VALUE LABELS outlier_dev_median_quarter
 
 CTABLES
   /FORMAT MAXCOLWIDTH=128
-  /VLABELS VARIABLES=outlier_dev_median_quarter value price DISPLAY=LABEL
-  /TABLE outlier_dev_median_quarter BY value [COUNT F40.0, SUM, COLPCT.SUM PCT40.1] + price [MEAN, STDDEV]
-  /CATEGORIES VARIABLES=outlier_dev_median_quarter ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /VLABELS VARIABLES=outlier_sd value price DISPLAY=LABEL
+  /TABLE outlier_sd BY value [COUNT F40.0, SUM, COLPCT.SUM PCT40.1] + price [MEAN, STDDEV]
+  /CATEGORIES VARIABLES=outlier_sd ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
   /TITLES
     TITLE='Outliers on standard deviation.'.
 
 * Find the sum of each comno.
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
-  /BREAK=flow year quarter comno outlier_dev_median_quarter 
+  /BREAK=flow year quarter comno outlier_sd 
   /comno_sum=SUM(value)
 .
 
-sort cases by flow year quarter comno outlier_dev_median_quarter  .
+sort cases by flow year quarter comno outlier_sd  .
 
 match files file=*
-    /by flow year quarter comno outlier_dev_median_quarter
+    /by flow year quarter comno outlier_sd
     /last = l_comno.
 .
 
-sort cases by  flow (A) year (A) quarter (A) outlier_dev_median_quarter(D) comno_sum (D) comno (A) l_comno (D).
+sort cases by  flow (A) year (A) quarter (A) outlier_sd(D) comno_sum (D) comno (A) l_comno (D).
 
 * number the comno by sum.
 DO IF ($casenum = 1).
@@ -97,15 +97,15 @@ TEMPORARY .
 SELECT IF (largest = 1).
 CTABLES
   /FORMAT MAXCOLWIDTH=128
-  /VLABELS VARIABLES=comno outlier_dev_median_quarter value price DISPLAY=NONE
+  /VLABELS VARIABLES=comno outlier_sd value price DISPLAY=NONE
   /VLABELS VARIABLES=value price DISPLAY=LABEL
-  /TABLE comno > outlier_dev_median_quarter BY value [COUNT F40.0, SUM, COLPCT.SUM PCT40.1] + price [MEAN F40.1, STDDEV F40.1]
+  /TABLE comno > outlier_sd BY value [COUNT F40.0, SUM, COLPCT.SUM PCT40.1] + price [MEAN F40.1, STDDEV F40.1]
   /CATEGORIES VARIABLES=comno ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE LABEL='Grand total'
-  /CATEGORIES VARIABLES=outlier_dev_median_quarter ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
+  /CATEGORIES VARIABLES=outlier_sd ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=BEFORE
   /TITLES
     TITLE='Outlier share for 10 largest commodities based on outlier values'.
 
-DELETE VARIABLES comno_counter l_comno comno_sum outlier_dev_median_quarter. 
+DELETE VARIABLES comno_counter l_comno comno_sum . 
 
 ******Endre til utliggere basert på standardavik fra gjennomsnitt*****
 
@@ -124,7 +124,7 @@ DELETE VARIABLES comno_counter l_comno comno_sum outlier_dev_median_quarter.
 * Perform the AGGREGATE operation for outlier_median_quarter = 0.
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
-  /BREAK=flow comno quarter 
+  /BREAK=year flow comno quarter 
   /sd_comno_q=SD(price)
   /mean_comno_q=MEAN(price).
 
@@ -154,7 +154,7 @@ FREQUENCIES flow.
 * Add no of transactions after removal.
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
-  /BREAK=flow comno quarter 
+  /BREAK=year flow comno quarter 
   /no_trans_after_rm=N()
 .
 
@@ -164,9 +164,10 @@ FREQUENCIES flow.
 
 
 AGGREGATE /OUTFILE=*
-          /BREAK=flow comno quarter month
+          /BREAK=year flow comno quarter month
           /value_month = SUM(value)
           /uv_weight_month = SUM(uv_weight)
+          /base_price = MEAN(base_price)
           .
 
 
@@ -197,35 +198,7 @@ save OUTFILE=!quote(!concat('data/tradedata_no_outlier_',!flow,'_',!year,'Q',!qu
 
 DELETE VARIABLES 
 flow
-ItemID
-country
-unit
-valUSD
-itemno
-exporterNUIT
-sitc2
-sitc1
-chapter
-section
-N_transactions
-price_median_quarter
-deviation_from_median
-MAD
-modified_Z
-outlier_dev_median_q
-sd_comno
-mean_comno
-ul
-ll
-outlier_sd
-qrt
 outlier_time
-sd_comno_q
-mean_comno_q
-ul_sd
-ll_sd
-outlier_sd_q
-no_trans_after_rm
 .
 EXECUTE.
 
