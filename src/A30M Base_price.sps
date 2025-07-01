@@ -5,8 +5,6 @@ DEFINE base_prices(year_1=!tokens(1)
                   /flow=!tokens(1)
                   /outlier_median_year_limit_upper=!tokens(1)
                   /outlier_median_year_limit_lower=!tokens(1)
-                  /outlier_sd_limit_upper=!tokens(1)
-                  /outlier_sd_limit_lower=!tokens(1)
                   )
 
 DATASET CLOSE all.
@@ -41,29 +39,6 @@ EXECUTE.
 
 COMPUTE price = value / uv_weight.
 execute.
-
-
-******************************* Denne skal endres til 10 største utliggere basert på standard avvik fra gjennomsnitt****
-
-*REMOVE OUTLIERS TRANSACTION LEVEL WITHIN GROUP AND QUARTER - MAD .
-*FREQUENCIES outlier_dev_median_q.
-
-* Change order of values to have the outliers as the highest value
-  It will then be last when we sort by the outlier variable.
-* That is last within its group is used in the program to determine
-  which is the 10 outliers with the highest values for the outliers.  
-*recode outlier_dev_median_q
-*    (0 = 0)
-*    (1 = 2)
-*    (2 = 1)
-*    into outlier_dev_median_quarter
-    .
-*VALUE LABELS outlier_dev_median_quarter
-* 0 'No outlier'
-* 1 'Special case, kept'
-* 2 'Outlier'
-* .           
-
 
 
 CTABLES
@@ -126,17 +101,6 @@ CTABLES
 
 DELETE VARIABLES comno_counter l_comno comno_sum . 
 
-******************************************************************************
-
-*SELECT IF (outlier_dev_median_q = 0 OR outlier_dev_median_q = 2).
-*EXECUTE.
-
-*TITLE 'Number of cases after removal of outliers for median quarter'.
-*FREQUENCIES flow.
-
-*REMOVE VARIABLES.
-
-***Her må jeg sjekke om denne er forksjellig fra sd-kontroll kjørt i read trade quarter. hvis ikke kan denne beregningen fjernes før vi filtererer ut utliggere.
 
 
 SELECT IF (outlier_sd = 0).
@@ -151,9 +115,8 @@ AGGREGATE
   /no_trans_after_rm=N()
 .
 
-***legger til aggregering****
 
-*AGGREGATE VALUE AND WEIGHT AND CALCULATE PRICE FOR COMNO-LEVEL.
+*AGGREGATE VALUE AND WEIGHT AND CALCULATE PRICE  PER MONTH FOR COMNO-LEVEL.
 
 AGGREGATE /OUTFILE=*
           /BREAK=flow comno section Weight_HS Year quarter month
@@ -166,9 +129,7 @@ EXECUTE.
 
 
 
-
-
-*DETECT EXTREME PRICE CHANGE FOR MONTHLY PRICES WITHIN BASEYEAR (DEVIATION FROM MEDIAN YEAR).
+*DETECT EXTREME PRICE CHANGE FOR MONTHLY PRICES WITHIN BASEYEAR (DEVIATION FROM MEDIAN PRICE MONTH in YEAR).
 
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES
@@ -176,28 +137,35 @@ AGGREGATE
   /price_median_year=MEDIAN(price)
   .
 
-DO IF (price / price_median_year < !outlier_median_year_limit_lower).
- COMPUTE outlier_median_baseyear = 1.
-ELSE IF (price / price_median_year > !outlier_median_year_limit_upper).
- COMPUTE outlier_median_baseyear = 2.
-ELSE.
-  COMPUTE outlier_median_baseyear = 0.
-end if.
+IF (SYSMIS(price_median_year)) outlier_median_baseyear = $SYSMIS.
+IF (NOT SYSMIS(price_median_year)) price_chg = price / price_median_year.
+
+DO IF (NOT SYSMIS(price_chg)).
+   DO IF (price_chg < !outlier_median_year_limit_lower).
+     COMPUTE outlier_median_baseyear = 1.
+   ELSE IF (price_chg > !outlier_median_year_limit_upper).
+     COMPUTE outlier_median_baseyear = 2.
+   ELSE.
+     COMPUTE outlier_median_baseyear = 0.
+   END IF.
+END IF.
+
+
 
 FREQUENCIES outlier_median_baseyear.
-
-
-*TEMPORARY.
-*SELECT IF (any(outlier_median_baseyear,1,2)).
-*list flow comno outlier_median_baseyear.
 
 
 *REMOVE EXTREME PRICE CHANGES:
 SELECT IF (outlier_median_baseyear = 0).
 EXECUTE.
 
+
 TITLE 'Number of cases after removal of outliers for median'.
 FREQUENCIES flow.
+
+
+save OUTFILE=!quote(!concat('data/tradedata_base_no_outlier_',!flow,'_',!year,'Q',!quarter,'.sav')).
+
 
 
 *AGGREGATE VALUE AND WEIGHT AND CALCULATE PRICE FOR COMNO-LEVEL.

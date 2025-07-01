@@ -5,8 +5,6 @@ DEFINE price_control(year_base=!tokens(1)
                      /flow=!tokens(1)
                      /outlier_time_limit_upper=!tokens(1)
                      /outlier_time_limit_lower=!tokens(1)
-                     /outlier_sd_limit_upper=!tokens(1)
-                     /outlier_sd_limit_lower=!tokens(1)
                      )
 
 DATASET CLOSE all.
@@ -31,21 +29,7 @@ SELECT IF (from_wgt = 1).
 EXECUTE.
 DELETE VARIABLES from_wgt.
 EXECUTE.
-
-
-******Endre til utliggere basert på standardavik fra gjennomsnitt*****
-
-*recode outlier_dev_median_q
-    (0 = 0)
-    (1 = 2)
-    (2 = 1)
-    into outlier_dev_median_quarter
-    .
-*VALUE LABELS outlier_dev_median_quarter
- 0 'No outlier'
- 1 'Special case, kept'
- 2 'Outlier'
- .           
+   
 
 CTABLES
   /FORMAT MAXCOLWIDTH=128
@@ -107,39 +91,11 @@ CTABLES
 
 DELETE VARIABLES comno_counter l_comno comno_sum . 
 
-******Endre til utliggere basert på standardavik fra gjennomsnitt*****
 
-
-*REMOVE OUTLIERS TRANSACTION LEVEL WITHIN GROUP AND QUARTER - MAD.
-
-*FREQUENCIES outlier_dev_median_q.
-
-*SELECT IF (outlier_dev_median_q = 0 OR outlier_dev_median_q = 2).
-*EXECUTE.
-*TITLE 'Number of cases after removal of outliers for median quarter'.
-*FREQUENCIES flow.
-
-
-****Må vi gjøre beregningen på nytt?****
-* Perform the AGGREGATE operation for outlier_median_quarter = 0.
-AGGREGATE
-  /OUTFILE=* MODE=ADDVARIABLES
-  /BREAK=year flow comno quarter 
-  /sd_comno_q=SD(price)
-  /mean_comno_q=MEAN(price).
-
-* Mark outlier_sd_q.
-COMPUTE ul_sd = mean_comno_q + (!outlier_sd_limit_upper * sd_comno_q).
-COMPUTE ll_sd = mean_comno_q - (!outlier_sd_limit_lower * sd_comno_q).
-COMPUTE outlier_sd_q = 0.
-IF (price < ll_sd OR price > ul_sd) outlier_sd_q = 1.
-EXECUTE.
-
-FREQUENCIES outlier_sd_q.
 
 *REMOVE OUTLIERS based on STANDARD DEVIATION.
 
-SELECT IF (outlier_sd_q = 0).
+SELECT IF (outlier_sd = 0).
 EXECUTE.
 TITLE 'Number of cases after removal of outliers for standard deviation'.
 FREQUENCIES flow.

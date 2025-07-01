@@ -2,9 +2,7 @@
 DEFINE read_quarter(flow=!tokens(1)
                    /year=!tokens(1)
                    /quarter=!tokens(1)
-                   /outlier_sd_limit_upper=!tokens(1)
-                   /outlier_sd_limit_lower=!tokens(1)
-                   /outlier_dev_median_quarter_limit=!tokens(1)
+                   /outlier_sd_limit=!tokens(1)
                    )
 PRESERVE.
 SET DECIMAL DOT.
@@ -176,7 +174,7 @@ AGGREGATE
 
 COMPUTE z_score = (price - mean_comno) / sd_comno.
 COMPUTE outlier_sd = 0.
-if (abs(z_score) > !outlier_sd_limit_lower or abs(z_score) > !outlier_sd_limit_upper) outlier_sd=1.
+if (abs(z_score) > !outlier_sd_limit or abs(z_score) > !outlier_sd_limit) outlier_sd=1.
 EXECUTE.
 
 FREQUENCIES outlier_sd.
