@@ -164,9 +164,7 @@ TITLE 'Number of cases after removal of outliers for median'.
 FREQUENCIES flow.
 
 
-save OUTFILE=!quote(!concat('data/tradedata_base_no_outlier_',!flow,'_',!year,'Q',!quarter,'.sav')).
-
-
+save OUTFILE=!quote(!concat('data/tradedata_base_no_outlier_',!flow,'_',!year,'.sav')).
 
 *AGGREGATE VALUE AND WEIGHT AND CALCULATE PRICE FOR COMNO-LEVEL.
 
