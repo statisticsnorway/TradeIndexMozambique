@@ -67,7 +67,7 @@ def read_trade_data(path, prefix, flow, year, quarter, suffix):
     # Read tab-delimited file with headers from file
     trade_data = pd.read_csv(
         full_path,
-        sep='\t',
+        sep=',',
         dtype=dtyp,
         na_values={'.', ' .'},
         encoding='latin1',
@@ -94,13 +94,12 @@ def read_trade_data(path, prefix, flow, year, quarter, suffix):
     return trade_data
 
 
-
 tradedata = read_trade_data(path='../data/',
             prefix='',
             flow=flow,
             year=year,
             quarter=quarter,
-            suffix='txt' )
+            suffix='csv' )
 tradedata
 
 
