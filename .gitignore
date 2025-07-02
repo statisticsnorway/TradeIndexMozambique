@@ -255,3 +255,19 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+cat/SITC_labels.txt
+data/Import - 2020_XPMI_Q1.txt
+data/Import - 2020_XPMI_Q2.txt
+data/Import - 2020_XPMI_Q3.txt
+data/Import - 2020_XPMI_Q4.txt
+data/Import - 2021_XPMI_Q1.txt
+data/Import - 2021_XPMI_Q2.txt
+data/Import - 2021_XPMI_Q3.txt
+data/Import - 2021_XPMI_Q4.txt
+data/Import - 2022_XPMI_Q1.txt
+data/Import - 2022_XPMI_Q2.txt
+data/Import - 2022_XPMI_Q3.txt
+data/Import - 2022_XPMI_Q4.txt
+data/Import - 2023_XPMI_Q1.txt
+data/Import - 2023_XPMI_Q2.txt
+data/Import - 2023_XPMI_Q3.txt
