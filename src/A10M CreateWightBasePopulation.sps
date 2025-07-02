@@ -109,7 +109,7 @@ DELETE VARIABLES price_mean price_sd.
 
 
 SORT CASES by flow comno.
-* Save for previous year.
+*Save for previous year.
 SAVE OUTFILE=!quote(!concat('data/weight_base_population_',!flow,'_',!year_1,'.sav')).
 
 TITLE 'Create weight base population finished'. 

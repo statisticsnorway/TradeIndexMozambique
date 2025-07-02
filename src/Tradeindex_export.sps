@@ -53,8 +53,8 @@ create_weight_base flow=Export
 ** Select limit for extreme price changes - price change from median price in base year**.
 **Check imputation of base prices**.
 base_prices flow=Export year=2021 year_1 = 2020
-                    outlier_median_year_limit_upper=2.5 
-                    outlier_median_year_limit_lower=0.3
+                    outlier_median_year_limit_upper=2.0 
+                    outlier_median_year_limit_lower=0.5
                     .
 
 ************************ Quarterly (2021)*******************************************************
@@ -69,7 +69,7 @@ read_quarter flow=Export year=2021 quarter=1
 ** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
 price_control flow=Export year_base=2020 year=2021 quarter=1 
                     outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.3 
+                    outlier_time_limit_lower=0.5 
                     .
 
 **Impute missing prices in quarter**.
@@ -89,7 +89,7 @@ read_quarter flow=Export year=2021 quarter=2
 ** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
 price_control flow=Export year_base=2020 year=2021 quarter=2 
                     outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.3 
+                    outlier_time_limit_lower=0.5 
                     .
 
 **Impute missing prices in quarter**.
@@ -108,7 +108,7 @@ read_quarter flow=Export year=2021 quarter=3
 ** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
 price_control flow=Export year_base=2020 year=2021 quarter=3 
                     outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.3 
+                    outlier_time_limit_lower=0.5 
                     .
 
 **Impute missing prices in quarter**.
@@ -127,7 +127,7 @@ read_quarter flow=Export year=2021 quarter=4
 ** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
 price_control flow=Export year_base=2020 year=2021 quarter=4 
                     outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.3 
+                    outlier_time_limit_lower=0.5 
                     .
 
 **Impute missing prices in quarter**.
@@ -170,8 +170,8 @@ create_weight_base flow=Export
 ** Select limit for extreme price changes - price change from median price in base year**.
 **Check imputation of base prices**.
 base_prices flow=Export year=2022 year_1 = 2021
-                    outlier_median_year_limit_upper=2.5 
-                    outlier_median_year_limit_lower=0.3
+                    outlier_median_year_limit_upper=2.0 
+                    outlier_median_year_limit_lower=0.5
                     .
 
 ************************ Quarterly (2022)*******************************************************
@@ -186,7 +186,7 @@ read_quarter flow=Export year=2022 quarter=1
 ** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
 price_control flow=Export year_base=2021 year=2022 quarter=1 
                     outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.3 
+                    outlier_time_limit_lower=0.5 
                     .
 
 **Impute missing prices in quarter**.
@@ -205,7 +205,7 @@ read_quarter flow=Export year=2022 quarter=2
 ** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
 price_control flow=Export year_base=2021 year=2022 quarter=2 
                     outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.3 
+                    outlier_time_limit_lower=0.5 
                     .
 
 **Impute missing prices in quarter**.
@@ -224,7 +224,7 @@ read_quarter flow=Export year=2022 quarter=3
 ** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
 price_control flow=Export year_base=2021 year=2022 quarter=3 
                     outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.3 
+                    outlier_time_limit_lower=0.5 
                     .
 
 **Impute missing prices in quarter**.
@@ -243,7 +243,7 @@ read_quarter flow=Export year=2022 quarter=4
 ** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
 price_control flow=Export year_base=2021 year=2022 quarter=4 
                     outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.3 
+                    outlier_time_limit_lower=0.5 
                     .
 
 **Impute missing prices in quarter**.
@@ -284,8 +284,8 @@ create_weight_base flow=Export
 ** Select limit for extreme price changes - price change from median price in base year**.
 **Check imputation of base prices**.
 base_prices flow=Export year=2023 year_1 = 2022
-                    outlier_median_year_limit_upper=2.5 
-                    outlier_median_year_limit_lower=0.3
+                    outlier_median_year_limit_upper=2.0 
+                    outlier_median_year_limit_lower=0.5
                     .
 
 ************************ Quarterly (2023)*******************************************************
@@ -300,7 +300,7 @@ read_quarter flow=Export year=2023 quarter=1
 ** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
 price_control flow=Export year_base=2022 year=2023 quarter=1 
                     outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.3 
+                    outlier_time_limit_lower=0.5 
                     .
 
 **Impute missing prices in quarter**.
@@ -319,7 +319,7 @@ read_quarter flow=Export year=2023 quarter=2
 ** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
 price_control flow=Export year_base=2022 year=2023 quarter=2 
                     outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.3 
+                    outlier_time_limit_lower=0.5 
                     .
 
 **Impute missing prices in quarter**.
@@ -338,7 +338,7 @@ read_quarter flow=Export year=2023 quarter=3
 ** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
 price_control flow=Export year_base=2022 year=2023 quarter=3 
                     outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.3 
+                    outlier_time_limit_lower=0.5 
                     .
 
 **Impute missing prices in quarter**.
@@ -357,7 +357,7 @@ read_quarter flow=Export year=2023 quarter=4
 ** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
 price_control flow=Export year_base=2022 year=2023 quarter=4 
                     outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.3 
+                    outlier_time_limit_lower=0.5 
                     .
 
 **Impute missing prices in quarter**.

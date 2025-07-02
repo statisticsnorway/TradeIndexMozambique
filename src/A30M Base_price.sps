@@ -155,7 +155,7 @@ END IF.
 FREQUENCIES outlier_median_baseyear.
 
 
-*REMOVE EXTREME PRICE CHANGES:
+*REMOVE EXTREME PRICE CHANGES.
 SELECT IF (outlier_median_baseyear = 0).
 EXECUTE.
 

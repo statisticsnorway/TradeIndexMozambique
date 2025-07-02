@@ -101,7 +101,7 @@ TITLE 'Number of cases after removal of outliers for standard deviation'.
 FREQUENCIES flow.
 
 
-***** Kanskje inkludere etter sjekk at det blir likt med python***
+
 *Remove comnos with only one transaction for current quarter.
 *SELECT IF (N_transactions > 1).
 *EXECUTE.
@@ -116,7 +116,7 @@ AGGREGATE
 
 FREQUENCIES flow.
 
-*** AGGREGATE TO MONTHLY PRICES***
+*AGGREGATE TO MONTHLY PRICES.
 
 
 AGGREGATE /OUTFILE=*
