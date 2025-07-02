@@ -32,16 +32,10 @@ itables.init_notebook_mode(all_interactive=True)
 
 # ## Tradedata for a quarter
 
-year = 2022
-quarter  = 4
-flow = 'Export'
-
-# + active=""
-# year = 2021
-# quarter  = 1
-# flow = 'Export'
-# exec(open("T010 Read trade quarter.py").read())
-# -
+year = 2021
+quarter  = 1
+flow = 'Import'
+exec(open("T010 Read trade quarter.py").read())
 
 # ## Outlier control
 
@@ -78,10 +72,9 @@ outlier_sd = 2
 #Treshold price change
 price_limit_low = 0.5
 price_limit_high = 2.0
-
-# + active=""
-# exec(open("T015 Outlier control quarter.py").read())
 # -
+
+exec(open("T015 Outlier control quarter.py").read())
 
 # ### Price control quarter
 # Check the data for extreme prices
