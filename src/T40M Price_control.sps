@@ -103,8 +103,8 @@ FREQUENCIES flow.
 
 
 *Remove comnos with only one transaction for current quarter.
-*SELECT IF (N_transactions > 1).
-*EXECUTE.
+SELECT IF (N_transactions > 1).
+EXECUTE.
 
 
 * Add no of transactions after removal.
