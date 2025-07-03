@@ -55,31 +55,27 @@ flow = 'Export'
 
 # ## Import chapter and section correspondance
 
-# + active=""
-# correspondance_file = f'../cat/chapter_section.parquet'
-# if os.path.exists(correspondance_file):
-#     answer = input(f"File {correspondance_file} already exists, do you want to import it again (y/n)", )
-#     if answer.lower() == 'y':
-#         exec(open("005 Import_chapter_catalog.py").read())
-#     else:
-#         print(f"File {correspondance_file} not replaced")
-# else:
-#     exec(open("005 Import_chapter_catalog.py").read())   
-# -
+correspondance_file = f'../cat/chapter_section.parquet'
+if os.path.exists(correspondance_file):
+    answer = input(f"File {correspondance_file} already exists, do you want to import it again (y/n)", )
+    if answer.lower() == 'y':
+        exec(open("005 Import_chapter_catalog.py").read())
+    else:
+        print(f"File {correspondance_file} not replaced")
+else:
+    exec(open("005 Import_chapter_catalog.py").read())   
 
 # ## Import commodity and sitc correspondance
 
-# + active=""
-# correspondance_file = f'../cat/commodity_sitc.parquet'
-# if os.path.exists(correspondance_file):
-#     answer = input(f"File {correspondance_file} already exists, do you want to import it again (y/n)", )
-#     if answer.lower() == 'y':
-#         exec(open("007 Import_commodities_catalog.py", encoding="utf-8").read())
-#     else:
-#         print(f"File {correspondance_file} not replaced")
-# else:
-#     exec(open("007 Import_commodities_catalog.py").read())           
-# -
+correspondance_file = f'../cat/commodity_sitc.parquet'
+if os.path.exists(correspondance_file):
+    answer = input(f"File {correspondance_file} already exists, do you want to import it again (y/n)", )
+    if answer.lower() == 'y':
+        exec(open("007 Import_commodities_catalog.py", encoding="utf-8").read())
+    else:
+        print(f"File {correspondance_file} not replaced")
+else:
+    exec(open("007 Import_commodities_catalog.py").read())           
 
 # ## Import files for selected year
 
