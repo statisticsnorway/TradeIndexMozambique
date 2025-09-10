@@ -193,8 +193,8 @@ print("Number of rows with 0 in weight or value:", len(rows_with_zero))
 
 # ## Choose whether to use weight or quantity for the UV-weight
 
-use_quantity = pd.read_excel('../cat/use_quantity.xlsx', dtype=str)
-use_quantity_list = use_quantity['use_quantity'].tolist()
+use_quantity = pd.read_excel('../cat/commodities_use_quantity.xlsx', dtype=str)
+use_quantity_list = use_quantity['comno'].tolist()
 
 t_section['weight'] = np.where(t_section['comno'].isin(use_quantity_list), t_section['quantity'], t_section['weight'])
 
