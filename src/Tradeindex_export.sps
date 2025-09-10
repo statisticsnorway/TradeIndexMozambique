@@ -18,243 +18,13 @@ INSERT file='src\T72M Chain_next_years.sps'.
 INSERT file='src\T80M Coverage.sps'.
 
 
+
 * Quarterly first year.
 ** Select limits for outliers - standard deviation from mean**.
-read_quarter flow=Export year=2020 quarter=1 outlier_sd_limit=2.0.
-read_quarter flow=Export year=2020 quarter=2 outlier_sd_limit=2.0.
-read_quarter flow=Export year=2020 quarter=3 outlier_sd_limit=2.0.
-read_quarter flow=Export year=2020 quarter=4 outlier_sd_limit=2.0.
-
-
-**********************************Year 2021****************************************************
-
-**Yearly (1. quarter) - Selection of HS, Calculation of weights and base price**
-**This program runs all the programs that shall be executed yearly. Most of the other programs are included and executed from here**
-
-* Yearly (2021, base 2020).
-create_weight_base_population flow=Export year_1=2020.
-
-**Select parameteres for sample selection - What is acceptable price variation for each commodity. Stricter parameter --> less heterogeniety**
-**Check coverage - How much of the population does the sample cover.**.
-create_weight_base flow=Export
-                   year_1=2020 
-                   share_total=0.05
-                   no_of_months=5
-                   no_of_months_seasons=3
-                   section_seasons='II'
-                   price_cv=0.5
-                   max_by_min=10
-                   max_by_median=5
-                   median_by_min=5
-                   share_small=0.0001
-                   no_of_transactions=10
-                   .
-
-** Select limit for extreme price changes - price change from median price in base year**.
-**Check imputation of base prices**.
-base_prices flow=Export year=2021 year_1 = 2020
-                    outlier_median_year_limit_upper=2.0 
-                    outlier_median_year_limit_lower=0.5
-                    .
-
-************************ Quarterly (2021)*******************************************************
-  
-*****1st quarter*************
-** Select limits for outliers - standard deviation from mean**.
-read_quarter flow=Export year=2021 quarter=1  
-                    outlier_sd_limit=2.0
-                    .
-
-**'Check the data for extreme prices**
-** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
-price_control flow=Export year_base=2020 year=2021 quarter=1 
-                    outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.5 
-                    .
-
-**Impute missing prices in quarter**.
-impute_price flow=Export year_base=2020 quarter_1=4 year=2021 quarter=1.
-
-**Calculate unchained index quarter**.
-indices_unchained flow=Export year_base=2020 year=2021 quarter=1.
-
-
-*****2nd quarter*************.
-** Select limits for outliers - standard deviation from mean**.
-read_quarter flow=Export year=2021 quarter=2  
-                    outlier_sd_limit=2.0
-                    .
-
-**'Check the data for extreme prices**
-** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
-price_control flow=Export year_base=2020 year=2021 quarter=2 
-                    outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.5 
-                    .
-
-**Impute missing prices in quarter**.
-impute_price flow=Export year_base=2020 quarter_1=1 year=2021 quarter=2.
-
-**Calculate unchained index quarter**.
-indices_unchained flow=Export year_base=2020 year=2021 quarter=2.
-
-*****3th quarter*************.
-** Select limits for outliers - standard deviation from mean**.
-read_quarter flow=Export year=2021 quarter=3  
-                    outlier_sd_limit=2.0
-                    .
-
-**'Check the data for extreme prices**
-** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
-price_control flow=Export year_base=2020 year=2021 quarter=3 
-                    outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.5 
-                    .
-
-**Impute missing prices in quarter**.
-impute_price flow=Export year_base=2020 quarter_1=2 year=2021 quarter=3.
-
-**Calculate unchained index quarter**.
-indices_unchained flow=Export year_base=2020 year=2021 quarter=3.
-
-*****4th quarter*************.
-** Select limits for outliers - standard deviation from mean**.
-read_quarter flow=Export year=2021 quarter=4  
-                    outlier_sd_limit=2.0
-                    .
-
-**'Check the data for extreme prices**
-** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
-price_control flow=Export year_base=2020 year=2021 quarter=4 
-                    outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.5 
-                    .
-
-**Impute missing prices in quarter**.
-impute_price flow=Export year_base=2020 quarter_1=3 year=2021 quarter=4.
-
-**Calculate unchained index quarter**.
-indices_unchained flow=Export year_base=2020 year=2021 quarter=4.
-
-
-**Calculate chained index**
-**This will start when all quarters of the first index year have been processed. There is ine syntax for chaining the first year and one for further chaining.**
-**Attention! only change first_index_year, when updating reference year (not the same as base year)**.
-chain_first_year flow=Export year=2021.
-
-
-**********************************Year 2022****************************************************
-
-**Yearly (1. quarter) - Selection of HS, Calculation of weights and base price**
-**This program runs all the programs that shall be executed yearly. Most of the other programs are included and executed from here**
-
-* Yearly (2022, base 2021).
-create_weight_base_population flow=Export year_1=2021.
-
-**Select parameteres for sample selection - What is acceptable price variation for each commodity. Stricter parameter --> less heterogeniety**
-**Check coverage - How much of the population does the sample cover.**.
-create_weight_base flow=Export
-                   year_1=2021 
-                   share_total=0.05
-                   no_of_months=5
-                   no_of_months_seasons=3
-                   section_seasons='II'
-                   price_cv=0.5
-                   max_by_min=10
-                   max_by_median=5
-                   median_by_min=5
-                   share_small=0.0001
-                   no_of_transactions=10
-                   .
-
-** Select limit for extreme price changes - price change from median price in base year**.
-**Check imputation of base prices**.
-base_prices flow=Export year=2022 year_1 = 2021
-                    outlier_median_year_limit_upper=2.0 
-                    outlier_median_year_limit_lower=0.5
-                    .
-
-************************ Quarterly (2022)*******************************************************
-  
-*****1st quarter*************
-** Select limits for outliers - standard deviation from mean**.
-read_quarter flow=Export year=2022 quarter=1  
-                    outlier_sd_limit=2.0
-                    .
-
-**'Check the data for extreme prices**
-** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
-price_control flow=Export year_base=2021 year=2022 quarter=1 
-                    outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.5 
-                    .
-
-**Impute missing prices in quarter**.
-impute_price flow=Export year_base=2021 quarter_1=4 year=2022 quarter=1.
-
-**Calculate unchained index quarter**.
-indices_unchained flow=Export year_base=2021 year=2022 quarter=1.
-
-*****2nd quarter*************.
-** Select limits for outliers - standard deviation from mean**.
-read_quarter flow=Export year=2022 quarter=2  
-                    outlier_sd_limit=2.0
-                    .
-
-**'Check the data for extreme prices**
-** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
-price_control flow=Export year_base=2021 year=2022 quarter=2 
-                    outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.5 
-                    .
-
-**Impute missing prices in quarter**.
-impute_price flow=Export year_base=2021 quarter_1=1 year=2022 quarter=2.
-
-**Calculate unchained index quarter**.
-indices_unchained flow=Export year_base=2021 year=2022 quarter=2.
-
-*****3th quarter*************.
-** Select limits for outliers - standard deviation from mean**.
-read_quarter flow=Export year=2022 quarter=3  
-                    outlier_sd_limit=2.0
-                    .
-
-**'Check the data for extreme prices**
-** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
-price_control flow=Export year_base=2021 year=2022 quarter=3 
-                    outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.5 
-                    .
-
-**Impute missing prices in quarter**.
-impute_price flow=Export year_base=2021 quarter_1=2 year=2022 quarter=3.
-
-**Calculate unchained index quarter**.
-indices_unchained flow=Export year_base=2021 year=2022 quarter=3.
-
-*****4th quarter*************.
-** Select limits for outliers - standard deviation from mean**.
-read_quarter flow=Export year=2022 quarter=4  
-                    outlier_sd_limit=2.0
-                    .
-
-**'Check the data for extreme prices**
-** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
-price_control flow=Export year_base=2021 year=2022 quarter=4 
-                    outlier_time_limit_upper=2 
-                    outlier_time_limit_lower=0.5 
-                    .
-
-**Impute missing prices in quarter**.
-impute_price flow=Export year_base=2021 quarter_1=3 year=2022 quarter=4.
-
-**Calculate unchained index quarter**.
-indices_unchained flow=Export year_base=2021 year=2022 quarter=4.
-
-
-
-chain_year flow=Export year_base=2021 year=2022 .
+read_quarter flow=Export year=2023 quarter=1 outlier_sd_limit=2.0.
+read_quarter flow=Export year=2023 quarter=2 outlier_sd_limit=2.0.
+read_quarter flow=Export year=2023 quarter=3 outlier_sd_limit=2.0.
+read_quarter flow=Export year=2023 quarter=4 outlier_sd_limit=2.0.
 
 
 **********************************Year 2023****************************************************
@@ -262,13 +32,13 @@ chain_year flow=Export year_base=2021 year=2022 .
 **Yearly (1. quarter) - Selection of HS, Calculation of weights and base price**
 **This program runs all the programs that shall be executed yearly. Most of the other programs are included and executed from here**
 
-* Yearly (2023, base 2022).
-create_weight_base_population flow=Export year_1=2022.
+* Yearly (2024, base 2023).
+create_weight_base_population flow=Export year_1=2023.
 
 **Select parameteres for sample selection - What is acceptable price variation for each commodity. Stricter parameter --> less heterogeniety**
 **Check coverage - How much of the population does the sample cover.**.
 create_weight_base flow=Export
-                   year_1=2022 
+                   year_1=2023 
                    share_total=0.05
                    no_of_months=5
                    no_of_months_seasons=3
@@ -283,96 +53,215 @@ create_weight_base flow=Export
 
 ** Select limit for extreme price changes - price change from median price in base year**.
 **Check imputation of base prices**.
-base_prices flow=Export year=2023 year_1 = 2022
+base_prices flow=Export year=2024 year_1 = 2023
                     outlier_median_year_limit_upper=2.0 
                     outlier_median_year_limit_lower=0.5
                     .
 
-************************ Quarterly (2023)*******************************************************
+************************ Quarterly (2024)*******************************************************
   
 *****1st quarter*************
 ** Select limits for outliers - standard deviation from mean**.
-read_quarter flow=Export year=2023 quarter=1  
+read_quarter flow=Export year=2024 quarter=1  
                     outlier_sd_limit=2.0
                     .
 
 **'Check the data for extreme prices**
 ** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
-price_control flow=Export year_base=2022 year=2023 quarter=1 
+price_control flow=Export year_base=2023 year=2024 quarter=1 
                     outlier_time_limit_upper=2 
                     outlier_time_limit_lower=0.5 
                     .
 
 **Impute missing prices in quarter**.
-impute_price flow=Export year_base=2022 quarter_1=4 year=2023 quarter=1.
+impute_price flow=Export year_base=2023 quarter_1=4 year=2024 quarter=1.
 
 **Calculate unchained index quarter**.
-indices_unchained flow=Export year_base=2022 year=2023 quarter=1.
+indices_unchained flow=Export year_base=2023 year=2024 quarter=1.
+
 
 *****2nd quarter*************.
 ** Select limits for outliers - standard deviation from mean**.
-read_quarter flow=Export year=2023 quarter=2  
+read_quarter flow=Export year=2024 quarter=2  
                     outlier_sd_limit=2.0
                     .
 
 **'Check the data for extreme prices**
 ** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
-price_control flow=Export year_base=2022 year=2023 quarter=2 
+price_control flow=Export year_base=2023 year=2024 quarter=2 
                     outlier_time_limit_upper=2 
                     outlier_time_limit_lower=0.5 
                     .
 
 **Impute missing prices in quarter**.
-impute_price flow=Export year_base=2022 quarter_1=1 year=2023 quarter=2.
+impute_price flow=Export year_base=2023 quarter_1=1 year=2024 quarter=2.
 
 **Calculate unchained index quarter**.
-indices_unchained flow=Export year_base=2022 year=2023 quarter=2.
+indices_unchained flow=Export year_base=2023 year=2024 quarter=2.
 
 *****3th quarter*************.
 ** Select limits for outliers - standard deviation from mean**.
-read_quarter flow=Export year=2023 quarter=3  
+read_quarter flow=Export year=2024 quarter=3  
                     outlier_sd_limit=2.0
                     .
 
 **'Check the data for extreme prices**
 ** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
-price_control flow=Export year_base=2022 year=2023 quarter=3 
+price_control flow=Export year_base=2023 year=2024 quarter=3 
                     outlier_time_limit_upper=2 
                     outlier_time_limit_lower=0.5 
                     .
 
 **Impute missing prices in quarter**.
-impute_price flow=Export year_base=2022 quarter_1=2 year=2023 quarter=3.
+impute_price flow=Export year_base=2023 quarter_1=2 year=2024 quarter=3.
 
 **Calculate unchained index quarter**.
-indices_unchained flow=Export year_base=2022 year=2023 quarter=3.
+indices_unchained flow=Export year_base=2023 year=2024 quarter=3.
 
 *****4th quarter*************.
 ** Select limits for outliers - standard deviation from mean**.
-read_quarter flow=Export year=2023 quarter=4  
+read_quarter flow=Export year=2024 quarter=4  
                     outlier_sd_limit=2.0
                     .
 
 **'Check the data for extreme prices**
 ** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
-price_control flow=Export year_base=2022 year=2023 quarter=4 
+price_control flow=Export year_base=2023 year=2024 quarter=4 
                     outlier_time_limit_upper=2 
                     outlier_time_limit_lower=0.5 
                     .
 
 **Impute missing prices in quarter**.
-impute_price flow=Export year_base=2022 quarter_1=3 year=2023 quarter=4.
+impute_price flow=Export year_base=2023 quarter_1=3 year=2024 quarter=4.
 
 **Calculate unchained index quarter**.
-indices_unchained flow=Export year_base=2022 year=2023 quarter=4.
+indices_unchained flow=Export year_base=2023 year=2024 quarter=4.
+
+
+**Calculate chained index**
+**This will start when all quarters of the first index year have been processed. There is ine syntax for chaining the first year and one for further chaining.**
+**Attention! only change first_index_year, when updating reference year (not the same as base year)**.
+chain_first_year flow=Export year=2024.
+
+
+**********************************Year 2025****************************************************
+
+**Yearly (1. quarter) - Selection of HS, Calculation of weights and base price**
+**This program runs all the programs that shall be executed yearly. Most of the other programs are included and executed from here**
+
+* Yearly (2025, base 2024).
+create_weight_base_population flow=Export year_1=2024.
+
+**Select parameteres for sample selection - What is acceptable price variation for each commodity. Stricter parameter --> less heterogeniety**
+**Check coverage - How much of the population does the sample cover.**.
+create_weight_base flow=Export
+                   year_1=2024 
+                   share_total=0.05
+                   no_of_months=5
+                   no_of_months_seasons=3
+                   section_seasons='II'
+                   price_cv=0.5
+                   max_by_min=10
+                   max_by_median=5
+                   median_by_min=5
+                   share_small=0.0001
+                   no_of_transactions=10
+                   .
+
+** Select limit for extreme price changes - price change from median price in base year**.
+**Check imputation of base prices**.
+base_prices flow=Export year=2025 year_1 = 2024
+                    outlier_median_year_limit_upper=2.0 
+                    outlier_median_year_limit_lower=0.5
+                    .
+
+************************ Quarterly (2025)*******************************************************
+  
+*****1st quarter*************
+** Select limits for outliers - standard deviation from mean**.
+read_quarter flow=Export year=2025 quarter=1  
+                    outlier_sd_limit=2.0
+                    .
+
+**'Check the data for extreme prices**
+** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
+price_control flow=Export year_base=2024 year=2025 quarter=1 
+                    outlier_time_limit_upper=2 
+                    outlier_time_limit_lower=0.5 
+                    .
+
+**Impute missing prices in quarter**.
+impute_price flow=Export year_base=2024 quarter_1=4 year=2025 quarter=1.
+
+**Calculate unchained index quarter**.
+indices_unchained flow=Export year_base=2024 year=2025 quarter=1.
+
+*****2nd quarter*************.
+** Select limits for outliers - standard deviation from mean**.
+read_quarter flow=Export year=2025 quarter=2  
+                    outlier_sd_limit=2.0
+                    .
+
+**'Check the data for extreme prices**
+** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
+price_control flow=Export year_base=2024 year=2025 quarter=2 
+                    outlier_time_limit_upper=2 
+                    outlier_time_limit_lower=0.5 
+                    .
+
+**Impute missing prices in quarter**.
+impute_price flow=Export year_base=2024 quarter_1=1 year=2025 quarter=2.
+
+**Calculate unchained index quarter**.
+indices_unchained flow=Export year_base=2024 year=2025 quarter=2.
+
+*****3th quarter*************.
+** Select limits for outliers - standard deviation from mean**.
+read_quarter flow=Export year=2025 quarter=3  
+                    outlier_sd_limit=2.0
+                    .
+
+**'Check the data for extreme prices**
+** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
+price_control flow=Export year_base=2024 year=2025 quarter=3 
+                    outlier_time_limit_upper=2 
+                    outlier_time_limit_lower=0.5 
+                    .
+
+**Impute missing prices in quarter**.
+impute_price flow=Export year_base=2024 quarter_1=2 year=2025 quarter=3.
+
+**Calculate unchained index quarter**.
+indices_unchained flow=Export year_base=2024 year=2025 quarter=3.
+
+*****4th quarter*************.
+** Select limits for outliers - standard deviation from mean**.
+read_quarter flow=Export year=2025 quarter=4  
+                    outlier_sd_limit=2.0
+                    .
+
+**'Check the data for extreme prices**
+** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
+price_control flow=Export year_base=2024 year=2025 quarter=4 
+                    outlier_time_limit_upper=2 
+                    outlier_time_limit_lower=0.5 
+                    .
+
+**Impute missing prices in quarter**.
+impute_price flow=Export year_base=2024 quarter_1=3 year=2025 quarter=4.
+
+**Calculate unchained index quarter**.
+indices_unchained flow=Export year_base=2024 year=2025 quarter=4.
 
 
 
-chain_year flow=Export year_base=2022 year=2023 .
+chain_year flow=Export year_base=2024 year=2025 .
 
 
-coverage flow=Export first_year=2020 last_year=2023 level=sitc1. 
-coverage flow=Export first_year=2020 last_year=2023 level=sitc2. 
-coverage flow=Export first_year=2020 last_year=2023 level=section. 
+
+
+coverage flow=Export first_year=2023 last_year=2024 level=sitc1. 
+coverage flow=Export first_year=2023 last_year=2024 level=sitc2. 
+coverage flow=Export first_year=2023 last_year=2024 level=section. 
 
 

@@ -20,9 +20,9 @@
 # itables.init_notebook_mode(all_interactive=True)
 #
 #
-# year = 2020
-# quarter = 1
-# flow = 'Export'
+# year = 2025
+# quarter = 2
+# flow = 'Import'
 
 # +
 dtyp = {
@@ -174,6 +174,7 @@ else:
 # Clean up by dropping the '_merge' column
 t_section.drop(columns='_merge', inplace=True)
 
+t_section.columns = t_section.columns.str.lower()
 # -
 
 # ## Check if month is missing
