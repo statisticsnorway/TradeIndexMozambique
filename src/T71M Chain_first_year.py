@@ -6,12 +6,19 @@ year_base = year - 1
 
 # ## Read parquet files
 
+# +
+print()
+print(f"\n===Read in the index unchained===")
+print()
+
 indexunchainedfile = f'../data/index_unchained_{flow}_{year}.parquet'
 index_unchained = pd.read_parquet(indexunchainedfile)
 print(f'{index_unchained.shape[0]} rows read from parquet file {indexunchainedfile}\n')
+# -
 
 # ## Aggregate and calculate chained indexes
 
+# +
 index_unchained['index_mean'] = index_unchained.groupby(['year', 'flow', 'series', 'level'])['index_unchained'].transform('mean')
 index_chained = index_unchained.copy()
 index_chained['index_chained'] = index_chained['index_unchained'] * 100 / index_chained['index_mean']
@@ -20,10 +27,15 @@ index_chained.drop(columns='index_mean', inplace=True)
 # Ensure year and quarter are integers
 index_chained['year'] = index_chained['year'].astype(int)
 index_chained['quarter'] = index_chained['quarter'].astype(int)
+
+print()
+print(f"\n===calculate the chained index (long index) (reference year {first_index_year}=100) ===")
+print()
 display(pd.crosstab([index_chained['level'], index_chained['series']], 
                     columns=[index_chained['year'], index_chained['quarter']], 
                     values=index_chained['index_chained'], 
                     aggfunc='mean'))
+# -
 
 # ## Save result as parquet file
 

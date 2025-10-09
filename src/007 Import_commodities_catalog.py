@@ -2,144 +2,115 @@
 
 import pandas as pd
 
-commodity_sitc = pd.read_excel(
-    '../cat/Commodities_Catalogue_XPMI.xlsx',
-    header=0,
-    dtype=str,
-    na_values={'.', ' .'}
-).rename(columns={'Code': 'comno'})
-commodity_sitc['sitc1'] = commodity_sitc['sitcr4_1']
-commodity_sitc['sitc2'] = commodity_sitc['sitcr4_2']
-commodity_sitc
-
-commodity_sitc[['sitc1', 'Description sitcr4_1']].loc[commodity_sitc['sitc1'] == '7'].drop_duplicates(subset='sitc1',keep='first')
-
-
-# ## Create labels for chapter
-# Chapter is hs 2 digits. We create a function for this
-
-def labels_from_cat(df, index, column, label_name, nan_txt='Other'):
-    labels = (
-    df[[index, column]]
-        .drop_duplicates(subset=index,keep='first')
-        .fillna(nan_txt)
-        .sort_values(index)
-        .set_index(index)
-        .rename(columns={column: label_name})
-        .to_dict()
-    )
-    return labels
-
+# ### Import SITC_HS correspondance
 
 # +
-from typing import Union, Dict
+import os
+import pandas as pd
 
-def labels_from_cat(
-    df: pd.DataFrame,
-    index: str,
-    column: str,
-    label_name: str,
-    nan_txt: str = 'Other',
-    include_code: bool = False
-) -> Dict[str, Dict[Union[str, int], str]]:
-    """
-    Extracts unique labels from a categorical column and maps them to index values,
-    optionally including the index code in the label.
+# Parquet file path for commodity-SITC
+correspondance_file = '../cat/commodity_sitc.parquet'
 
-    This function drops duplicate index entries, replaces missing values in the
-    specified column with `nan_txt`, sorts by index, and creates a dictionary
-    mapping index values to their corresponding label. If `include_code` is True,
-    the label is prefixed with the code.
+# Check if the parquet file exists
+if os.path.exists(correspondance_file):
+    answer = input(f"File {correspondance_file} already exists. Do you want to import it again? (yes/no): ").strip().lower()
+    if answer == 'yes':
+        # Read Excel and save parquet
+        commodity_sitc = pd.read_excel(
+            '../cat/HS_SITC.xlsx',
+            header=0,
+            dtype=str,
+            na_values={'.', ' .'}
+        ).rename(columns={'Code': 'comno'})
 
-    Args:
-        df (pd.DataFrame): The input DataFrame containing the data.
-        index (str): The column to use as the key/index in the resulting dictionary.
-        column (str): The column containing the labels.
-        label_name (str): The desired name of the label column in the resulting dictionary.
-        nan_txt (str, optional): The text to replace NaN values in the label column. Defaults to 'Other'.
-        include_code (bool, optional): Whether to include the index code before the label text. Defaults to False.
+        commodity_sitc['sitc1'] = commodity_sitc['SITC'].str[0]
+        commodity_sitc['sitc2'] = commodity_sitc['SITC'].str[0:2]
 
-    Returns:
-        Dict[str, Dict[Union[str, int], str]]:
-            A dictionary of the form {label_name: {index_value: label, ...}}.
+        commodity_sitc = commodity_sitc[['comno', 'sitc1', 'sitc2']]
+        commodity_sitc.to_parquet(correspondance_file, index=False)
 
-    Example:
-        >>> import pandas as pd
-        >>> data = pd.DataFrame({
-        ...     'id': [1, 2, 2, 3, 4],
-        ...     'category': ['A', 'B', 'B', None, 'D']
-        ... })
-        >>> labels_from_cat(data, index='id', column='category', label_name='label')
-        {'label': {1: 'A', 2: 'B', 3: 'Other', 4: 'D'}}
-        
-        >>> labels_from_cat(data, index='id', column='category', label_name='label', include_code=True)
-        {'label': {1: '1 A', 2: '2 B', 3: '3 Other', 4: '4 D'}}
-    """
-    tmp = (
-        df[[index, column]]
-        .drop_duplicates(subset=index, keep='first')
-        .fillna(nan_txt)
-        .sort_values(index)
-        .copy()
-    )
+        print(f"\nNOTE: Parquet file {correspondance_file} overwritten with {commodity_sitc.shape[0]} rows and {commodity_sitc.shape[1]} columns.\n")
+    else:
+        print(f"File {correspondance_file} not replaced.")
+else:
+    # File does not exist → create it
+    commodity_sitc = pd.read_excel(
+        '../cat/HS_SITC.xlsx',
+        header=0,
+        dtype=str,
+        na_values={'.', ' .'}
+    ).rename(columns={'Code': 'comno'})
 
-    if include_code:
-        tmp[column] = tmp[index].astype(str) + ' ' + tmp[column].astype(str)
+    commodity_sitc['sitc1'] = commodity_sitc['SITC'].str[0]
+    commodity_sitc['sitc2'] = commodity_sitc['SITC'].str[0:2]
 
-    labels = (
-        tmp.set_index(index)
-           .rename(columns={column: label_name})
-           .to_dict()
-    )
-    return labels
+    commodity_sitc = commodity_sitc[['comno', 'sitc1', 'sitc2']]
+    commodity_sitc.to_parquet(correspondance_file, index=False)
 
+    print(f"\nNOTE: Parquet file {correspondance_file} created with {commodity_sitc.shape[0]} rows and {commodity_sitc.shape[1]} columns.\n")
 
 # -
 
-# Labels for chapter
+# ### Import ISIC_HS correspondance
 
-chapter_labels = labels_from_cat(
-    df=commodity_sitc, 
-    index='SH2', 
-    column='Descrição SH2', 
-    label_name='chapter',
-    include_code=True
-)
-chapter_labels
+# +
+import os
+import pandas as pd
 
-# Labels for sitc1
+# Parquet file path for commodity-SITC
+correspondance_file = '../cat/commodity_isic.parquet'
 
-sitc1_labels = labels_from_cat(
-    df=commodity_sitc, 
-    index='sitc1', 
-    column='Description sitcr4_1', 
-    label_name='sitc1',
-    include_code=True
-)
-sitc1_labels
+# Check if the parquet file exists
+if os.path.exists(correspondance_file):
+    answer = input(f"File {correspondance_file} already exists. Do you want to import it again? (yes/no): ").strip().lower()
+    if answer == 'yes':
+        # Read Excel and save parquet
+        commodity_isic = pd.read_excel(
+            '../cat/HS_ISIC.xlsx',
+            header=0,
+            dtype=str,
+            na_values={'.', ' .'}
+        ).rename(columns={'Code': 'comno'})
 
-# Labels for sitc2
+        # Extract ISIC hierarchy
+        commodity_isic['isic_section']  = commodity_isic['ISIC'].str[0]
+        commodity_isic['isic_division'] = commodity_isic['ISIC'].str[0:3]
+        commodity_isic['isic_group']    = commodity_isic['ISIC'].str[0:4]
+        commodity_isic['isic_class']    = commodity_isic['ISIC'].str[0:5]
+        
+        # Keep only relevant columns (add 'comno' if you have it)
+        commodity_isic = commodity_isic[['comno', 'isic_section', 'isic_division', 'isic_group', 'isic_class']]
+        
+        # Save to parquet
+        commodity_isic.to_parquet(correspondance_file, index=False)
 
-sitc2_labels = labels_from_cat(
-    df=commodity_sitc, 
-    index='sitc2', 
-    column='Description sitcr4_2', 
-    label_name='sitc2',
-    include_code=True
-)
-sitc2_labels
 
-# Add labels together and save as a json file
+        print(f"\nNOTE: Parquet file {correspondance_file} overwritten with {commodity_isic.shape[0]} rows and {commodity_isic.shape[1]} columns.\n")
+    else:
+        print(f"File {correspondance_file} not replaced.")
+else:
+    # File does not exist → create it
+    commodity_isic = pd.read_excel(
+        '../cat/HS_ISIC.xlsx',
+        header=0,
+        dtype=str,
+        na_values={'.', ' .'}
+    ).rename(columns={'Code': 'comno'})
 
-labels = chapter_labels | sitc1_labels | sitc2_labels
-with open('../cat/labels.json', 'w') as f:
-    json.dump(labels, f, ensure_ascii=False, indent=4)
 
-# ## Keep only the columns for match with commodities
+    # Extract ISIC hierarchy
+    commodity_isic['isic_section']  = commodity_isic['ISIC'].str[0]
+    commodity_isic['isic_division'] = commodity_isic['ISIC'].str[0:3]
+    commodity_isic['isic_group']    = commodity_isic['ISIC'].str[0:4]
+    commodity_isic['isic_class']    = commodity_isic['ISIC'].str[0:5]
+    
+    # Keep only relevant columns (add 'comno' if you have it)
+    commodity_isic = commodity_isic[['comno', 'isic_section', 'isic_division', 'isic_group', 'isic_class']]
+    
+    # Save to parquet
+    commodity_isic.to_parquet(correspondance_file, index=False)
 
-commodity_sitc = commodity_sitc[['comno', 'sitc1', 'sitc2']]
 
-# ## Save as parquet file
 
-commodity_sitc.to_parquet('../cat/commodity_sitc.parquet')
-print(f'\nNOTE: Parquet file ../cat/commodity_sitc.parquet written with {commodity_sitc.shape[0]} rows and {commodity_sitc.shape[1]} columns\n')
+    print(f"\nNOTE: Parquet file {correspondance_file} created with {commodity_isic.shape[0]} rows and {commodity_isic.shape[1]} columns.\n")
+

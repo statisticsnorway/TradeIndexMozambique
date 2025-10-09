@@ -16,9 +16,9 @@
 # from IPython.display import display
 #
 #
-# year = 2021
-# quarter = 1
-# flow = 'import'
+# year = 2024
+# quarter = 3
+# flow = 'export'
 # selected_outlier= 'outlier_sd'
 #
 # import itables
@@ -27,15 +27,15 @@
 # itables.init_notebook_mode(all_interactive=True)
 # -
 
-sitc1_label = pd.read_parquet('../cat/SITC_label.parquet')
-sitc1_label = sitc1_label.loc[sitc1_label['level'] == 1]
-
 data_dir = Path('../data')
 tradedata = pd.concat(
     pd.read_parquet(parquet_file)
     for parquet_file in data_dir.glob(f'{flow}_{year}_q*.parquet')
 )
 #tradedata.to_parquet(f'../data/{flow}_{year}.parquet')
+print()
+print(f"\n===Tradedata for {flow} {year}===")
+print()
 print(f'{tradedata.shape[0]} rows read from parquet files for {year}\n')
 
 tradedata['price'] = tradedata['value'] / tradedata['weight']
@@ -54,6 +54,12 @@ tradedata['S_sum'] = tradedata.groupby(['flow', 'section'])['value'].transform('
 tradedata['C_sum'] = tradedata.groupby(['flow', 'chapter'])['value'].transform('sum')
 tradedata['S1_sum'] = tradedata.groupby(['flow', 'sitc1'])['value'].transform('sum')
 tradedata['S2_sum'] = tradedata.groupby(['flow', 'sitc2'])['value'].transform('sum')
+#tradedata['isic_section_sum'] = tradedata.groupby(['flow', 'isic_section'])['value'].transform('sum')
+#tradedata['isic_division_sum'] = tradedata.groupby(['flow', 'isic_division'])['value'].transform('sum')
+#tradedata['isic_group_sum'] = tradedata.groupby(['flow', 'isic_group'])['value'].transform('sum')
+#tradedata['isic_class_sum'] = tradedata.groupby(['flow', 'isic_class'])['value'].transform('sum')
+tradedata['hs6_sum'] = tradedata.groupby(['flow', 'hs6'])['value'].transform('sum')
+
 
 tradedata.groupby(['flow', 'section'])['value'].agg('sum')
 
@@ -63,6 +69,24 @@ tradedata['comno'].loc[tradedata['section'].isna()].value_counts()
 
 tradedata.to_parquet(f'../data/tradedata_{flow}_{year}.parquet')
 print(f'\nNOTE: Parquet file ../data/tradedata_{flow}_{year}.parquet written with {tradedata.shape[0]} rows and {tradedata.shape[1]} columns\n')
+print("\n" + "="*80)
+
+# ## Delete outliers based on low number of transactions in month and low value
+
+# +
+outlier_n_test = pd.crosstab(index=tradedata['outlier_n_test'], columns='Count', margins=True)
+# Calculate relative percentages
+outlier_n_test['Percentage (%)'] = ((outlier_n_test['Count'] / outlier_n_test.loc['All', 'Count']) * 100).map('{:.1f}'.format)
+
+print("The table below shows how many transactions were tagged as outliers based on low number of transactions and value.")
+
+display(outlier_n_test)
+# -
+
+# Remove outliers
+tradedata = tradedata.loc[
+    (tradedata['outlier_n_test'] == 0)
+].copy()
 
 # #### Create datasets for analysis of removal of outliers 
 
@@ -85,57 +109,63 @@ tradedata_no_sd2 = tradedata.loc[
 # Create dataframe with all outliers
 tradedata_with_outlier = tradedata.copy()
 
-# ## Delete outliers
+# ## Delete outliers based on selected outlier test
 # The limit is set before we run this syntax. We use axis=0 to avoid a lot of messages
 
-# + active=""
-# # Crosstab for sum of values
-# crosstab = pd.crosstab(tradedata[selected_outlier], 
-#                        columns='Sum', 
-#                        values=tradedata['value'], 
-#                        margins=True, 
-#                        aggfunc='sum')
-#
-# # Add percentage column
-# crosstab['Percentage (%)'] = (crosstab['Sum'] / crosstab.loc['All', 'Sum'] * 100).map('{:.1f}'.format)
-#
-# # Ensure 'Sum' and 'Percentage (%)' columns are numeric
-# crosstab['Sum'] = pd.to_numeric(crosstab['Sum'], errors='coerce')
-# crosstab['Percentage (%)'] = pd.to_numeric(crosstab['Percentage (%)'], errors='coerce')
-#
-# # Display with formatted sum and percentage
-# print(f'Value of price outliers for {flow} in {year}')
-# display(crosstab.style.format({'Sum': '{:.0f}','ALL': '{:.0f}', 'Percentage (%)': '{:.1f}%'}))
-
 # +
-print('')
-print('')
-print(f'Discriptiv statistics for {flow} in {year} grouped by outlier')
-print('')
-print('')
+print("\n" + "="*80)
+print(f"Descriptive Statistics for {flow.capitalize()} in {year}")
+print(f"The table below shows how many transactions were tagged as outliers")
+print(f"Grouped by outlier flag ('{selected_outlier}')")
 
-display(tradedata.groupby(selected_outlier).agg(
-    value_count=('value', 'count'),
-    value_mean=('value', 'mean'),
-    value_sum=('value', 'sum'),
-    value_std=('value', 'std')
+
+# Compute group stats
+summary_table = (
+    tradedata.groupby(selected_outlier)
+    .agg(
+        value_count=('value', 'count'),
+        value_mean=('value', 'mean'),
+        value_sum=('value', 'sum'),
+        value_std=('value', 'std')
     )
-)        
+)
 
-print('')
-print('')
-print(f'List of price outliers for {flow} in {year}')
-print('')
-print('')
+# Compute overall ("All") row
+overall = pd.DataFrame({
+    'value_count': [tradedata['value'].count()],
+    'value_mean': [tradedata['value'].mean()],
+    'value_sum': [tradedata['value'].sum()],
+    'value_std': [tradedata['value'].std()]
+}, index=['All'])
+
+# Append the "All" row
+summary_table = pd.concat([summary_table, overall])
+
+display(summary_table)
+
+print("\n" + "="*80)
+print(f"Top 100 Outliers for {flow.capitalize()} in {year}")
+print(f"Based on highest 'value' where '{selected_outlier} = True'")
+
 
 # Filter for outliers, sort by 'value' in descending order, and display the top 100
-top_outliers = tradedata.loc[tradedata[selected_outlier] == 1].sort_values(by='value', ascending=False).head(100)
+top_outliers = (
+    tradedata.loc[tradedata[selected_outlier] == 1]
+    .sort_values(by='value', ascending=False)
+    .head(100)
+)
 
 display(top_outliers)
+print("\n" + "="*80)
 
 # -
+
+
+
 # Remove outliers
-tradedata = tradedata.loc[tradedata[selected_outlier] == 0].copy()
+tradedata = tradedata.loc[
+    (tradedata[selected_outlier] == 0)
+].copy()
 
 # #### Count transactions within each comno after removal of outliers
 
@@ -143,8 +173,14 @@ tradedata['n_transactions'] = tradedata.groupby(['flow', 'comno', 'quarter', 'mo
 
 # ## Aggregate to months as there are often more transactions for the same commodity within the same month
 
-aggvars = ['year', 'flow', 'comno', 'quarter', 'month', 'section', 'chapter', 
-           'sitc1', 'sitc2', 'T_sum', 'S_sum', 'C_sum', 'S1_sum', 'S2_sum', 'HS_sum']
+# +
+#put in aggvars to calculate isic
+#'isic_section', 'isic_division', 'isic_group', 'isic_class',
+#'isic_section_sum', 'isic_division_sum', 'isic_group_sum', 'isic_class_sum',
+# -
+
+aggvars = ['year', 'flow', 'comno', 'quarter', 'month', 'section', 'chapter', 'hs6',
+           'sitc1', 'sitc2', 'T_sum', 'S_sum', 'C_sum', 'S1_sum', 'S2_sum', 'hs6_sum', 'HS_sum']
 tradedata_month = tradedata.groupby(aggvars, as_index=False).agg(
     weight=('weight', 'sum'),
     value=('value', 'sum'),
@@ -162,32 +198,13 @@ tradedata_month['price_sd'] = tradedata_month.groupby(['flow', 'comno'])['price'
 tradedata_month['n_transactions_year'] = tradedata_month.groupby(['flow', 'comno'])['n_transactions_month'].transform('sum')
 tradedata_month['price_cv'] = tradedata_month['price_sd'] / tradedata_month['price_mean']
 
-tradedata_month
-
 # ## Save as parquet file
 
 tradedata_month.to_parquet(f'../data/{flow}_{year}.parquet')
+print()
+print('Final output:')
 print(f'\nNOTE: Parquet file ../data/{flow}_{year}.parquet written with {tradedata_month.shape[0]} rows and {tradedata_month.shape[1]} columns\n')
-
-# #### Visualizing data
-
-# markdown_text = """
-# ### Price Coefficient of Variation (price_cv)
-#
-# The Price Coefficient of Variation (price_cv)** is a statistical measure that shows the degree of variability in price relative to the mean price across different transactions. It is calculated as:
-#
-#     price_cv = (Standard Deviation of Prices) / (Mean Price)
-#
-# Interpretation:
-# - Low price_cv: Indicates that prices are relatively stable, meaning they are close to the mean price. This suggests minimal variability in the price of a product across different transactions.
-#   
-# - High price_cv: Indicates a wide range of prices, meaning prices are spread out significantly from the mean. This suggests high volatility or inconsistency in the price of the product.
-#
-# In summary, the lower the price_cv, the more consistent the pricing; the higher the price_cv, the more unpredictable the pricing.
-# """
-#
-# # Displaying the markdown text
-# print(f'\n{flow.capitalize()} {year}.\n{markdown_text}')
+print("\n" + "="*80)
 
 # +
 import pandas as pd
@@ -198,26 +215,29 @@ from IPython.display import display
 def price_cv_ui(datasets, dataset_names, flow, year):
     """
     Interactive visualization of Price Coefficient of Variation (CV)
-    with selectable X-axis (transactions or value).
+    with selectable X-axis (transactions or value) and nicer annotation for CV < 0.5.
     """
 
+    # Aggregate to monthly data and count transactions per month
     def aggregate_to_monthly(df):
         df_month = df.groupby(['year', 'flow', 'comno', 'quarter', 'month'], as_index=False).agg(
             weight=('weight', 'sum'),
             value=('value', 'sum'),
-            n_transactions_month=('comno', 'size')
+            n_transactions_month=('comno', 'count')  # count rows per month
         )
         df_month['price'] = df_month['value'] / df_month['weight']
         return df_month
 
-    def calculate_price_cv_monthly(df_month):
+    # Calculate price CV
+    def calculate_price_cv(df_month):
         df_month['price_mean'] = df_month.groupby(['flow', 'comno'])['price'].transform('mean')
         df_month['price_sd'] = df_month.groupby(['flow', 'comno'])['price'].transform('std')
         df_month['price_cv'] = (df_month['price_sd'] / df_month['price_mean']).fillna(0)
-        df_month['n_transactions_year'] = df_month.groupby(['flow', 'comno'])['n_transactions_month'].transform('sum')
         return df_month
 
+    # Final aggregation including summing transactions per year
     def aggregate_final(df_month):
+        df_month['n_transactions_year'] = df_month.groupby(['flow', 'year', 'comno'])['n_transactions_month'].transform('sum')
         return df_month.groupby(['flow', 'year', 'comno'], as_index=False).agg(
             price=('price', 'mean'),
             value=('value', 'sum'),
@@ -225,26 +245,34 @@ def price_cv_ui(datasets, dataset_names, flow, year):
             price_cv=('price_cv', 'first')
         )[['comno', 'price', 'value', 'n_transactions_year', 'price_cv']]
 
+    # Consolidate all datasets
     consolidated = pd.DataFrame()
     for i, dataset in enumerate(datasets):
         df_month = aggregate_to_monthly(dataset)
-        df_month = calculate_price_cv_monthly(df_month)
+        df_month = calculate_price_cv(df_month)
         final_df = aggregate_final(df_month)
         final_df['Dataset'] = dataset_names[i]
         consolidated = pd.concat([consolidated, final_df], ignore_index=True)
 
+    # Plot function
     def plot_dynamic_xaxis(dataset_name, x_variable):
         data = consolidated[consolidated['Dataset'] == dataset_name]
-        total = data['price'].notna().sum()
-        below_cv = (data['price_cv'] < 0.5).sum()
-
+    
+        # Number of commodities with CV < 0.5
+        below_cv_count = data.loc[data['price_cv'] < 0.5, 'comno'].nunique()
+    
+        # Share of value for those commodities
+        total_value = data['value'].sum()
+        below_cv_value = data.loc[data['price_cv'] < 0.5, 'value'].sum()
+        below_cv_pct = below_cv_value / total_value * 100 if total_value > 0 else 0
+    
         x_labels = {
             'n_transactions_year': 'Number of Transactions (Year)',
             'value': 'Total Value'
         }
-
-        title = f"{flow.capitalize()} {year} - Price CV (CV < 0.5: {below_cv} of {total})"
-
+    
+        title = f"{flow.capitalize()} {year} - Price CV"
+    
         fig = px.scatter(
             data,
             x=x_variable,
@@ -256,9 +284,34 @@ def price_cv_ui(datasets, dataset_names, flow, year):
             },
             title=title
         )
-        fig.update_traces(marker=dict(size=7, color='blue', opacity=0.7, line=dict(width=0.5, color='black')))
-        fig.update_layout(height=600, title_font_size=18, template='plotly_white')
+        fig.update_traces(
+            marker=dict(size=7, color='blue', opacity=0.7, line=dict(width=0.5, color='black'))
+        )
+        fig.update_layout(
+            height=600,
+            title_font_size=18,
+            template='plotly_white',
+            annotations=[
+                dict(
+                    x=1, y=1, xref='paper', yref='paper',
+                    text=(
+                        f"<b>CV < 0.5</b><br>"
+                        f"Commodities: {below_cv_count}<br>"
+                        f"Share of total value: {below_cv_pct:.1f}%"
+                    ),
+                    showarrow=False,
+                    xanchor='right',
+                    yanchor='top',
+                    font=dict(size=14, color='darkblue'),
+                    bgcolor='rgba(255,255,255,0.7)',
+                    bordercolor='darkblue',
+                    borderwidth=1,
+                    borderpad=5
+                )
+            ]
+        )
         fig.show()
+
 
     # UI widgets
     dataset_dropdown = widgets.Dropdown(
@@ -286,11 +339,17 @@ def price_cv_ui(datasets, dataset_names, flow, year):
     display(widgets.HBox([dataset_dropdown, x_axis_dropdown]), output)
 
 
+# Example usage
+datasets = [tradedata_with_outlier, tradedata_no_sd, tradedata_no_sd2]
+dataset_names = ['With outliers', 'outlier_sd removed', 'outlier_sd2 removed']
+price_cv_ui(datasets, dataset_names, flow, year)
+print("\n" + "="*80)
+print()
+# -
+
+# #### Histogram - Price Distribution for comno
 
 # +
-# 1. Histogram Plot UI
-# price_distribution_ui(tradedata_no_sd, tradedata_with_outlier)
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -299,13 +358,11 @@ import ipywidgets as widgets
 from IPython.display import display, clear_output
 
 def price_distribution_ui(tradedata_no_sd, tradedata_with_outlier):
-    for df in [tradedata_no_sd, tradedata_with_outlier]:
-        df['comno'] = df['comno'].astype(str)
-        df['quarter'] = pd.to_numeric(df['quarter'], errors='coerce')
-        df.dropna(subset=['quarter'], inplace=True)
-        df['quarter'] = df['quarter'].astype(int)
+    # Ensure quarter is numeric for filtering
+    tradedata_no_sd['quarter'] = pd.to_numeric(tradedata_no_sd['quarter'], errors='coerce')
+    tradedata_with_outlier['quarter'] = pd.to_numeric(tradedata_with_outlier['quarter'], errors='coerce')
 
-        
+    # Get comno values that exist in both datasets
     comno_values = sorted(
         set(tradedata_no_sd['comno'].dropna().unique()) &
         set(tradedata_with_outlier['comno'].dropna().unique())
@@ -328,7 +385,7 @@ def price_distribution_ui(tradedata_no_sd, tradedata_with_outlier):
     )
     
     unique_quarters = sorted(tradedata_no_sd['quarter'].dropna().unique().tolist())
-    quarter_checkboxes = [widgets.Checkbox(value=(i == 0), description=str(q), indent=False) for i, q in enumerate(unique_quarters)]
+    quarter_checkboxes = [widgets.Checkbox(value=(i == 0), description=str(int(q)), indent=False) for i, q in enumerate(unique_quarters)]
     quarter_box = widgets.VBox(quarter_checkboxes)
     
     plot_output = widgets.Output()
@@ -417,6 +474,15 @@ def price_distribution_ui(tradedata_no_sd, tradedata_with_outlier):
     )
 
 
+
+# -
+
+# 1. Histogram Plot UI
+price_distribution_ui(tradedata_no_sd, tradedata_with_outlier)
+print("\n" + "="*80)
+print()
+
+
 # +
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -426,14 +492,29 @@ import ipywidgets as widgets
 from IPython.display import display, clear_output
 
 def price_lineplot_ui(tradedata_month):
-    comno_values = sorted(tradedata_month['comno'].dropna().unique())
+    """
+    Interactive line plot of price over time per HS code (comno) with optional
+    right-hand axis for value, weight, or both, plus stats annotation.
+    """
+    # Ensure numeric for calculations
+    for col in ['year', 'month', 'price', 'value', 'weight']:
+        tradedata_month[col] = pd.to_numeric(tradedata_month[col], errors='coerce')
 
+    # Compute date column
+    tradedata_month['date'] = pd.to_datetime(
+        tradedata_month[['year', 'month']].assign(day=1),
+        errors='coerce'
+    )
+    tradedata_month = tradedata_month.dropna(subset=['date'])
+
+    comno_values = sorted(tradedata_month['comno'].dropna().unique())
+    
     comno_combobox = widgets.Combobox(
         placeholder='Type or select HS code',
         options=comno_values,
         value=comno_values[0] if comno_values else None,
         description='HS code:',
-        ensure_option=False,  # Allow typed input not in dropdown
+        ensure_option=False,
         layout=widgets.Layout(width='300px')
     )
 
@@ -454,6 +535,8 @@ def price_lineplot_ui(tradedata_month):
             return
 
         filtered = filtered.sort_values('date')
+
+        # Left axis: Price
         sns.lineplot(data=filtered, x='date', y='price', color='tab:blue', marker='o', ax=ax_left, label='Price')
         ax_left.set_ylabel('Price', color='tab:blue')
         ax_left.tick_params(axis='y', labelcolor='tab:blue')
@@ -463,31 +546,29 @@ def price_lineplot_ui(tradedata_month):
 
         legend_handles = [mlines.Line2D([], [], color='tab:blue', marker='o', label='Price')]
 
+        # Right axis: Value / Weight
         if right_selection != 'none':
             ax_right = ax_left.twinx()
             if right_selection in ['value', 'both']:
-                sns.lineplot(data=filtered, x='date', y='value',
-                             color='gray', linestyle='--', marker='s', ax=ax_right)
+                sns.lineplot(data=filtered, x='date', y='value', color='gray', linestyle='--', marker='s', ax=ax_right)
                 legend_handles.append(mlines.Line2D([], [], color='gray', linestyle='--', marker='s', label='Value'))
-
             if right_selection in ['weight', 'both']:
-                sns.lineplot(data=filtered, x='date', y='weight',
-                             color='darkgray', linestyle=':', marker='^', ax=ax_right)
+                sns.lineplot(data=filtered, x='date', y='weight', color='darkgray', linestyle=':', marker='^', ax=ax_right)
                 legend_handles.append(mlines.Line2D([], [], color='darkgray', linestyle=':', marker='^', label='Weight'))
-
             ax_right.set_ylabel('Value / Weight', color='gray')
             ax_right.tick_params(axis='y', labelcolor='gray')
 
+        # Stats annotation (last row)
         latest = filtered.iloc[-1]
         stats_text = (
-            f"Months: {latest.get('no_of_months', '')}\n"
-            f"Max: {latest.get('price_max', 0):,.2f}\n"
-            f"Min: {latest.get('price_min', 0):,.2f}\n"
-            f"Median: {latest.get('price_median', 0):,.2f}\n"
-            f"Mean: {latest.get('price_mean', 0):,.2f}\n"
+            f"Months: {latest.get('month', '')}\n"
+            f"Max: {latest.get('price_max', latest['price']):,.2f}\n"
+            f"Min: {latest.get('price_min', latest['price']):,.2f}\n"
+            f"Median: {latest.get('price_median', latest['price']):,.2f}\n"
+            f"Mean: {latest.get('price_mean', latest['price']):,.2f}\n"
             f"SD: {latest.get('price_sd', 0):,.2f}\n"
-            f"Transactions: {latest.get('n_transactions_year', '')}\n"
-            f"CV: {latest.get('price_cv', 0):,.2f}"
+            f"Transactions: {latest.get('n_transactions_year', 0)}\n"
+            f"CV: {latest.get('price_cv', 0):.2f}"
         )
         ax_left.text(
             0.98, 0.95, stats_text,
@@ -509,14 +590,8 @@ def price_lineplot_ui(tradedata_month):
                 print("Please select or enter a valid HS code.")
                 return
 
-            monthly_data = tradedata_month.copy()
-            for col in ['month', 'year', 'value', 'weight', 'price']:
-                monthly_data[col] = pd.to_numeric(monthly_data[col], errors='coerce')
-            monthly_data['date'] = pd.to_datetime(monthly_data[['year', 'month']].assign(day=1), errors='coerce')
-            monthly_data = monthly_data.dropna(subset=['date'])
-
             fig, ax = plt.subplots(figsize=(10, 6))
-            plot_line(ax, monthly_data, comno, right_selection)
+            plot_line(ax, tradedata_month, comno, right_selection)
             plt.tight_layout()
             plt.show()
 
@@ -530,27 +605,16 @@ def price_lineplot_ui(tradedata_month):
     )
 
 
-# +
 
-
-
-# 1. Histogram Plot UI
-price_distribution_ui(tradedata_no_sd, tradedata_with_outlier)
+# -
 
 # 2. Lineplot UI
 price_lineplot_ui(tradedata_month)
+print("\n" + "="*80)
+print()
 
-#combined_price_ui(tradedata_with_outlier, tradedata, tradedata_month)
 
-
-
-# 3. Price CV Plot UI
-#flow = 'import'
-#year = 2024
-datasets = [tradedata_with_outlier, tradedata_no_sd, tradedata_no_sd2]  # as example
-dataset_names = ['With outliers', 'outlier_sd removed', 'outlier_sd2 removed']
-price_cv_ui(datasets, dataset_names, flow, year)
-
+# #### Piechart for trade flow
 
 # +
 print('')
@@ -561,8 +625,8 @@ print('')
 
 
 # Load SITC1 label data
-sitc1_label = pd.read_parquet("../cat/SITC_label.parquet")
-sitc1_label = sitc1_label[sitc1_label["level"] == 1][["code", "name"]]  # Keep relevant columns
+sitc1_label = pd.read_csv("../cat/labels.csv")
+sitc1_label = sitc1_label[sitc1_label["category"] == 'sitc1'][["code", "label"]]  # Keep relevant columns
 
 # Remove duplicates for each SITC1
 df_pie = tradedata_month.drop_duplicates(subset="sitc1").sort_values("sitc1")
@@ -575,7 +639,7 @@ sitc1_label["code"] = sitc1_label["code"].astype(str)
 df_pie = df_pie.merge(sitc1_label, left_on="sitc1", right_on="code", how="left")
 
 # Create a combined label with both code and name
-df_pie["label"] = df_pie["sitc1"] + " - " + df_pie["name"]
+df_pie["label"] = df_pie["label"]
 
 # Define colors
 colors = plt.cm.Paired.colors  
@@ -616,10 +680,9 @@ for wedge, label in zip(wedges, df_pie["label"]):
 plt.title(f"Pie chart of weightbase for SITC1 for {flow} in {year}", fontsize=14)
 
 plt.show()
+print("\n" + "="*80)
+print()
 # -
-
-
-
 
 
 

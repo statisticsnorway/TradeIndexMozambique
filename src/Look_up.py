@@ -29,10 +29,10 @@ pd.set_option('display.float_format', lambda x: f'{x:15,.0f}' if abs(x)>1e5 else
 # Initialize interactive display mode
 itables.init_notebook_mode(all_interactive=True)
 
-year = 2025
+year = 2024
 year_1 = year-1
-quarter  = 2
-flow = 'Import'
+quarter  = 4
+flow = 'Export'
 
 # # Datasets
 
@@ -71,7 +71,7 @@ tradedata_month = dataframes.get("tradedata_month")
 
 # # Select dataset
 
-df = prices_baseyear
+df = tradedata_year
 
 df2 = tradedata_quarter
 
@@ -86,7 +86,7 @@ df1 = pd.merge(df1, sitccat, on='series', how='left', indicator=True)
 
 # # Select commodity to look at:
 
-comno = '10063000'
+comno = '76020000'
 sitc1 = '0'
 
 # # Look at Dataset for selected commoditity, year and quarter
@@ -459,7 +459,13 @@ sitccat = sitccat.rename(columns={'comno': 'series'})
 index_chained_all = pd.merge(index_chained_all, sitccat, on='series', how='left', indicator=True)
 
 index_chained_all
+# -
 
+
+# Option 1: Replace the flow column with text labels
+index_chained_all['flow'] = index_chained_all['flow'].replace({"1": 'Export', "2": 'Import'})
+
+index_chained_all
 
 # +
 import pandas as pd
@@ -497,7 +503,7 @@ series_dropdown = widgets.Combobox(
 
 flow_select = widgets.SelectMultiple(
     options=sorted(df_base['flow'].unique()),
-    value=['EXPORT'],
+    value=['Export'],
     description='Flows:',
     rows=4
 )
@@ -658,7 +664,7 @@ def update_plot(level, series, flows):
             legend_handles.append(line)
 
     plt.legend(handles=legend_handles, title="Series (Flow)", loc='upper left')
-    plt.title("Export and Import Price Index - Malawi")
+    plt.title("Export and Import Price Index - Mozambique")
     plt.xlabel("Time")
     plt.ylabel("Index (Chained)")
     plt.xticks(rotation=45)
@@ -674,6 +680,12 @@ widgets.interact(
 )
 
 # -
+
+
+
+
+
+
 
 
 

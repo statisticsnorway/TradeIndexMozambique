@@ -11,6 +11,10 @@ year_base = year - 1
 # ## Read parquet files
 
 # +
+print()
+print(f"\n===Read in the index unchained and chained index===")
+print()
+
 indexchainedfile = f'../data/index_{flow}_chained.parquet'
 index_chained = pd.read_parquet(indexchainedfile)
 print(f'{index_chained.shape[0]} rows read from parquet file {indexchainedfile}\n')
@@ -62,15 +66,31 @@ index_chained = index_chained[index_chained.duplicated(groupvars, keep='last') =
 
 # ## Table for last 4 years
 
+print()
+print(f"\n===calculate the chained index (long index) (reference year {first_index_year}=100) ===")
+print()
+
+# +
 last4 = index_chained.loc[index_chained['year'] >= year - 3]
 display(pd.crosstab([last4['level'], last4['series']], 
                     columns=[last4['year'], last4['quarter']], 
                     values=last4['index_chained'], 
                     aggfunc='mean'))
 
+
+print("\n" + "="*80)
+print()
+# -
+
 # ## Save result as parquet file
+
+# +
+print()
+print(f"\n===Final output===")
+print()
 
 index_chained.to_parquet(indexchainedfile)
 print(f'\nNOTE: Parquet file {indexchainedfile} written with {index_chained.shape[0]} rows and {index_chained.shape[1]} columns\n')
+# -
 
 

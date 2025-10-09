@@ -124,15 +124,35 @@ FREQUENCIES flow .
 SORT CASES by flow section.
 SAVE OUTFILE='temp\sample.sav'.
 
+* We fetch the population total by section from the weight base instead of the sample file
+  because for some section codes will not be included in the sample.
+GET FILE=!quote(!concat('Data/weight_base_population_',!flow,'_',!year_1,'.sav')).
+AGGREGATE
+  /OUTFILE=* 
+  /BREAK=year flow section  
+  /Spop_sum=MEAN(S_sum)
+  .
 
-* Check the coverage by section and total.
+SAVE OUTFILE='temp/section_popsum.sav'.
+
+DATASET CLOSE all.
+GET file='temp\sample.sav'.
+
 AGGREGATE
   /OUTFILE=* 
   /BREAK=year flow section  
   /Ssample_sum=SUM(HS_sum)
-  /Spop_sum=MEAN(S_sum)
   /Sno_of_comm = N
   .
+
+MATCH FILES file='temp/section_popsum.sav'
+           /TABLE=*
+           /by year flow section .
+EXECUTE.
+
+
+
+* Check the coverage by section and total.
 
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES 
@@ -165,13 +185,34 @@ SAVE OUTFILE=!quote(!concat('data/coverage_section_',!flow,'_',!year_1,'.sav')).
 DATASET CLOSE all.
 GET file='temp\sample.sav'.
 
+
+
+* We fetch the population total by sitc1 from the weight base instead of the sample file
+  because for some sitc1 codes will not be included in the sample.
+GET FILE=!quote(!concat('Data/weight_base_population_',!flow,'_',!year_1,'.sav')).
+AGGREGATE
+  /OUTFILE=* 
+  /BREAK=year flow sitc1  
+  /Spop_sum=MEAN(S1_sum)
+  .
+
+SAVE OUTFILE='temp/section_popsum.sav'.
+
+DATASET CLOSE all.
+GET file='temp\sample.sav'.
+
 AGGREGATE
   /OUTFILE=* 
   /BREAK=year flow sitc1  
   /Ssample_sum=SUM(HS_sum)
-  /Spop_sum=MEAN(S1_sum)
   /Sno_of_comm = N
   .
+
+MATCH FILES file='temp/section_popsum.sav'
+           /TABLE=*
+           /by year flow sitc1 .
+EXECUTE.
+
 
 AGGREGATE
   /OUTFILE=* MODE=ADDVARIABLES 

@@ -180,10 +180,8 @@ def update_line_plot_change4(selected_level, selected_series):
     return fig
 
 
-port=np.random.randint(1001, 9999)
-port
 
 
 # Run the app
 if __name__ == '__main__':
-    app.run(debug=True, port=port)
+    app.run_server(debug=True, port=1814)

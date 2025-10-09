@@ -18,13 +18,14 @@
 # #pd.set_option('display.float_format',  '{:18,.0}'.format)
 # pd.set_option('display.float_format', lambda x: f'{x:15,.0f}' if abs(x)>1e5 else f'{x:15.2f}')
 #
-# year = 2020
-# quarter = 1
+# year = 2021
+# quarter = 3
 # flow = 'Export'
 # outlier_dev_median = 3.5
-# outlier_sd=2
-# selected_outlier = outlier_sd
+# selected_outlier = 'outlier_sd'
 #
+# # Accepted treshold for standard deviation from mean (default=2)
+# outlier_sd = 2
 #
 # import itables
 #
@@ -35,7 +36,12 @@
 # Parquet files with correspondances to sitc and section
 
 t_section = pd.read_parquet(f'../data/{flow}_{year}q{quarter}.parquet')
+print()
+print(f"\n===Input data for {flow} {year}-Q{quarter}===")
+print()
 print(f'{t_section.shape[0]} rows read from parquet file ../data/{flow}_{year}q{quarter}.parquet\n')
+print("\n" + "="*80)
+print()
 
 # ### Removal of obvious errors
 
@@ -50,19 +56,23 @@ t_section = t_section.loc[t_section['value'] != 0]
 # Count the number of transactions per HS (flow, comno, quarter)
 t_section['n_transactions'] = t_section.groupby(['flow', 'comno', 'quarter'])['value'].transform('count')
 
+# Count the number of transactions per HS (flow, comno, quarter)
+t_section['n_transactions_month'] = t_section.groupby(['flow', 'comno', 'quarter', 'month'])['value'].transform('count')
+
+
 # Step 2: Directly categorize the transaction counts within each comno
 transaction_count_per_comno = t_section[['comno', 'n_transactions']].drop_duplicates()
 
 # Define the categorization function
 def categorize_transactions(count):
     if count < 3:
-        return 'Less than 3 transactions'
+        return 'Less than 3 transactions in quarter'
     elif 3 <= count <= 10:
-        return 'Between 3-10 transactions'
+        return 'Between 3-10 transactions in quarter'
     elif 10 <= count <= 30:
-        return 'Between 11-30 transactions'
+        return 'Between 11-30 transactions in quarter'
     else:
-        return 'Above 30 transactions'
+        return 'Above 30 transactions in quarter'
 
 # Apply the function to categorize transaction counts
 transaction_count_per_comno['category'] = transaction_count_per_comno['n_transactions'].apply(categorize_transactions)
@@ -71,8 +81,46 @@ transaction_count_per_comno['category'] = transaction_count_per_comno['n_transac
 frequency_table = transaction_count_per_comno.groupby('category').size().reset_index(name='frequency')
 
 # Display the frequency table
-print(f'{flow.capitalize()}. Number of HS and transactions for {year} quarter {quarter}')
+
+print(f"{flow.capitalize()}. {year}-Q{quarter} - Distribution of HS codes by number of transactions")
+print("Number of commodities - Categorized by number of transaction")
+
+
 display(frequency_table)
+print("="*80 + "\n")
+# -
+
+# ### Tag transactions where number of transactions in month is low or value below set target
+# What we identify are transactions that have low value, and also where they are the only transaction in that month, and among a small number of transactions in the quarter. All conditions must apply for it to be removed.
+
+# +
+n_t_month = 2
+n_t_quarter = 10
+value_limit = 4000
+
+
+t_section['outlier_n_test'] = False
+
+#Reactivate if you want to aplly conditions
+#t_section['outlier_n_test'] = (t_section['n_transactions_month'] < n_t_month) & (t_section['value'] < value_limit) & (t_section['n_transactions'] < n_t_quarter)
+
+# +
+# Crosstab of frequencies
+crosstab3 = pd.crosstab(index=t_section['outlier_n_test'], columns='Count', margins=True)
+
+# Calculate relative percentages
+crosstab3['Percentage (%)'] = ((crosstab3['Count'] / crosstab3.loc['All', 'Count']) * 100).map('{:.1f}'.format)
+
+# Keep only 'Count' and 'Percentage (%)' columns
+crosstab3 = crosstab3[['Count', 'Percentage (%)']]
+
+# Print formatted output
+
+print(f"{flow.capitalize()}. {year}-Q{quarter}")
+print("The table below shows how many transactions were tagged as outliers based on conditions: number of transactions and value.")
+print(f"According to conditions where number of transactions in month is below: {n_t_month} and transaction value below: {value_limit}, and number transactions in quarter below: {n_t_quarter}")
+display(crosstab3)
+
 
 # -
 
@@ -149,23 +197,6 @@ def classify_outlier_SD(row):
 t_section['outlier_sd2'] = t_section.apply(classify_outlier_SD, axis=1)
 # -
 
-# #### Display result
-
-# + active=""
-# # Crosstab of frequencies
-# crosstab2 = pd.crosstab(t_section['outlier_sd2'], columns='Frequency', margins=True)
-#
-# # Calculate relative percentages
-# crosstab2['Percentage (%)'] = ((crosstab2['Frequency'] / crosstab2.loc['All', 'Frequency']) * 100).map('{:.1f}'.format)
-#
-#
-# # Keep only 'Frequency' and 'Percentage (%)' columns
-# crosstab2 = crosstab2[['Frequency', 'Percentage (%)']]
-#
-# print(f'{flow.capitalize()}. Frequencies of transactions tagged as outlier with a iterativ (2 rounds of removal) standard deviation from the mean above the limit for {year} quarter {quarter}')
-# display(crosstab2)
-# -
-
 #
 #
 #
@@ -224,17 +255,17 @@ crosstab2['Percentage (%)'] = ((crosstab2['Count'] / crosstab2.loc['All', 'Count
 crosstab2 = crosstab2[['Count', 'Percentage (%)']]
 
 # Print formatted output
-print(f'{flow.capitalize()}. Frequencies of transactions tagged as outlier with {selected_outlier} above the limit for {year} quarter {quarter}')
+
+print(f"{flow.capitalize()}. {year}-Q{quarter}")
+print("The table below shows how many transactions were tagged as outliers")
+print(f"according to '{selected_outlier}', along with their relative share (%).")
 display(crosstab2)
 
 # -
 
 
-#
-#
-#
-
 # ### Plot of number of outliers for each detection method
+# (not in use at the moment)
 
 # + active=""
 # import matplotlib.pyplot as plt
@@ -264,7 +295,7 @@ columns_to_remove = [
     'deviation_from_median', 'abs_deviation', 
     'MAD', 'modified_z', 'z_score', 
     'price_mean2', 'price_median2', 
-    'price_std2', 'z_score2'
+    'price_std2', 'z_score2', 'n_transactions_month'
 ]
 
 # Remove the specified columns from t_section
@@ -275,4 +306,7 @@ t_section = t_section.drop(columns=columns_to_remove)
 # The quarter file is save as a parquet file
 
 t_section.to_parquet(f'../data/{flow}_{year}_q{quarter}.parquet')
+print()
+print('Final output:')
 print(f'\nNOTE: Parquet file ../data/{flow}_{year}q{quarter}.parquet written with {t_section.shape[0]} rows and {t_section.shape[1]} columns\n')
+print("\n" + "="*80)

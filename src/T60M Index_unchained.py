@@ -19,9 +19,9 @@
 # itables.init_notebook_mode(all_interactive=True)
 # init_notebook_mode(all_interactive=True)
 #
-# year = 2024
-# quarter = 2
-# flow = 'import'
+# year = 2022
+# quarter = 1
+# flow = 'export'
 #
 # -
 
@@ -39,6 +39,10 @@ year_base
 # ## Read parquet files
 
 # +
+print()
+print(f"\n===Price data from base and current period for {flow} {year}-Q{quarter}===")
+print()
+
 imputefile = f'../data/price_impute_{flow}_{year}q{quarter}.parquet'
 price_impute = pd.read_parquet(imputefile)
 print(f'{price_impute.shape[0]} rows read from parquet file {imputefile}\n')
@@ -47,22 +51,69 @@ basepricefile = f'../data/base_price{flow}_{year_base}.parquet'
 baseprice = pd.read_parquet(basepricefile)
 print(f'{baseprice.shape[0]} rows read from parquet file {basepricefile}\n')
 baseprice.drop(columns='year', inplace=True)
+print("\n" + "="*80)
+print()
 # -
 
-baseprice
-
-price_impute
-
 # ## Merge prices with base prices
+
+# +
+
+print(f'Merge of base price and current period price per commoditiy in the sample for {flow} {year}-Q{quarter}')
+print()
 
 prices = pd.merge(price_impute, baseprice, on=['flow', 'comno'], how='left', indicator=True)
 display(pd.crosstab(prices['_merge'], columns='Frequency', margins=True))
 prices.drop(columns='_merge', inplace=True)
 
+print("\n" + "="*80)
+print()
+# -
+
+prices
+
+# ### Extra check of price change in chaining period
+
+check = (prices['price_rel'] > 1.40) | (prices['price_rel'] < 0.6)
+selected_columns = ['comno', 'sitc1', 'HS_sum', 'price_rel']
+outliers = prices[check][selected_columns]
+
+# +
+from IPython.display import display, Markdown
+
+if quarter == 1:
+    message = """
+**Extra Check Before Chaining New Short Indices**
+
+- Verify these commodities carefully before accepting them as valid unit values.
+- Compare data between the base period and the current period.
+- Focus on the key commodities.
+"""
+    display(Markdown(message))
+    display(outliers)
+else:
+    print("No extra checks required for this quarter.")
+
+print("="*80 + "\n")
+# -
+
 # ## Calculate unchained index and index weight for commodities
 
+# \begin{array}{c}
+# \boxed{\text{Elementary index}} \\[0.5em]
+# \frac{p_i^t}{p_i^0}
+# \end{array}
+
 prices['index_unchained'] = prices['price'] / prices['base_price'] * 100
-prices['index_weight'] = prices['index_unchained'] * prices['Weight_HS']
+
+# $$
+# \
+# \frac{p_i^t}{p_i^0} \cdot w_i^b
+# \
+# $$
+
+prices['index_product'] = prices['index_unchained'] * prices['Weight_HS']
+
 prices['level'] = 'Commodity'
 prices['series'] = prices['comno']
 
@@ -72,7 +123,7 @@ prices
 
 special_series1 = pd.read_excel('../cat/special_series1.xlsx', dtype=str)
 prices_special1 = pd.merge(prices, special_series1, on=['comno'], how='right', indicator=True)
-display(pd.crosstab(prices_special1['_merge'], columns='Frequency', margins=True))
+#display(pd.crosstab(prices_special1['_merge'], columns='Frequency', margins=True))
 prices_special1.drop(columns='_merge', inplace=True)
 
 prices_special1
@@ -81,7 +132,7 @@ prices_special1
 
 special_series2_total_without = pd.read_excel('../cat/special_series2_total_without.xlsx', dtype=str)
 prices_special2 = pd.merge(prices, special_series2_total_without, on=['comno'], how='left', indicator=True)
-display(pd.crosstab(prices_special2['_merge'], columns='Frequency', margins=True))
+#display(pd.crosstab(prices_special2['_merge'], columns='Frequency', margins=True))
 prices_special2.drop(columns='_merge', inplace=True)
 
 total_without_diamonds = prices_special2[~(prices_special2['special_serie2'] == 'Total_without_diamonds')].copy()
@@ -91,12 +142,16 @@ total_without_fuel = prices_special2[~(prices_special2['special_serie2'] == 'Tot
 
 # ## Function for creating unchained index for a series
 
+# $$
+# \displaystyle I_g^t = \sum_{i \in g} \frac{p_i^t}{p_i^0} \cdot \frac{w_i^b}{\sum_{i \in g} w_i^b}
+# $$
+
 def unchained(dataframe, groupvars:list, level, series):
     index_agg = dataframe.groupby(groupvars, as_index=False).agg(
         Weight_HS=('Weight_HS', 'sum'),
-    index_weight=('index_weight', 'sum')
+    index_product=('index_product', 'sum')
     )
-    index_agg['index_unchained'] = index_agg['index_weight'] / index_agg['Weight_HS']
+    index_agg['index_unchained'] = index_agg['index_product'] / index_agg['Weight_HS']
     index_agg['level'] = level
     index_agg['series'] = index_agg[series]
     return index_agg
@@ -138,6 +193,20 @@ total = total[['Weight_total']]
 index_sitc1 = unchained(prices, groupvars=['year', 'quarter', 'flow', 'sitc1'], level='Sitc1', series='sitc1')
 index_sitc2 = unchained(prices, groupvars=['year', 'quarter', 'flow', 'sitc2'], level='Sitc2', series='sitc2')
 
+# ## Unchained index for ISIC
+
+# + active=""
+# index_isic_section = unchained(prices, groupvars=['year', 'quarter', 'flow', 'isic_section'], level='isic_section', series='isic_section')
+# index_isic_division = unchained(prices, groupvars=['year', 'quarter', 'flow', 'isic_division'], level='isic_division', series='isic_division')
+# index_isic_group = unchained(prices, groupvars=['year', 'quarter', 'flow', 'isic_group'], level='isic_group', series='isic_group')
+# index_isic_class = unchained(prices, groupvars=['year', 'quarter', 'flow', 'isic_class'], level='isic_class', series='isic_class')
+# -
+
+# ## Unchained index for hs6
+
+index_hs6 = unchained(prices, groupvars=['year', 'quarter', 'flow', 'hs6'], level='hs6', series='hs6')
+
+
 # ### Special series (combination of different HS)
 
 index_special_series = unchained(prices_special1, groupvars=['year', 'quarter', 'flow', 'special_serie'], level='special_serie', series='special_serie')
@@ -157,7 +226,12 @@ total_without_fuel_index['special_series2'] = 'total_without_fuel'
 
 # ## Add index files together
 
-indexes = [prices, index_section, index_sitc1, index_sitc2, index_total , index_special_series, total_without_diamonds_index , total_without_fish_index, total_without_fuel_index]
+# +
+# put in indexes if compute for isic:
+# index_isic_section, index_isic_division, index_isic_group , index_isic_class,
+# -
+
+indexes = [prices, index_section, index_sitc1, index_sitc2,  index_hs6, index_total , index_special_series, total_without_diamonds_index , total_without_fish_index, total_without_fuel_index]
 index_unchained = pd.concat(indexes)
 varlist = ['flow', 'year', 'quarter', 'Weight_HS', 'index_unchained', 'level', 'series']
 index_unchained = index_unchained[varlist]
@@ -177,9 +251,21 @@ index_unchained.drop(columns=columns_to_drop, inplace=True)
 # We will also delete previous version if a quarter is executed again
 
 if quarter > 1:
-    index_unchained = pd.concat([index_unchained, index_unchained_previous])
+    # Remove quarters beyond the current quarter in the previous dataset to not keep index created on different basis.
+    index_unchained_previous = index_unchained_previous[index_unchained_previous["quarter"] <= quarter]
+
+    # Check that previous quarter exists
+    if (quarter - 1) not in index_unchained_previous["quarter"].unique():
+        raise ValueError(f"Previous quarter, Q{quarter - 1}{year}, is missing in index_unchained_previous --> run index calculation for this quarter")
+
+    index_unchained = pd.concat([index_unchained_previous, index_unchained])
     groupvars = ['flow', 'level', 'series', 'year', 'quarter']
     index_unchained = index_unchained[index_unchained.duplicated(groupvars, keep='last') == False].sort_values(groupvars)
+
+# +
+print()
+print(f'Unchained index (short index) for {flow} {year}-Q{quarter}')
+print()
 
 # Create a crosstab with the percentage change displayed
 display(pd.crosstab(
@@ -188,6 +274,9 @@ display(pd.crosstab(
     values=index_unchained['index_unchained'],
     aggfunc='mean'
 ))
+
+print("\n" + "="*80)
+print()
 
 # +
 index_unchained1 = index_unchained.copy()
@@ -248,17 +337,28 @@ crosstab_index3 = crosstab_index3.astype(str) + '%'
 # Merge both crosstabs
 final_result = pd.concat([crosstab_index, crosstab_index2, crosstab_index3], axis=1, keys=['Index Unchained', 'Percentage Change', 'Share_total'])
 
+print()
+print(f'Index Unchained and Percentage Change for {flow} {year}')
+print()
+
 # Display the final result
-print(f"{flow.capitalize()}. Crosstab of Index Unchained and Percentage Change:")
+print(f"{flow.capitalize()}. Crosstab of ")
 display(final_result)
 
+print("\n" + "="*80)
+print()
 # -
 
 # ## Save result as parquet file
 
 indexunchainedfile = f'../data/index_unchained_{flow}_{year}.parquet'
 index_unchained.to_parquet(indexunchainedfile)
+print("Final output")
+print(f"Index unchained for {year}Q{quarter}")
 print(f'\nNOTE: Parquet file {indexunchainedfile} written with {index_unchained.shape[0]} rows and {index_unchained.shape[1]} columns\n')
+print("="*80 + "\n")
+
+
 
 
 
