@@ -116,7 +116,7 @@ SELECT IF (share_small > !share_small).
 TITLE !CONCAT('After selection of share of small more than ',!share_small).
 FREQUENCIES flow.
 
-SELECT IF (no_of_transactions > !no_of_transactions).
+SELECT IF (no_of_transactions >= !no_of_transactions).
 TITLE !CONCAT('After selection of comno w. transactions more than ',!no_of_transactions).
 FREQUENCIES flow .
 

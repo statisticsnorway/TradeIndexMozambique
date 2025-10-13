@@ -36,41 +36,66 @@ print(f'{trade.shape[0]} rows read from parquet files for {year}\n')
 # ### Check for more than one unique unit of measurement per comno
 
 # +
-import re
+import pandas as pd
+import numpy as np
 
-def clean_string(s):
-    if pd.isna(s):
-        return s  # keep NaN as-is
-    # Remove all whitespace characters (spaces, non-breaking, zero-width) and make uppercase
-    return re.sub(r'\s+', '', str(s)).upper()
+# Step 1: Count unique 'unit' per 'comno'
+unit_counts = trade.groupby('comno')['unit'].nunique(dropna=False)
 
-# Clean the 'unit' column
-trade['unit'] = trade['unit'].apply(clean_string)
-
-# Count unique 'unit' per 'comno'
-unit_counts = trade.groupby('comno')['unit'].nunique()
-
-# Filter comno with more than one unique unit
+# Step 2: Identify comno with more than one unique unit
 comno_multiple_units = unit_counts[unit_counts > 1].index.tolist()
 
-# Print message based on result
 if not comno_multiple_units:
     print("\n" + "="*80)
-    print(f'Check if transaction data for each commoditiy have same unit of measurment in year {year}:')
+    print(f'Check if transaction data for each commodity have same unit of measurement in year {year}:')
     print("All commodities have a single unit of measurement.")
-    print()
     print("\n" + "="*80)
 else:
     print("\n" + "="*80)
     print("Commodities with more than one unit of measurement detected!")
-    print("Take action to ensure comparisons are consistent between periods.\n")
-    print("List of affected commodities:")
-    print()
-    for comno in comno_multiple_units:
-        units = trade.loc[trade['comno'] == comno, 'unit'].unique()
-        # Convert all units to strings, replace None/NaN with 'NA'
-        units_str = [str(u) if u is not None else 'NA' for u in units]
-        print(f" - Comno {comno}: units = {', '.join(units_str)}")
+    print("Can only have one unit of measurement. Keeping transactions with unit that have the highest total value.\n")
+
+    # Step 3: Aggregate total value per comno and unit
+    agg_value = trade.groupby(['comno', 'unit'], dropna=False)['value'].sum().reset_index()
+
+    # Step 4: Tie-breaking — sort by value desc, then prefer non-NA
+    agg_value['unit_is_na'] = agg_value['unit'].isna()
+    agg_value = agg_value.sort_values(['comno', 'value', 'unit_is_na'], ascending=[True, False, True])
+
+    # Step 5: Pick unit to keep for each comno
+    max_unit = agg_value.drop_duplicates(subset='comno', keep='first')
+
+    # Step 6: Filter both tables to only include comno with multiple units
+    agg_value_multi = agg_value[agg_value['comno'].isin(comno_multiple_units)]
+    max_unit_multi = max_unit[max_unit['comno'].isin(comno_multiple_units)]
+
+    # Step 7: Identify removed units (everything except max_unit for multi-unit comno)
+    removed_units = pd.merge(
+        agg_value_multi,
+        max_unit_multi[['comno', 'unit']],
+        on=['comno', 'unit'],
+        how='outer',
+        indicator=True
+    ).query('_merge == "left_only"').drop(columns=['_merge', 'unit_is_na'])
+
+    # Step 8: Filter trade to keep only selected unit
+    trade = trade.merge(max_unit[['comno', 'unit']], on=['comno', 'unit'], how='inner')
+
+    # Step 9: Reporting — only comno with multiple units
+    print("Transactions for comno with unit kept:")
+    for _, row in max_unit_multi.iterrows():
+        unit_display = 'NA' if pd.isna(row['unit']) else row['unit']
+        print(f"Comno {row['comno']}: kept transactions with unit = {unit_display} (total value = {row['value']:.2f})")
+
+    if not removed_units.empty:
+        print("\nTransactions for comno with unit removed:")
+        print("Take action to ensure comparisons are consistent between periods")
+        for _, row in removed_units.iterrows():
+            unit_display = 'NA' if pd.isna(row['unit']) else row['unit']
+            print(f"Comno {row['comno']}: removed transactions with unit = {unit_display} (total value = {row['value']:.2f})")
+    else:
+        print("\nNo units removed (unexpected).")
+
     print("\n" + "="*80)
 
 
@@ -171,7 +196,7 @@ trade_with_weights_no_outliers = trade_with_weights_no_outliers.loc[
 
 aggvars = ['year', 'flow', 'comno', 'quarter', 'month', 'section', 'chapter', 
            'sitc1', 'sitc2',  'hs6', 'Weight_HS']
-tradedata_month_base = trade_with_weights_no_outliers.groupby(aggvars, as_index=False).agg(
+tradedata_month_base = trade_with_weights_no_outliers.groupby(aggvars, dropna=False, as_index=False).agg(
     weight=('weight', 'sum'),
     value=('value', 'sum'),
     n_transactions = ('n_transactions', 'first')

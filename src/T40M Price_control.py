@@ -46,9 +46,6 @@ base_price.drop(columns='year', inplace=True)
 # ## Match with base price file
 # We will only keep those who are in both the quarter data and base price data
 
-# + active=""
-# base_price = base_price.drop_duplicates(subset=['flow', 'comno'], keep='first')
-
 # +
 
 trade_quarter = pd.merge(trade_quarter, base_price, on=['flow', 'comno'], how='left', indicator=True)
@@ -70,21 +67,14 @@ trade_quarter['price_chg'] = trade_quarter['price'] / trade_quarter['base_price'
 # Take action if possible to reconcile different units of measurement:
 
 # +
-# Fill missing values with placeholder and compare
-import re
+import pandas as pd
 
-def clean_string(s):
-    if pd.isna(s):
-        return 'NA'
-    # Remove all whitespace characters including non-breaking and zero-width spaces
-    return re.sub(r'\s+', '', str(s)).upper()
+# Step 1: Fill missing values with placeholder for comparison
+trade_quarter['unit_filled'] = trade_quarter['unit'].fillna('NA')
+trade_quarter['unit_base_filled'] = trade_quarter['unit_baseyear'].fillna('NA')
+trade_quarter['unit_match'] = trade_quarter['unit_filled'] == trade_quarter['unit_base_filled']
 
-trade_quarter['unit_match'] = trade_quarter.apply(
-    lambda row: clean_string(row['unit']) == clean_string(row['unit_baseyear']),
-    axis=1
-)
-
-# Identify comno with mismatches
+# Step 2: Identify comno with mismatches
 mismatched_comno = trade_quarter.loc[~trade_quarter['unit_match'], 'comno'].unique()
 
 if len(mismatched_comno) == 0:
@@ -95,19 +85,34 @@ if len(mismatched_comno) == 0:
     print("\n" + "="*80)
     print()
 else:
-    # Remove mismatched comno from trade_quarter
+    # Step 3: Summarize removed transactions
+    removed_summary = (
+        trade_quarter.loc[~trade_quarter['unit_match']]
+        .groupby(['comno', 'unit_filled', 'unit_base_filled'], dropna=False)
+        .agg(
+            total_value=('value', 'sum'),
+            transactions=('value', 'count')
+        )
+        .reset_index()
+        .sort_values('total_value', ascending=False)
+    )
+
+    # Step 4: Remove mismatched transactions from dataset
     trade_quarter = trade_quarter[trade_quarter['unit_match']]
 
-    # Print which comno were removed
+    # Step 5: Print report
     print("\n" + "="*80)
     print()
     print('Check if unit of measurement is different from baseyear')
-    print("Commodities where transactions removed due to unit mismatch with base year:")
-    print()
-    for comno in mismatched_comno:
-        print(f" - Comno {comno}")
+    print("Commodities where transactions were removed due to unit mismatch with base year:\n")
+    for _, row in removed_summary.iterrows():
+        unit_current = row['unit_filled']
+        unit_base = row['unit_base_filled']
+        print(f" - Comno {row['comno']}: {row['transactions']} transactions removed")
+        print(f"   Unit in quarter: {unit_current}  |  Unit in base year: {unit_base}")
+        print(f"   Total value removed: {row['total_value']:.2f}\n")
 
-    print("\033[1m\nTake action if possible to reconcile different units of measurement.\033[0m")
+    print("\033[1mTake action if possible to reconcile different units of measurement.\033[0m")
     print("\n" + "="*80)
     print()
 
@@ -211,7 +216,7 @@ tradedata_no_outlier = trade_quarter.loc[
 
 aggvars = ['year', 'flow', 'comno', 'quarter', 'month', 'section', 'chapter', 
            'sitc1', 'sitc2', 'hs6']
-tradedata_month_quarter = tradedata_no_outlier.groupby(aggvars, as_index=False).agg(
+tradedata_month_quarter = tradedata_no_outlier.groupby(aggvars, dropna=False, as_index=False).agg(
     weight=('weight', 'sum'),
     value=('value', 'sum'),
     n_transactions = ('n_transactions', 'mean'),

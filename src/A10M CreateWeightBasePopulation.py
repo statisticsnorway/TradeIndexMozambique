@@ -181,7 +181,7 @@ tradedata['n_transactions'] = tradedata.groupby(['flow', 'comno', 'quarter', 'mo
 
 aggvars = ['year', 'flow', 'comno', 'quarter', 'month', 'section', 'chapter', 'hs6',
            'sitc1', 'sitc2', 'T_sum', 'S_sum', 'C_sum', 'S1_sum', 'S2_sum', 'hs6_sum', 'HS_sum']
-tradedata_month = tradedata.groupby(aggvars, as_index=False).agg(
+tradedata_month = tradedata.groupby(aggvars, dropna=False, as_index=False).agg(
     weight=('weight', 'sum'),
     value=('value', 'sum'),
     n_transactions_month = ('n_transactions', 'mean')
@@ -629,7 +629,7 @@ sitc1_label = pd.read_csv("../cat/labels.csv")
 sitc1_label = sitc1_label[sitc1_label["category"] == 'sitc1'][["code", "label"]]  # Keep relevant columns
 
 # Remove duplicates for each SITC1
-df_pie = tradedata_month.drop_duplicates(subset="sitc1").sort_values("sitc1")
+df_pie = tradedata_month.drop_duplicates(subset="sitc1").sort_values("sitc1").dropna(subset=["sitc1"])
 
 # Ensure `sitc1` and `code` are the same type
 df_pie["sitc1"] = df_pie["sitc1"].astype(str)

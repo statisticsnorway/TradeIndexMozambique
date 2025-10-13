@@ -256,7 +256,7 @@ series_dropdown = widgets.SelectMultiple(
 # Flow selection
 flow_select = widgets.SelectMultiple(
     options=sorted(df_base['flow'].unique()),
-    value=tuple(['2']),
+    value=tuple(['1']),
     description='Flows:',
     rows=4
 )

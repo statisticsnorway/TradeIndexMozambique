@@ -66,8 +66,6 @@ print("\n" + "="*80)
 print()
 # -
 
-baseprice = baseprice.drop_duplicates(subset=['flow', 'comno'], keep='first')
-
 # ## Calculate the price per quarter per HS
 
 # +

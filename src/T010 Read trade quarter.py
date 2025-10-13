@@ -301,58 +301,6 @@ print("\nTotal number of such transactions:", len(rows_with_zero))
 print("\n" + "="*80)
 print()
 
-# + active=""
-# import pandas as pd
-#
-# # --- Clean ref ---
-# ref_orig = t_section['ref']
-# ref_str = ref_orig.fillna('').astype(str).str.strip()
-#
-# # --- Define external criteria ---
-# is_missing = ref_orig.isna()
-# starts_99 = ref_str.str.startswith('99', na=False)
-# contains_x = ref_str.str.contains('x', case=False, na=False)
-#
-# external_mask = is_missing | starts_99 | contains_x
-#
-# # --- Define exceptions ---
-# exceptions = {} #'27160000', '27111100'
-# comno_str = t_section['comno'].astype(str)
-#
-# # --- Build keep mask ---
-# # For normal comno: keep rows that are NOT external
-# normal_keep = (~external_mask) & (~comno_str.isin(exceptions))
-#
-# # Exception comno: keep rows where flow == '2' AND ref starts with 99
-# exception_keep = starts_99 & comno_str.isin(exceptions)
-#
-# # Combine both masks
-# keep_mask = normal_keep | exception_keep
-#
-# # --- Apply filter ---
-# t_section_filtered = t_section[keep_mask].copy()
-#
-# # --- Reporting ---
-# before = t_section.groupby('comno').size().rename('rows_before')
-# after = t_section_filtered.groupby('comno').size().rename('rows_after')
-#
-# report = before.to_frame().join(after, how='left').fillna(0)
-# report['rows_after'] = report['rows_after'].astype(int)
-# report['rows_removed'] = report['rows_before'] - report['rows_after']
-#
-# # Show only comno where rows were removed (top 20)
-# report_external = report[report['rows_removed'] > 0].sort_values('rows_removed', ascending=False)
-# print(report_external.head(20))
-#
-# print(f"\nTotal rows before: {len(t_section)}")
-# print(f"Total rows after : {len(t_section_filtered)}")
-# print("Rows kept for exceptions:\n", 
-#       t_section_filtered[t_section_filtered['comno'].astype(str).isin(exceptions)]['comno'].value_counts())
-#
-# # --- Replace original df if needed ---
-# t_section = t_section_filtered
-
-
 # +
 import pandas as pd
 
@@ -393,22 +341,21 @@ report = before.to_frame().join(after, how='left').fillna(0)
 report['rows_after'] = report['rows_after'].astype(int)
 report['rows_removed'] = report['rows_before'] - report['rows_after']
 
+
+print("\n=== Transactions with external source removed===")
 # Show only comno where rows were removed (top 20)
 report_external = report[report['rows_removed'] > 0].sort_values('rows_removed', ascending=False)
 print(report_external.head(20))
 
 print(f"\nTotal rows before: {len(t_section)}")
 print(f"Total rows after : {len(t_section_filtered)}")
-print("Rows kept for exceptions:\n", 
+print("Exceptions: Where external source used instead of customs data\n", 
       t_section_filtered[t_section_filtered['comno'].astype(str).isin(exceptions)]['comno'].value_counts())
 
 # --- Replace original df if needed ---
 t_section = t_section_filtered
-
-
-# + active=""
-# show(t_section, maxBytes=0)
 # -
+
 
 t_section['unit'] = t_section['unit'].replace('KHW', 'KWH')
 
