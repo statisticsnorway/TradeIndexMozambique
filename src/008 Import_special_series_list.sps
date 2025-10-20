@@ -2,7 +2,7 @@
 DATASET CLOSE all.
 GET DATA
   /TYPE=XLSX
-  /FILE='data\Special series_XPMI.xlsx'
+  /FILE='cat\Special series_XPMI.xlsx'
   /SHEET=name 'Export'
   /CELLRANGE=FULL
   /READNAMES=ON
@@ -25,7 +25,7 @@ SAVE OUTFILE='temp/Special series_XPMI_export.sav'.
 DATASET CLOSE all.
 GET DATA
   /TYPE=XLSX
-  /FILE='data\Special series_XPMI.xlsx'
+  /FILE='cat\Special series_XPMI.xlsx'
   /SHEET=name 'Import'
   /CELLRANGE=FULL
   /READNAMES=ON

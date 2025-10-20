@@ -5,7 +5,7 @@
 DATASET CLOSE all.
 GET DATA
   /TYPE=XLSX
-  /FILE='Data\Chapter_Section.xlsx'
+  /FILE='cat\Chapter_Section.xlsx'
   /SHEET=name 'Ark1'
   /CELLRANGE=FULL
   /READNAMES=OFF
