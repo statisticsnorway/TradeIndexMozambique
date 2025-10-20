@@ -29,7 +29,6 @@ DATASET CLOSE ALL.
 GET DATA
   /TYPE=XLSX
   /FILE=!quote(!concat("cat/","external_source","_",!flow,".xlsx"))
-  /FILE='cat\external_source.xlsx'
   /SHEET=name 'Commodities'
   /CELLRANGE=FULL
   /READNAMES=ON.
