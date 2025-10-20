@@ -11,7 +11,7 @@ SET DECIMAL DOT.
 DATASET CLOSE ALL.
 GET DATA
   /TYPE=XLSX
-  /FILE='data\Commodities_use_quantity.xlsx'
+  /FILE='cat\Commodities_use_quantity.xlsx'
   /SHEET=name 'Commodities'
   /CELLRANGE=FULL
   /READNAMES=ON.
@@ -22,6 +22,25 @@ ALTER TYPE comno (A8).
 SAVE OUTFILE='data\Commodities_use_quantity.sav'.
 
 DATASET CLOSE ALL.
+
+
+* Read commodities that shall use external source instead of customs data.
+DATASET CLOSE ALL.
+GET DATA
+  /TYPE=XLSX
+  /FILE=!quote(!concat("cat/","external_source","_",!flow,".xlsx"))
+  /FILE='cat\external_source.xlsx'
+  /SHEET=name 'Commodities'
+  /CELLRANGE=FULL
+  /READNAMES=ON.
+EXECUTE.
+SORT CASES BY comno.
+SELECT IF (comno NE '').
+ALTER TYPE comno (A8).
+SAVE OUTFILE='data\external_source.sav'.
+
+DATASET CLOSE ALL.
+
 
 GET DATA  
   /TYPE=TXT
@@ -81,6 +100,41 @@ DELETE VARIABLES found_section.
 COMPUTE quarter = NUMBER(month,F2) / 3.
 COMPUTE quarter = TRUNC(quarter) + (quarter > TRUNC(quarter)).
 EXECUTE.
+
+
+* --- Merge with main dataset.
+MATCH FILES FILE=*
+  /TABLE='data\external_source.sav'
+  /IN=use_external_source
+  /BY comno.
+EXECUTE.
+
+TITLE "Number of transactions for comno with external source.".
+FREQUENCIES VARIABLES=use_external_source.
+
+
+* --- Create helper variable first.
+COMPUTE keep_row = 0.
+
+* --- Flag external source rows to keep (use_external_source=1, ref starts with '99' OR contains 'x').
+IF (use_external_source = 1 AND (CHAR.SUBSTR(ref,1,2) = '99' OR CHAR.INDEX(LOWER(ref),'x') > 0)) keep_row = 1.
+
+* --- Flag non-external source rows to keep (use_external_source=0, ref does NOT start with '99' AND does NOT contain 'x').
+IF (use_external_source = 0 AND NOT (CHAR.SUBSTR(ref,1,2) = '99' OR CHAR.INDEX(LOWER(ref),'x') > 0)) keep_row = 1.
+
+EXECUTE.
+
+TITLE "N. rows kept - only using custom data or external source".
+FREQUENCIES VARIABLES=keep_row.
+
+* --- Keep only rows flagged as 1.
+SELECT IF keep_row = 1.
+EXECUTE.
+
+DELETE VARIABLES keep_row.
+
+
+
 
 *CLEAN DATA - REMOVE OBVIOUS ERRORS.
 
