@@ -15,6 +15,11 @@ ALTER TYPE Description (a99) .
 ALTER TYPE Group (a66).
 EXECUTE. 
 
+* --- Extend comno width before appending.
+ALTER TYPE comno (A9).
+EXECUTE.
+
+
 IF (group =  '') group = lag(group).
 EXECUTE.
 
@@ -43,6 +48,11 @@ EXECUTE.
 
 SORT CASES by flow comno.
 
+* --- Extend comno width before appending.
+ALTER TYPE comno (A9).
+EXECUTE.
+
+
 SAVE OUTFILE='temp/Special series_XPMI_import.sav'.
 
 DATASET CLOSE all.
@@ -53,11 +63,21 @@ EXECUTE.
 DELETE VARIABLES v4 Description.
 EXECUTE.
 
+* --- Extend comno width before appending.
+ALTER TYPE comno (A9).
+EXECUTE.
+
+
 MATCH FILES file=*
            /last=last
            /by flow Comno
            .
 EXECUTE.
+
+* --- Extend comno width before appending.
+ALTER TYPE comno (A9).
+EXECUTE.
+
 
 SELECT IF (last = 1).
 EXECUTE.

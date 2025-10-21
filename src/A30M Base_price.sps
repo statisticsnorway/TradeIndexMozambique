@@ -15,6 +15,10 @@ ADD FILES FILE=*
          /FILE=!quote(!concat('data/',!flow,'_',!year_1,'Q3.sav'))
          /FILE=!quote(!concat('data/',!flow,'_',!year_1,'Q4.sav'))
                      .
+ 
+ALTER TYPE comno (A9).
+EXECUTE.
+                     
 SORT CASES BY flow comno.                   
 SAVE OUTFILE=!quote(!concat('data/tradedata_',!flow,'_',!year_1,'.sav')).
 * Previous year.

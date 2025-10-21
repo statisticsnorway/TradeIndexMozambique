@@ -18,25 +18,8 @@ GET DATA
 EXECUTE.
 SORT CASES BY comno.
 SELECT IF (comno NE '').
-ALTER TYPE comno (A8).
+ALTER TYPE comno (A9).
 SAVE OUTFILE='data\Commodities_use_quantity.sav'.
-
-DATASET CLOSE ALL.
-
-
-* Read commodities that shall use external source instead of customs data.
-DATASET CLOSE ALL.
-GET DATA
-  /TYPE=XLSX
-  /FILE=!quote(!concat("cat/","external_source","_",!flow,".xlsx"))
-  /SHEET=name 'Commodities'
-  /CELLRANGE=FULL
-  /READNAMES=ON.
-EXECUTE.
-SORT CASES BY comno.
-SELECT IF (comno NE '').
-ALTER TYPE comno (A8).
-SAVE OUTFILE='data\external_source.sav'.
 
 DATASET CLOSE ALL.
 
@@ -54,7 +37,7 @@ GET DATA
     month A2
     ref A14
     ItemID A8
-    comno A8
+    comno A9
     country A2
     unit A8
     weight F17
@@ -100,38 +83,18 @@ COMPUTE quarter = NUMBER(month,F2) / 3.
 COMPUTE quarter = TRUNC(quarter) + (quarter > TRUNC(quarter)).
 EXECUTE.
 
-
-* --- Merge with main dataset.
-MATCH FILES FILE=*
-  /TABLE='data\external_source.sav'
-  /IN=use_external_source
-  /BY comno.
+* --- Extend comno width before appending.
+ALTER TYPE comno (A9).
 EXECUTE.
 
-TITLE "Number of transactions for comno with external source.".
-FREQUENCIES VARIABLES=use_external_source.
-
-
-* --- Create helper variable first.
-COMPUTE keep_row = 0.
-
-* --- Flag external source rows to keep (use_external_source=1, ref starts with '99' OR contains 'x').
-IF (use_external_source = 1 AND (CHAR.SUBSTR(ref,1,2) = '99' OR CHAR.INDEX(LOWER(ref),'x') > 0)) keep_row = 1.
-
-* --- Flag non-external source rows to keep (use_external_source=0, ref does NOT start with '99' AND does NOT contain 'x').
-IF (use_external_source = 0 AND NOT (CHAR.SUBSTR(ref,1,2) = '99' OR CHAR.INDEX(LOWER(ref),'x') > 0)) keep_row = 1.
-
+* --- Append 'x' if ref starts with '99' or contains 'x'.
+IF (CHAR.SUBSTR(ref,1,2) = '99' OR CHAR.INDEX(LOWER(ref),'x') > 0) comno = CONCAT(RTRIM(comno), 'x').
 EXECUTE.
 
-TITLE "N. rows kept - only using custom data or external source".
-FREQUENCIES VARIABLES=keep_row.
-
-* --- Keep only rows flagged as 1.
-SELECT IF keep_row = 1.
-EXECUTE.
-
-DELETE VARIABLES keep_row.
-
+* --- Show frequency of comno containing 'x'.
+TEMPORARY.
+SELECT IF CHAR.INDEX(LOWER(comno),'x') > 0.
+FREQUENCIES VARIABLES=comno.
 
 
 
@@ -223,7 +186,7 @@ MATCH FILES /FILE=* /BY comno /FIRST=firstflag.
 SELECT IF firstflag=1.
 LIST comno n_unique_units.
 
-SAVE OUTFILE='data/Comno_UnitCheck.sav'.
+SAVE OUTFILE=!QUOTE(!CONCAT("data/UnitCheck_",!year,"Q",!quarter,".sav")).
 DATASET CLOSE UnitCheck.
 DATASET ACTIVATE DataSet1.
 

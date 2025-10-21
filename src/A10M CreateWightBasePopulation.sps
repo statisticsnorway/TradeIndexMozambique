@@ -6,10 +6,16 @@ DEFINE create_weight_base_population(year_1=!tokens(1)
                                     
 DATASET CLOSE all.
 GET FILE=!quote(!concat('data/',!flow,'_',!year_1,'Q1.sav')).
- !DO !q = 2 !TO 4
-  ADD FILES file=*
-           /file=!quote(!concat('data/',!flow,'_',!year_1,'Q',!q,'.sav')).
- !DOEND 
+
+!DO !q = 2 !TO 4
+  ADD FILES FILE=*
+           /FILE=!quote(!concat('data/',!flow,'_',!year_1,'Q',!q,'.sav')).
+!DOEND
+
+* --- Extend comno width before appending.
+ALTER TYPE comno (A9).
+EXECUTE.
+
 
 * Add totals for different levels for the value for all cases.
 AGGREGATE

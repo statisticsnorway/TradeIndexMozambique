@@ -9,6 +9,10 @@ GET DATA
 .
 EXECUTE.
 
+* --- Extend comno width before appending.
+ALTER TYPE comno (A9).
+EXECUTE.
+
 SAVE OUTFILE='temp/commcat.sav'.
 
 ValueLabelFromDataset 
@@ -54,6 +58,11 @@ FREQUENCIES first_id.
 DELETE VARIABLES first_id.
 RENAME VARIABLES sitcr4_1 = sitc1 sitcr4_2 = sitc2.
 EXECUTE.
+
+* --- Extend comno width before appending.
+ALTER TYPE comno (A9).
+EXECUTE.
+
 
 SAVE OUTFILE='data\commodity_sitc.sav'.
 

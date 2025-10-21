@@ -17,5 +17,8 @@ EXECUTE.
 
 ALTER TYPE chapter (A2).
 
+
+
+
 SAVE OUTFILE='Data\Chapter_Section.sav'.
 
