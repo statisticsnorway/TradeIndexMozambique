@@ -91,6 +91,8 @@ EXECUTE.
 IF (CHAR.SUBSTR(ref,1,2) = '99' OR CHAR.INDEX(LOWER(ref),'x') > 0) comno = CONCAT(RTRIM(comno), 'x').
 EXECUTE.
 
+
+TITLE "Commodities with external source".
 * --- Show frequency of comno containing 'x'.
 TEMPORARY.
 SELECT IF CHAR.INDEX(LOWER(comno),'x') > 0.
