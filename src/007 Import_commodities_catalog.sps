@@ -2,8 +2,8 @@
 DATASET CLOSE ALL.
 GET DATA
   /TYPE=XLSX
-  /FILE='cat\Commodities_Catalogue_XPMI.xlsx'
-  /SHEET=name 'Pauta Grupos_2023_'
+  /FILE='cat\Commodities_Catalogue_XPMI_2024.xlsx'
+  /SHEET=name 'Pauta Grupos'
   /CELLRANGE=FULL
   /READNAMES=ON
 .
