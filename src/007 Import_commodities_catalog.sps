@@ -66,6 +66,35 @@ EXECUTE.
 
 SAVE OUTFILE='data\commodity_sitc.sav'.
 
+* Make label syntax for series for sitc1 and sitc2.
+GET FILE='temp/commcat.sav'.
+DELETE VARIABLES comno TO Descriptionsitcr4_3 sitcr4_1_AGR TO becno.
+EXECUTE.
+
+STRING series (a2) series_labels (A172).
+COMPUTE series = sitcr4_1.
+COMPUTE series_labels = Descriptionsitcr4_1.
+
+SAVE OUTFILE='temp/sitc1_cat' /KEEP series series_labels.
+
+COMPUTE series = sitcr4_2.
+COMPUTE series_labels = Descriptionsitcr4_2.
+
+ADD FILES file=sitc1_cat
+         /file=*
+         .
+EXECUTE.
+
+SAVE OUTFILE='temp/series_cat.sav'.
+
+ValueLabelFromDataset 
+ infile='temp/series_cat.sav' 
+ codevar=series 
+ textvar=series_labels
+ vars=series \
+ outfile="src/valuelabels_series.sps" 
+ includecode=1
+ .
 
 
 

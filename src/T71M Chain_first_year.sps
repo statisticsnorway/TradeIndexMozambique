@@ -22,6 +22,9 @@ EXECUTE.
 DELETE VARIABLES index_mean.
 EXECUTE.
 
+* Add labels to series for sitc1 and sitc2.
+INSERT file='src\valuelabels_series.sps'.
+
 CTABLES
   /VLABELS VARIABLES=flow level series time index_chained DISPLAY=NONE
   /TABLE flow > level > series BY time > index_chained [MEAN]
