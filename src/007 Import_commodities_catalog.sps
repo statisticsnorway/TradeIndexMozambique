@@ -80,7 +80,7 @@ SAVE OUTFILE='temp/sitc1_cat' /KEEP series series_labels.
 COMPUTE series = sitcr4_2.
 COMPUTE series_labels = Descriptionsitcr4_2.
 
-ADD FILES file=sitc1_cat
+ADD FILES file='temp/sitc1_cat'
          /file=*
          .
 EXECUTE.
