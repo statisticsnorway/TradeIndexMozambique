@@ -85,8 +85,11 @@ COMPUTE median_by_min = price_median / price_min.
 EXECUTE.
 FORMATS max_by_min max_by_median median_by_min (f8.4).
 
+
 * The section_season macro variable does not work with more than one section!.
-SELECT IF (no_of_months >= !no_of_months or (any(section,!section_seasons) and no_of_months >= !no_of_months_seasons)).
+SELECT IF ( no_of_months >= !no_of_months
+        OR ( ANY(section, !section_seasons) AND no_of_months >= !no_of_months_seasons )
+        OR use_external = 1 ).
 TITLE !CONCAT('After selection of no of months at least ',!no_of_months).
 FREQUENCIES flow.
 CTABLES
@@ -96,29 +99,42 @@ CTABLES
   /CATEGORIES VARIABLES=no_of_months ORDER=A KEY=VALUE EMPTY=EXCLUDE TOTAL=YES POSITION=AFTER
 .
 
-SELECT IF (price_cv < !price_cv).
+
+SELECT IF ( price_cv < !price_cv
+        OR use_external = 1 ).
 TITLE !CONCAT('After selection of price co-variance less than ',!price_cv).
-FREQUENCIES flow .
+FREQUENCIES flow.
 
-SELECT IF (max_by_min < !max_by_min).
+
+SELECT IF ( max_by_min < !max_by_min
+        OR use_external = 1 ).
 TITLE !CONCAT('After selection of price max-by-min less than ',!max_by_min).
-FREQUENCIES flow .
+FREQUENCIES flow.
 
-SELECT IF (max_by_median < !max_by_median).
+
+SELECT IF ( max_by_median < !max_by_median
+        OR use_external = 1 ).
 TITLE !CONCAT('After selection of price max-by-median less than ',!max_by_median).
-FREQUENCIES flow .
+FREQUENCIES flow.
 
-SELECT IF (median_by_min < !median_by_min).
+
+SELECT IF ( median_by_min < !median_by_min
+        OR use_external = 1 ).
 TITLE !CONCAT('After selection of price median-by-min less than ',!median_by_min).
-FREQUENCIES flow .
+FREQUENCIES flow.
 
-SELECT IF (share_small > !share_small).
+
+SELECT IF ( share_small > !share_small
+        OR use_external = 1 ).
 TITLE !CONCAT('After selection of share of small more than ',!share_small).
 FREQUENCIES flow.
 
-SELECT IF (no_of_transactions >= !no_of_transactions).
+
+SELECT IF ( no_of_transactions >= !no_of_transactions
+        OR use_external = 1 ).
 TITLE !CONCAT('After selection of comno w. transactions more than ',!no_of_transactions).
-FREQUENCIES flow .
+FREQUENCIES flow.
+
 
 
 SORT CASES by flow section.

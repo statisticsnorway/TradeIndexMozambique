@@ -102,8 +102,8 @@ FREQUENCIES flow.
 
 
 
-*Remove comnos with only one transaction for current quarter.
-SELECT IF (N_transactions > 1).
+*Remove comnos with only one transaction for current quarter (but not for those with external source).
+SELECT IF (use_external = 1 OR N_transactions > 1).
 EXECUTE.
 
 
@@ -121,6 +121,7 @@ FREQUENCIES flow.
 
 AGGREGATE /OUTFILE=*
           /BREAK=year flow comno quarter month
+          /use_external = FIRST(use_external)
           /value_month = SUM(value)
           /uv_weight_month = SUM(uv_weight)
           /base_price = MEAN(base_price)
@@ -140,6 +141,10 @@ ELSE IF (price_chg > !outlier_time_limit_upper).
 ELSE.
   COMPUTE outlier_time = 0.
 end if.
+
+* Remove outlier tag for external source.
+IF (use_external = 1) outlier_time = 0.
+EXECUTE.
 
 FREQUENCIES outlier_time.
 

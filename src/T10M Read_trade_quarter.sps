@@ -21,6 +21,22 @@ SELECT IF (comno NE '').
 ALTER TYPE comno (A9).
 SAVE OUTFILE='data\Commodities_use_quantity.sav'.
 
+
+
+* Read commodities that shall use external source instead of customs data.
+DATASET CLOSE ALL.
+GET DATA
+  /TYPE=XLSX
+  /FILE='cat\Use_external_source.xlsx'
+  /SHEET=name !quote(!flow)
+  /CELLRANGE=FULL
+  /READNAMES=ON.
+EXECUTE.
+SORT CASES BY comno.
+SELECT IF (comno NE '').
+ALTER TYPE comno (A9).
+SAVE OUTFILE='data\Use_external_source.sav'.
+
 DATASET CLOSE ALL.
 
 
@@ -49,6 +65,71 @@ GET DATA
 RESTORE.
 
 FORMATS weight quantity (F12.0) value valusd (F17.0).
+
+*Remove customs data where we use external source.
+
+* Match with commodities that will use quantity as unit value.
+SORT CASES BY comno.
+MATCH FILES FILE=*
+  /TABLE='data\Use_external_source.sav'
+  /IN=use_external
+  /BY comno.
+EXECUTE.
+
+TITLE "N. rows removed from customs data, use ext. source".
+
+* Keep cases where use_external is NOT 1.
+SELECT IF use_external = 0.
+EXECUTE.
+
+
+SAVE OUTFILE="temp/inputdata.sav".
+DATASET CLOSE ALL. 
+
+
+GET DATA  
+  /TYPE=TXT
+  /FILE=!quote(!concat("data/",!flow," - ",!year,"_External_source_Q",!quarter,".csv"))
+  /DELCASE=LINE
+  /DELIMITERS=","
+  /ARRANGEMENT=DELIMITED
+  /FIRSTCASE=2
+  /VARIABLES=
+    flow A1
+    year F4
+    month A2
+    ref A14
+    ItemID A8
+    comno A9
+    country A2
+    unit A8
+    weight F17
+    quantity F17
+    value F17
+    valUSD F17
+    itemno F17
+    exporterNUIT A9.
+RESTORE.
+
+FORMATS weight quantity (F12.0) value valusd (F17.0).
+
+* Match with commodities that will use quantity as unit value.
+SORT CASES BY comno.
+MATCH FILES FILE=*
+  /TABLE='data\Use_external_source.sav'
+  /IN=use_external
+  /BY comno.
+EXECUTE.
+
+
+ADD FILES FILE=*
+/FILE="temp/inputdata.sav" 
+.
+EXECUTE.
+
+TITLE "Number of rows with external source".
+FREQUENCIES use_external.
+
 
 SORT CASES BY comno.
 MATCH FILES FILE=*
@@ -87,16 +168,29 @@ EXECUTE.
 ALTER TYPE comno (A9).
 EXECUTE.
 
-* --- Append 'x' if ref starts with '99' or contains 'x'.
+
+
+* --- Append 'x' if ref starts with '99' or contains 'x'. 
+* For those that starts with ref 99 in customs data or external source dataset will be tagged with an X after commodity number.
+* When INE have decided on wether to use customs data or external source, this can be removed.
 IF (CHAR.SUBSTR(ref,1,2) = '99' OR CHAR.INDEX(LOWER(ref),'x') > 0) comno = CONCAT(RTRIM(comno), 'x').
 EXECUTE.
 
 
-TITLE "Commodities with external source".
+
+TITLE "Comno with external source In customs data".
 * --- Show frequency of comno containing 'x'.
 TEMPORARY.
-SELECT IF CHAR.INDEX(LOWER(comno),'x') > 0.
+SELECT IF CHAR.INDEX(LOWER(comno),'x') > 0 AND use_external = 0.
 FREQUENCIES VARIABLES=comno.
+
+
+TITLE "Comno with complete external source".
+* --- Show frequency of comno containing 'x'.
+TEMPORARY.
+SELECT IF CHAR.INDEX(LOWER(comno),'x') > 0 AND use_external = 1.
+FREQUENCIES VARIABLES=comno.
+
 
 
 
@@ -150,6 +244,11 @@ COMPUTE outlier_sd = 0.
 IF (ABS(z_score) > !outlier_sd_limit) outlier_sd = 1.
 EXECUTE.
 
+
+* Remove outlier tag for external source.
+IF (use_external = 1) outlier_sd = 0.
+EXECUTE.
+
 FREQUENCIES outlier_sd.
 
 MEANS TABLES=value BY outlier_sd 
@@ -188,7 +287,7 @@ MATCH FILES /FILE=* /BY comno /FIRST=firstflag.
 SELECT IF firstflag=1.
 LIST comno n_unique_units.
 
-SAVE OUTFILE=!QUOTE(!CONCAT("data/UnitCheck_",!year,"Q",!quarter,".sav")).
+SAVE OUTFILE=!QUOTE(!CONCAT("temp/UnitCheck_",!year,"Q",!quarter,".sav")).
 DATASET CLOSE UnitCheck.
 DATASET ACTIVATE DataSet1.
 
@@ -220,7 +319,7 @@ MATCH FILES /FILE=* /BY comno /FIRST=firstissue.
 SELECT IF firstissue=1.
 LIST comno quantity_issue.
 
-SAVE OUTFILE=!QUOTE(!CONCAT("data/commodities_issue_quantity_",!year,"Q",!quarter,".sav")).
+SAVE OUTFILE=!QUOTE(!CONCAT("temp/commodities_issue_quantity_",!year,"Q",!quarter,".sav")).
 
 DATASET CLOSE IssueCheck.
 DATASET ACTIVATE DataSet1.

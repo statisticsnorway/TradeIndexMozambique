@@ -90,6 +90,7 @@ AGGREGATE
          T_sum S_sum C_sum S1_sum S2_sum HS_sum no_of_transactions
   /uv_weight=SUM(uv_weight)
   /value=SUM(value)
+  /use_external = FIRST(use_external)
 .
 
 compute price = value / uv_weight.

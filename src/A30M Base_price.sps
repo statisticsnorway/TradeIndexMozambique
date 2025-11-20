@@ -126,6 +126,7 @@ AGGREGATE /OUTFILE=*
           /BREAK=flow comno section Weight_HS Year quarter month
           /value_month = SUM(value)
           /uv_weight_month = SUM(uv_weight)
+          /use_external = FIRST(use_external)
           .
 
 COMPUTE price = value_month / uv_weight_month.
@@ -155,6 +156,9 @@ DO IF (NOT SYSMIS(price_chg)).
 END IF.
 
 
+* Remove outlier tag for external source.
+IF (use_external = 1) outlier_median_baseyear = 0.
+EXECUTE.
 
 FREQUENCIES outlier_median_baseyear.
 
