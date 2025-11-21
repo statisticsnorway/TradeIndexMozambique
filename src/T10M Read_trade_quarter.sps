@@ -32,11 +32,10 @@ GET DATA
   /CELLRANGE=FULL
   /READNAMES=ON.
 EXECUTE.
+ALTER TYPE comno (A9).
 SORT CASES BY comno.
 SELECT IF (comno NE '').
-ALTER TYPE comno (A9).
 SAVE OUTFILE=!quote(!concat("data\Use_external_source_",!flow,".sav")).
-
 DATASET CLOSE ALL.
 
 
@@ -62,29 +61,30 @@ GET DATA
     valUSD F17
     itemno F17
     exporterNUIT A9.
-RESTORE.
+
 
 FORMATS weight quantity (F12.0) value valusd (F17.0).
 
+
+SORT CASES BY comno.
+
 *Remove customs data where we use external source.
 
-* Match with commodities that will use quantity as unit value.
-SORT CASES BY comno.
+
 MATCH FILES FILE=*
- /TABLE=!quote(!concat("data/Use_external_source_",!flow,".sav"))
-  /IN=use_external
-  /BY comno.
+ /TABLE=!quote(!concat("data\Use_external_source_",!flow,".sav"))
+ /IN=use_external
+ /BY comno.
 EXECUTE.
 
 TITLE "N. rows removed from customs data, use ext. source".
 
+FREQUENCIES use_external.
+
 * Keep cases where use_external is NOT 1.
-SELECT IF use_external = 0.
+SELECT IF use_external = 0 OR MISSING(use_external).
 EXECUTE.
 
-
-SAVE OUTFILE="temp/inputdata.sav".
-DATASET CLOSE ALL. 
 
 
 GET DATA  
