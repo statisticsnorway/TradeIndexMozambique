@@ -71,7 +71,7 @@ FORMATS weight quantity (F12.0) value valusd (F17.0).
 * Match with commodities that will use quantity as unit value.
 SORT CASES BY comno.
 MATCH FILES FILE=*
-  /TABLE=!quote(!concat("data\Use_external_source_",!flow,".sav"))
+ /TABLE=!quote(!concat("data/Use_external_source_",!flow,".sav"))
   /IN=use_external
   /BY comno.
 EXECUTE.
@@ -116,7 +116,7 @@ FORMATS weight quantity (F12.0) value valusd (F17.0).
 * Match with commodities that will use external source
 SORT CASES BY comno.
 MATCH FILES FILE=*
-  /TABLE='data\Use_external_source.sav'
+  /TABLE=!quote(!concat("data/Use_external_source_",!flow,".sav"))
   /IN=use_external
   /BY comno.
 EXECUTE.
