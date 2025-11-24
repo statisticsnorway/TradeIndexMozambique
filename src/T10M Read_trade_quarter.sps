@@ -22,23 +22,6 @@ ALTER TYPE comno (A9).
 SAVE OUTFILE='data\Commodities_use_quantity.sav'.
 
 
-
-* Read commodities that shall use external source instead of customs data.
-DATASET CLOSE ALL.
-GET DATA
-  /TYPE=XLSX
-  /FILE='cat\Use_external_source.xlsx'
-  /SHEET=name !quote(!flow)
-  /CELLRANGE=FULL
-  /READNAMES=ON.
-EXECUTE.
-ALTER TYPE comno (A9).
-SORT CASES BY comno.
-SELECT IF (comno NE '').
-SAVE OUTFILE=!quote(!concat("data\Use_external_source_",!flow,".sav")).
-DATASET CLOSE ALL.
-
-
 GET DATA  
   /TYPE=TXT
   /FILE=!quote(!concat("data/",!flow," - ",!year,"_XPMI_Q",!quarter,".csv"))
@@ -61,9 +44,21 @@ GET DATA
     valUSD F17
     itemno F17
     exporterNUIT A9.
-
+EXECUTE.
 
 FORMATS weight quantity (F12.0) value valusd (F17.0).
+    
+* --- Set measurement levels ---.
+
+* Nominal variables.
+VARIABLE LEVEL 
+    flow year month ref ItemID comno country unit itemno exporterNUIT (NOMINAL).
+
+* Scale variables.
+VARIABLE LEVEL 
+    weight quantity value valUSD (SCALE).
+    
+EXECUTE.
 
 
 SORT CASES BY comno.
@@ -77,13 +72,17 @@ MATCH FILES FILE=*
  /BY comno.
 EXECUTE.
 
-TITLE "N. rows removed from customs data, use ext. source".
+TITLE "N. rows removed from customs data, use ext. source (=1)".
 
 FREQUENCIES use_external.
 
 * Keep cases where use_external is NOT 1.
 SELECT IF use_external = 0 OR MISSING(use_external).
 EXECUTE.
+
+
+SAVE OUTFILE=!quote(!concat("temp/inputdata_",!flow,".sav")).
+DATASET CLOSE ALL. 
 
 
 
@@ -109,11 +108,28 @@ GET DATA
     valUSD F17
     itemno F17
     exporterNUIT A9.
-RESTORE.
+EXECUTE.
 
 FORMATS weight quantity (F12.0) value valusd (F17.0).
 
-* Match with commodities that will use external source
+RESTORE.
+    
+* --- Set measurement levels ---.
+
+* Nominal variables.
+VARIABLE LEVEL 
+    flow year month ref ItemID comno country unit itemno exporterNUIT (NOMINAL).
+
+* Scale variables.
+VARIABLE LEVEL 
+    weight quantity value valUSD (SCALE).
+    
+EXECUTE.
+
+
+
+
+* Match with commodities that will use external source (=1)
 SORT CASES BY comno.
 MATCH FILES FILE=*
   /TABLE=!quote(!concat("data/Use_external_source_",!flow,".sav"))
@@ -121,14 +137,15 @@ MATCH FILES FILE=*
   /BY comno.
 EXECUTE.
 
+
 ADD FILES FILE=*
-/FILE="temp/inputdata.sav" 
+/FILE=!quote(!concat("temp/inputdata_",!flow,".sav"))
 .
 EXECUTE.
 
-
-TITLE "Number of rows with external source".
+TITLE "Number of rows with external source (=1)".
 FREQUENCIES use_external.
+
 
 
 SORT CASES BY comno.
@@ -256,70 +273,5 @@ EXECUTE.
 SORT CASES BY flow comno.
 
 SAVE OUTFILE=!quote(!concat("data/",!flow,"_",!year,"Q",!quarter,".sav")).
-
-*--------------------------------------------------------------------*
-* STEP 5: Check 1 — Multiple units per comno.
-*--------------------------------------------------------------------*.
-DATASET NAME DataSet1.
-DATASET DECLARE UnitCheck.
-DATASET COPY UnitCheck.
-DATASET ACTIVATE UnitCheck.
-
-SORT CASES BY comno unit.
-MATCH FILES /FILE=* /BY comno unit /FIRST=firstunit.
-SELECT IF firstunit=1.
-AGGREGATE /OUTFILE=* MODE=ADDVARIABLES /BREAK=comno /n_unique_units=N.
-IF (n_unique_units>1) multi_unit_flag=1.
-IF (n_unique_units<=1) multi_unit_flag=0.
-EXECUTE.
-
-TITLE "Check 1 — Multiple units per comno".
-FREQUENCIES VARIABLES=multi_unit_flag
-  /FORMAT=DFREQ
-  /ORDER=ANALYSIS.
-
-*-- List each comno only once if it has multiple units.
-SELECT IF (multi_unit_flag=1).
-SORT CASES BY comno.
-MATCH FILES /FILE=* /BY comno /FIRST=firstflag.
-SELECT IF firstflag=1.
-LIST comno n_unique_units.
-
-SAVE OUTFILE=!QUOTE(!CONCAT("temp/UnitCheck_",!year,"Q",!quarter,".sav")).
-DATASET CLOSE UnitCheck.
-DATASET ACTIVATE DataSet1.
-
-*--------------------------------------------------------------------*
-* STEP 6: Check 2 — Quantity missing or zero for use_quantity items.
-*--------------------------------------------------------------------*.
-DATASET DECLARE IssueCheck.
-DATASET COPY IssueCheck.
-DATASET ACTIVATE IssueCheck.
-
-MATCH FILES FILE=* 
-  /TABLE='data\Commodities_use_quantity.sav'
-  /IN=use_quantity
-  /BY comno.
-
-COMPUTE quantity_issue = 0.
-IF (use_quantity=1 AND (MISSING(unit) OR RTRIM(LTRIM(unit))="" OR quantity=0)) quantity_issue=1.
-EXECUTE.
-
-TITLE "Check 2 — Quantity missing or zero (use_quantity=1)".
-FREQUENCIES VARIABLES=quantity_issue
-  /FORMAT=DFREQ
-  /ORDER=ANALYSIS.
-
-*-- List each comno only once if issue found.
-SELECT IF (quantity_issue=1).
-SORT CASES BY comno.
-MATCH FILES /FILE=* /BY comno /FIRST=firstissue.
-SELECT IF firstissue=1.
-LIST comno quantity_issue.
-
-SAVE OUTFILE=!QUOTE(!CONCAT("temp/commodities_issue_quantity_",!year,"Q",!quarter,".sav")).
-
-DATASET CLOSE IssueCheck.
-DATASET ACTIVATE DataSet1.
 
 !ENDDEFINE.

@@ -109,7 +109,7 @@ DELETE VARIABLES comno_counter l_comno comno_sum .
 
 SELECT IF (outlier_sd = 0).
 EXECUTE.
-TITLE 'Number of cases after removal of outliers for standard deviation'.
+TITLE 'N. cases after removal of outliers for standard deviation'.
 FREQUENCIES flow.
 
 * Add no of transactions after removal.
@@ -168,7 +168,7 @@ SELECT IF (outlier_median_baseyear = 0).
 EXECUTE.
 
 
-TITLE 'Number of cases after removal of outliers for median'.
+TITLE 'N. cases after removal of outliers for median'.
 FREQUENCIES flow.
 
 

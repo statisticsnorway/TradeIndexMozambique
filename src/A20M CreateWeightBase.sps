@@ -16,6 +16,7 @@ DEFINE create_weight_base(year_1=!tokens(1)
                          )
 
 DATASET CLOSE all.
+
 * Read data for previous year.
 GET FILE=!quote(!concat('Data/weight_base_population_',!flow,'_',!year_1,'.sav')).
 
