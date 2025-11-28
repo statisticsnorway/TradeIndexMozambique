@@ -4,7 +4,7 @@ DEFINE read_quarter(flow=!tokens(1)
                    /quarter=!tokens(1)
                    /outlier_sd_limit=!tokens(1)
                    )
-PRESERVE.
+
 SET DECIMAL DOT.
 
 * Read commodities that shall use quantity instead of weight as denominator.
@@ -112,7 +112,6 @@ EXECUTE.
 
 FORMATS weight quantity (F12.0) value valusd (F17.0).
 
-RESTORE.
     
 * --- Set measurement levels ---.
 
@@ -254,7 +253,8 @@ AGGREGATE
   /mean_comno=MEAN(price).
 
 * Mark outlier_sd.
-COMPUTE z_score = (price - mean_comno) / sd_comno.
+IF (sd_comno > 0)  z_score = (price - mean_comno) / sd_comno.
+
 COMPUTE outlier_sd = 0.
 IF (ABS(z_score) > !outlier_sd_limit) outlier_sd = 1.
 EXECUTE.

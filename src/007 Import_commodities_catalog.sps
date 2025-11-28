@@ -44,7 +44,7 @@ ValueLabelFromDataset
 
 GET FILE='temp/commcat.sav'.
 
-DELETE VARIABLES DescriçãoSH8 TO Descriptionsitcr4_3 Descriptionsitcr4_2 Descriptionsitcr4_1 TO becno.
+DELETE VARIABLES DescriçãoSH8 TO Descriptionsitcr4_3 Descriptionsitcr4_2 Descriptionsitcr4_1 TO Newdescription.
 EXECUTE.
 
 SORT CASES BY comno.
@@ -68,7 +68,7 @@ SAVE OUTFILE='data\commodity_sitc.sav'.
 
 * Make label syntax for series for sitc1 and sitc2.
 GET FILE='temp/commcat.sav'.
-DELETE VARIABLES comno TO Descriptionsitcr4_3 sitcr4_1_AGR TO becno.
+DELETE VARIABLES comno TO Descriptionsitcr4_3 sitcr4_1_AGR TO Newdescription.
 EXECUTE.
 
 STRING series (a2) series_labels (A172).

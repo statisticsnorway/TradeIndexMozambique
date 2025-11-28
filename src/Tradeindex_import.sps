@@ -21,7 +21,8 @@ INSERT file='src\T80M Coverage.sps'.
 
 
 * Quarterly first year.
-** Select limits for outliers - standard deviation from mean**.
+* Select limits for outliers - standard deviation from mean.
+* T10M.
 read_quarter flow=Import year=2023 quarter=1 outlier_sd_limit=2.0.
 read_quarter flow=Import year=2023 quarter=2 outlier_sd_limit=2.0.
 read_quarter flow=Import year=2023 quarter=3 outlier_sd_limit=2.0.
@@ -30,14 +31,17 @@ read_quarter flow=Import year=2023 quarter=4 outlier_sd_limit=2.0.
 
 **********************************Year 2023****************************************************
 
-**Yearly (1. quarter) - Selection of HS, Calculation of weights and base price**
-**This program runs all the programs that shall be executed yearly. Most of the other programs are included and executed from here**
+*Yearly (1. quarter) - Selection of HS, Calculation of weights and base price.
+*This program runs all the programs that shall be executed yearly. Most of the other programs are included and executed from here.
 
 * Yearly (2024, base 2023).
+*A10M.
 create_weight_base_population flow=Import year_1=2023.
 
-**Select parameteres for sample selection - What is acceptable price variation for each commodity. Stricter parameter --> less heterogeniety**
-**Check coverage - How much of the population does the sample cover.**.
+* Select parameteres for sample selection and decide what is acceptable price variation for each commodity.
+* Stricter parameter gives less heterogeniety.
+* Check coverages and how much of the population does the sample cover.
+*A20M.
 create_weight_base flow=Import
                    year_1=2023 
                    share_total=0.05
@@ -52,109 +56,129 @@ create_weight_base flow=Import
                    no_of_transactions=10
                    .
 
-** Select limit for extreme price changes - price change from median price in base year**.
-**Check imputation of base prices**.
+* Select limit for extreme price changes - price change from median price in base year.
+* Check imputation of base prices.
+* A30M.
 base_prices flow=Import year=2024 year_1 = 2023
                     outlier_median_year_limit_upper=2.0 
                     outlier_median_year_limit_lower=0.5
                     .
 
-************************ Quarterly (2024)*******************************************************
+********************** Quarterly (2024)*******************************************************
   
 *****1st quarter*************
-** Select limits for outliers - standard deviation from mean**.
+* Select limits for outliers - standard deviation from mean.
+* T10M.
 read_quarter flow=Import year=2024 quarter=1  
                     outlier_sd_limit=2.0
                     .
 
-**'Check the data for extreme prices**
-** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
+* Check the data for extreme prices.
+* Select limit for extreme price changes - price change from bace price (Q4 Y-1).
+*T40M.
 price_control flow=Import year_base=2023 year=2024 quarter=1 
                     outlier_time_limit_upper=2 
                     outlier_time_limit_lower=0.5 
                     .
 
-**Impute missing prices in quarter**.
+* Impute missing prices in quarter.
+*T50M.
 impute_price flow=Import year_base=2023 quarter_1=4 year=2024 quarter=1.
 
-**Calculate unchained index quarter**.
+* Calculate unchained index quarter.
+*T60M.
 indices_unchained flow=Import year_base=2023 year=2024 quarter=1.
 
 
 *****2nd quarter*************.
-** Select limits for outliers - standard deviation from mean**.
+* Select limits for outliers - standard deviation from mean.
+* T10M.
 read_quarter flow=Import year=2024 quarter=2  
                     outlier_sd_limit=2.0
                     .
 
-**'Check the data for extreme prices**
-** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
+* Check the data for extreme prices.
+* Select limit for extreme price changes - price change from bace price (Q4 Y-1).
+*T40M.
 price_control flow=Import year_base=2023 year=2024 quarter=2 
                     outlier_time_limit_upper=2 
                     outlier_time_limit_lower=0.5 
                     .
 
-**Impute missing prices in quarter**.
+* Impute missing prices in quarter.
+*T50M.
 impute_price flow=Import year_base=2023 quarter_1=1 year=2024 quarter=2.
 
-**Calculate unchained index quarter**.
+* Calculate unchained index quarter.
+*T60M.
 indices_unchained flow=Import year_base=2023 year=2024 quarter=2.
 
-*****3th quarter*************.
-** Select limits for outliers - standard deviation from mean**.
+*****3th quarter***********.
+* Select limits for outliers - standard deviation from mean.
+* T10M.
 read_quarter flow=Import year=2024 quarter=3  
                     outlier_sd_limit=2.0
                     .
 
-**'Check the data for extreme prices**
-** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
+* Check the data for extreme prices.
+* Select limit for extreme price changes - price change from bace price (Q4 Y-1).
+*T40M.
 price_control flow=Import year_base=2023 year=2024 quarter=3 
                     outlier_time_limit_upper=2 
                     outlier_time_limit_lower=0.5 
                     .
 
-**Impute missing prices in quarter**.
+* Impute missing prices in quarter.
+*T50M.
 impute_price flow=Import year_base=2023 quarter_1=2 year=2024 quarter=3.
 
-**Calculate unchained index quarter**.
+* Calculate unchained index quarter.
+*T60M.
 indices_unchained flow=Import year_base=2023 year=2024 quarter=3.
 
-*****4th quarter*************.
-** Select limits for outliers - standard deviation from mean**.
+*****4th quarter***********.
+* Select limits for outliers - standard deviation from mean.
+* T10M.
 read_quarter flow=Import year=2024 quarter=4  
                     outlier_sd_limit=2.0
                     .
 
-**'Check the data for extreme prices**
-** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
+* Check the data for extreme prices.
+* Select limit for extreme price changes - price change from bace price (Q4 Y-1).
+*T40M.
 price_control flow=Import year_base=2023 year=2024 quarter=4 
                     outlier_time_limit_upper=2 
                     outlier_time_limit_lower=0.5 
                     .
 
-**Impute missing prices in quarter**.
+* Impute missing prices in quarter.
+*T50M.
 impute_price flow=Import year_base=2023 quarter_1=3 year=2024 quarter=4.
 
-**Calculate unchained index quarter**.
+* Calculate unchained index quarter.
+*T60M.
 indices_unchained flow=Import year_base=2023 year=2024 quarter=4.
 
 
-**Calculate chained index**
-**This will start when all quarters of the first index year have been processed. There is ine syntax for chaining the first year and one for further chaining.**
-**Attention! only change first_index_year, when updating reference year (not the same as base year)**.
+* Calculate chained index.
+* This will start when all quarters of the first index year have been processed. There is one syntax for chaining the first year and one for further chaining.
+* Attention! only change first_index_year, when updating reference year (not the same as base year).
+*T71M.
 chain_first_year flow=Import year=2024.
 
 
-**********************************Year 2025****************************************************
+**********************************Year 2025****************************************************.
 
-**Yearly (1. quarter) - Selection of HS, Calculation of weights and base price**
-**This program runs all the programs that shall be executed yearly. Most of the other programs are included and executed from here**
+* Yearly (1. quarter) - Selection of HS, Calculation of weights and base price.
+* This program runs all the programs that shall be executed yearly. Most of the other programs are included and executed from here.
 
 * Yearly (2025, base 2024).
+*A10M.
 create_weight_base_population flow=Import year_1=2024.
 
-**Select parameteres for sample selection - What is acceptable price variation for each commodity. Stricter parameter --> less heterogeniety**
-**Check coverage - How much of the population does the sample cover.**.
+* Select parameteres for sample selection - What is acceptable price variation for each commodity. Stricter parameter --> less heterogeniety.
+* Check coverages - How much of the population does the sample cover.
+*A20M.
 create_weight_base flow=Import
                    year_1=2024 
                    share_total=0.05
@@ -169,8 +193,9 @@ create_weight_base flow=Import
                    no_of_transactions=10
                    .
 
-** Select limit for extreme price changes - price change from median price in base year**.
-**Check imputation of base prices**.
+* Select limit for extreme price changes - price change from median price in base year.
+* Check imputation of base prices.
+*A30M.
 base_prices flow=Import year=2025 year_1 = 2024
                     outlier_median_year_limit_upper=2.0 
                     outlier_median_year_limit_lower=0.5
@@ -179,88 +204,105 @@ base_prices flow=Import year=2025 year_1 = 2024
 ************************ Quarterly (2025)*******************************************************
   
 *****1st quarter*************
-** Select limits for outliers - standard deviation from mean**.
+* Select limits for outliers - standard deviation from mean.
+* T10M.
 read_quarter flow=Import year=2025 quarter=1  
                     outlier_sd_limit=2.0
                     .
 
-**'Check the data for extreme prices**
-** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
+* Check the data for extreme prices.
+* Select limit for extreme price changes - price change from bace price (Q4 Y-1).
+*T40M.
 price_control flow=Import year_base=2024 year=2025 quarter=1 
                     outlier_time_limit_upper=2 
                     outlier_time_limit_lower=0.5 
                     .
 
-**Impute missing prices in quarter**.
+* Impute missing prices in quarter.
+*T50M.
 impute_price flow=Import year_base=2024 quarter_1=4 year=2025 quarter=1.
 
-**Calculate unchained index quarter**.
+* Calculate unchained index quarter.
+*T60M.
 indices_unchained flow=Import year_base=2024 year=2025 quarter=1.
 
-*****2nd quarter*************.
-** Select limits for outliers - standard deviation from mean**.
+*****2nd quarter***********.
+* Select limits for outliers - standard deviation from mean.
+* T10M.
 read_quarter flow=Import year=2025 quarter=2  
                     outlier_sd_limit=2.0
                     .
 
-**'Check the data for extreme prices**
-** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
+* Check the data for extreme prices.
+* Select limit for extreme price changes - price change from bace price (Q4 Y-1).
+*T40M.
 price_control flow=Import year_base=2024 year=2025 quarter=2 
                     outlier_time_limit_upper=2 
                     outlier_time_limit_lower=0.5 
                     .
 
-**Impute missing prices in quarter**.
+* Impute missing prices in quarter.
+*T50M.
 impute_price flow=Import year_base=2024 quarter_1=1 year=2025 quarter=2.
 
-**Calculate unchained index quarter**.
+* Calculate unchained index quarter.
+*T60M.
 indices_unchained flow=Import year_base=2024 year=2025 quarter=2.
 
-*****3th quarter*************.
-** Select limits for outliers - standard deviation from mean**.
+*****3th quarter***********.
+* Select limits for outliers - standard deviation from mean.
+* T10M.
 read_quarter flow=Import year=2025 quarter=3  
                     outlier_sd_limit=2.0
                     .
 
-**'Check the data for extreme prices**
-** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
+* Check the data for extreme prices.
+* Select limit for extreme price changes - price change from bace price (Q4 Y-1).
 price_control flow=Import year_base=2024 year=2025 quarter=3 
                     outlier_time_limit_upper=2 
                     outlier_time_limit_lower=0.5 
                     .
 
-**Impute missing prices in quarter**.
+* Impute missing prices in quarter.
+*T50M.
 impute_price flow=Import year_base=2024 quarter_1=2 year=2025 quarter=3.
 
-**Calculate unchained index quarter**.
+* Calculate unchained index quarter.
+*T60M.
 indices_unchained flow=Import year_base=2024 year=2025 quarter=3.
 
-*****4th quarter*************.
-** Select limits for outliers - standard deviation from mean**.
+*****4th quarter***********.
+* Select limits for outliers - standard deviation from mean.
+* T10M.
 read_quarter flow=Import year=2025 quarter=4  
                     outlier_sd_limit=2.0
                     .
 
-**'Check the data for extreme prices**
-** Select limit for extreme price changes - price change from bace price (Q4 Y-1)**.
+* Check the data for extreme prices.
+* Select limit for extreme price changes - price change from bace price (Q4 Y-1).
+*T40M.
 price_control flow=Import year_base=2024 year=2025 quarter=4 
                     outlier_time_limit_upper=2 
                     outlier_time_limit_lower=0.5 
                     .
 
-**Impute missing prices in quarter**.
+* Impute missing prices in quarter.
+*T50M.
 impute_price flow=Import year_base=2024 quarter_1=3 year=2025 quarter=4.
 
-**Calculate unchained index quarter**.
+* Calculate unchained index quarter.
+*T60M.
 indices_unchained flow=Import year_base=2024 year=2025 quarter=4.
 
 
-
+* Calculate chained index.
+*T72M.
 chain_year flow=Import year_base=2024 year=2025 .
 
 
 
-
+* Look at coverages.
+*T80M.
 coverage flow=Import first_year=2023 last_year=2024 level=sitc1. 
 coverage flow=Import first_year=2023 last_year=2024 level=sitc2. 
 coverage flow=Import first_year=2023 last_year=2024 level=section. 
