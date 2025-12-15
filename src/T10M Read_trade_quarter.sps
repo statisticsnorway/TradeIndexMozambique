@@ -128,7 +128,7 @@ EXECUTE.
 
 
 
-* Match with commodities that will use external source (=1)
+* Match with commodities that will use external source (=1).
 SORT CASES BY comno.
 MATCH FILES FILE=*
   /TABLE=!quote(!concat("data/Use_external_source_",!flow,".sav"))
