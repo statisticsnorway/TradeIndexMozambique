@@ -210,6 +210,7 @@ FREQUENCIES VARIABLES=comno.
 
 *CLEAN DATA - REMOVE OBVIOUS ERRORS.
 
+SORT CASES BY comno.
 * Match with commodities that will use quantity as unit value.
 MATCH FILES FILE=*
   /TABLE='data\Commodities_use_quantity.sav'
