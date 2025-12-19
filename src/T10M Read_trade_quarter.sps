@@ -72,11 +72,11 @@ MATCH FILES FILE=*
  /BY comno.
 EXECUTE.
 
-TITLE "N. rows removed from customs data, use ext. source (=1)".
+TITLE "N. rows customs data kept - use ext. source (=1)".
 
 FREQUENCIES use_external.
 
-* Keep cases where use_external is NOT 1.
+* Keep Customs data where use_external is NOT 1.
 SELECT IF use_external = 0 OR MISSING(use_external).
 EXECUTE.
 
@@ -142,7 +142,7 @@ ADD FILES FILE=*
 .
 EXECUTE.
 
-TITLE "Number of rows with external source (=1)".
+TITLE "N. rows from external source (=1)".
 FREQUENCIES use_external.
 
 
@@ -194,7 +194,7 @@ EXECUTE.
 
 
 
-TITLE "Comno with external source In customs data".
+TITLE "Comno with external source FROM customs data".
 * --- Show frequency of comno containing 'x'.
 TEMPORARY.
 SELECT IF CHAR.INDEX(LOWER(comno),'x') > 0 AND use_external = 0.
